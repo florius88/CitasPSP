@@ -121,7 +121,13 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void lbl_registroMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_registroMouseClicked
-        // TODO Ventana Registro
+        //Ocultamos la ventana actual
+        this.setVisible(false);
+
+        //Inicializamos la ventana de registro y la mostramos
+        Registro registro = new Registro();
+        registro.setLocationRelativeTo(null);
+        registro.setVisible(true);
     }//GEN-LAST:event_lbl_registroMouseClicked
 
     private void btn_entrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_entrarActionPerformed
