@@ -1,10 +1,13 @@
 package registro;
 
+import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
+import preferencias.Preferencias;
+import utilidades.Constantes;
 import utilidades.Utilidades;
 
 /**
@@ -19,13 +22,18 @@ public class Login extends javax.swing.JFrame {
     public Login() {
         initComponents();
 
+        //TODO Datos para pruebas ------------------------------------------------------
+        txt_email.setText("prueba@ver.es");
+        txt_pwd.setText("1234");
+        //TODO Datos para pruebas ------------------------------------------------------
+
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 // Se pide una confirmación antes de finalizar el programa
                 int option;
                 option = JOptionPane.showConfirmDialog(
-                        null,
+                        (Component) e.getSource(),
                         "¿Estás seguro de que quieres cerrar la aplicación?",
                         "Salir",
                         JOptionPane.YES_NO_OPTION,
@@ -40,7 +48,7 @@ public class Login extends javax.swing.JFrame {
     @Override
     public Image getIconImage() {
         Image retValue = Toolkit.getDefaultToolkit().
-                getImage(ClassLoader.getSystemResource("recursos/ico.png"));
+                getImage(ClassLoader.getSystemResource(Constantes.ICO_APP));
 
         return retValue;
     }
@@ -74,25 +82,25 @@ public class Login extends javax.swing.JFrame {
         lbl_titulo.setText("Mutantes e Inhumanos y viceversa");
         getContentPane().add(lbl_titulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 20, -1, -1));
 
-        lbl_email.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
+        lbl_email.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_email.setForeground(new java.awt.Color(255, 255, 255));
         lbl_email.setText("Email:");
-        getContentPane().add(lbl_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 100, 80, -1));
+        getContentPane().add(lbl_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 100, 60, -1));
         lbl_email.getAccessibleContext().setAccessibleDescription("");
 
-        txt_email.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
-        getContentPane().add(txt_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 100, 230, -1));
+        txt_email.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        getContentPane().add(txt_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 100, 250, -1));
 
-        lbl_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
+        lbl_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_pwd.setForeground(new java.awt.Color(255, 255, 255));
         lbl_pwd.setText("Contraseña:");
-        getContentPane().add(lbl_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 150, -1, -1));
+        getContentPane().add(lbl_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 150, -1, -1));
 
-        txt_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
-        getContentPane().add(txt_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 150, 230, -1));
+        txt_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        getContentPane().add(txt_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 150, 250, -1));
 
         btn_entrar.setBackground(new java.awt.Color(249, 246, 246));
-        btn_entrar.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
+        btn_entrar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_entrar.setText("Entrar");
         btn_entrar.setToolTipText("Entrar");
         btn_entrar.addActionListener(new java.awt.event.ActionListener() {
@@ -114,7 +122,7 @@ public class Login extends javax.swing.JFrame {
         });
         getContentPane().add(lbl_registro, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 270, -1, -1));
 
-        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_login.jpg"))); // NOI18N
+        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_login_1.jpg"))); // NOI18N
         getContentPane().add(lbl_fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, -20, -1, -1));
 
         pack();
@@ -134,10 +142,16 @@ public class Login extends javax.swing.JFrame {
 
         if (validarInformacion()) {
             //TODO Validamos en la BD que el usuario exista para entrar
-            
-        }
-    }//GEN-LAST:event_btn_entrarActionPerformed
+            //Ocultamos la ventana actual
+            this.setVisible(false);
 
+            //Inicializamos la ventana de registro y la mostramos
+            Preferencias preferencias = new Preferencias();
+            preferencias.setLocationRelativeTo(null);
+            preferencias.setVisible(true);
+        }
+
+    }//GEN-LAST:event_btn_entrarActionPerformed
     /**
      * Valida la informacion antes de comprobarla en la BD
      *
@@ -153,11 +167,13 @@ public class Login extends javax.swing.JFrame {
         if (email.isEmpty() || !Utilidades.validarEmail(email)) {
             JOptionPane.showMessageDialog(this, "El email no tiene el formato correcto.", "Login", JOptionPane.ERROR_MESSAGE);
             correcto = false;
-        } 
+        }
+
         if (correcto && 4 > pwd.length) {
             JOptionPane.showMessageDialog(this, "Las contraseñas no tiene la longitud correcta.", "Login", JOptionPane.ERROR_MESSAGE);
             correcto = false;
-        } 
+        }
+
         return correcto;
     }
 

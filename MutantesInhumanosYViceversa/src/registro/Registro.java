@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
+import utilidades.Constantes;
 import utilidades.Utilidades;
 
 /**
@@ -12,7 +13,7 @@ import utilidades.Utilidades;
  * @author Flor
  */
 public class Registro extends javax.swing.JFrame {
-    
+
     /**
      * Creates new form registro
      */
@@ -33,7 +34,7 @@ public class Registro extends javax.swing.JFrame {
     @Override
     public Image getIconImage() {
         Image retValue = Toolkit.getDefaultToolkit().
-                getImage(ClassLoader.getSystemResource("recursos/ico.png"));
+                getImage(ClassLoader.getSystemResource(Constantes.ICO_APP));
 
         return retValue;
     }
@@ -76,40 +77,40 @@ public class Registro extends javax.swing.JFrame {
         lbl_subtitulo.setText("Comienza a buscar pareja");
         getContentPane().add(lbl_subtitulo, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 60, -1, -1));
 
-        lbl_nombre.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
+        lbl_nombre.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_nombre.setForeground(new java.awt.Color(255, 255, 255));
         lbl_nombre.setText("Nick:");
-        getContentPane().add(lbl_nombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 130, -1, -1));
+        getContentPane().add(lbl_nombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 130, -1, -1));
 
-        txt_nombre.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
-        getContentPane().add(txt_nombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 130, 230, -1));
+        txt_nombre.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        getContentPane().add(txt_nombre, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 130, 250, -1));
 
-        lbl_email.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
+        lbl_email.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_email.setForeground(new java.awt.Color(255, 255, 255));
         lbl_email.setText("Email:");
-        getContentPane().add(lbl_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 170, -1, -1));
+        getContentPane().add(lbl_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 170, -1, -1));
 
-        txt_email.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
-        getContentPane().add(txt_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 170, 230, -1));
+        txt_email.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        getContentPane().add(txt_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 170, 250, -1));
 
-        lbl_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
+        lbl_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_pwd.setForeground(new java.awt.Color(255, 255, 255));
         lbl_pwd.setText("Contraseña:*");
-        getContentPane().add(lbl_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 210, -1, -1));
+        getContentPane().add(lbl_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 210, -1, -1));
 
-        txt_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
-        getContentPane().add(txt_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 210, 230, -1));
+        txt_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        getContentPane().add(txt_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 210, 250, -1));
 
-        lbl_confirm_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
+        lbl_confirm_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_confirm_pwd.setForeground(new java.awt.Color(255, 255, 255));
         lbl_confirm_pwd.setText("Confirmar contraseña:*");
         getContentPane().add(lbl_confirm_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 250, -1, -1));
 
-        txt_confirm_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 24)); // NOI18N
-        getContentPane().add(txt_confirm_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 250, 230, -1));
+        txt_confirm_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        getContentPane().add(txt_confirm_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 250, 250, -1));
 
         jButton1.setBackground(new java.awt.Color(249, 246, 246));
-        jButton1.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
+        jButton1.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         jButton1.setText("Guardar");
         jButton1.setToolTipText("Guardar");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -122,16 +123,16 @@ public class Registro extends javax.swing.JFrame {
         lbl_nota.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
         lbl_nota.setForeground(new java.awt.Color(255, 255, 255));
         lbl_nota.setText("*Como mínimo la contraseña debe ser de 4 cifras.");
-        getContentPane().add(lbl_nota, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 290, -1, -1));
+        getContentPane().add(lbl_nota, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 290, -1, -1));
 
-        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_registro.jpg"))); // NOI18N
+        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_registro_1.jpg"))); // NOI18N
         getContentPane().add(lbl_fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-90, 0, 720, 440));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-
+       
         if (validarInformacion()) {
             //TODO Insertamos en la BD el registro, comprobando que no exista el usuario
             //usuario
@@ -178,7 +179,7 @@ public class Registro extends javax.swing.JFrame {
 
         return correcto;
     }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel lbl_confirm_pwd;
