@@ -1,11 +1,15 @@
 package principal;
 
+import amigos.PanelAmigos;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
+import mensajes.PanelMensajes;
 import registro.Login;
 import utilidades.Constantes;
 
@@ -13,9 +17,12 @@ import utilidades.Constantes;
  *
  * @author Flor
  */
-public class Principal extends javax.swing.JFrame {
+public class Principal extends javax.swing.JFrame implements ActionListener {
 
+    private PanelBuscar pBuscar = null;
+    private PanelAmigos pAmigos = null;
     private PanelPerfil pPerfil = null;
+    private PanelMensajes pMensajes = null;
 
     /**
      * Creates new form Principal
@@ -254,8 +261,22 @@ public class Principal extends javax.swing.JFrame {
         //Ocultamos el panel contenedor
         jp_panel_contenedor.setVisible(false);
 
+        //Inicializamos los paneles, los ocultamos y preparamos los eventos 
+        //para las opciones de menu de cada uno de ellos
+        pBuscar = new PanelBuscar(this);
+        pBuscar.setVisible(false);
+        mi_buscar.addActionListener(this);
+        pAmigos = new PanelAmigos(this);
+        pAmigos.setVisible(false);
+        mi_amigos.addActionListener(this);
+
+        pMensajes = new PanelMensajes(this);
+        pMensajes.setVisible(false);
+        mi_mensajes.addActionListener(this);
+
         pPerfil = new PanelPerfil();
         pPerfil.setVisible(false);
+        mi_perfil.addActionListener(this);
     }
 
     private void m_cerrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_m_cerrarMouseClicked
@@ -280,15 +301,18 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_m_cerrarMouseClicked
 
     private void btn_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_buscarActionPerformed
-        //TODO Mostramos el panel para la busqueda
+        //Mostramos el panel para la busqueda
+        mostrarPanelBusqueda();
     }//GEN-LAST:event_btn_buscarActionPerformed
 
     private void btn_amigosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_amigosActionPerformed
-        //TODO Mostramos el panel para los amigos
+        //Mostramos el panel para los amigos
+        mostrarPanelAmigos();
     }//GEN-LAST:event_btn_amigosActionPerformed
 
     private void btn_mensajesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_mensajesActionPerformed
-        //TODO Mostramos el panel para los mensajes
+        //Mostramos el panel para los mensajes
+        mostrarPanelMensajes();
     }//GEN-LAST:event_btn_mensajesActionPerformed
 
     private void btn_perfilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_perfilActionPerformed
@@ -297,16 +321,111 @@ public class Principal extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_perfilActionPerformed
 
     /**
+     * Metodo que implementa las acciones de cada ítem del menu
+     *
+     * @param e
+     */
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == mi_buscar) {
+            //Mostramos el panel para la busqueda
+            mostrarPanelBusqueda();
+        }
+        if (e.getSource() == mi_amigos) {
+            //Mostramos el panel para los amigos
+            mostrarPanelAmigos();
+        }
+        if (e.getSource() == mi_mensajes) {
+            //Mostramos el panel para los mensajes
+            mostrarPanelMensajes();
+        }
+        if (e.getSource() == mi_perfil) {
+            //Mostramos el panel para el perfil
+            mostrarPanelPerfil();
+        }
+    }
+
+    /**
+     * Mostramos el panel para la busqueda
+     */
+    public void mostrarPanelBusqueda() {
+
+        jp_panel_contenedor.add(pBuscar);
+        ocultarMostrarPanel(1);
+        jp_panel_contenedor.validate();
+    }
+
+    /**
+     * Mostramos el panel para los amigos
+     */
+    public void mostrarPanelAmigos() {
+
+        jp_panel_contenedor.add(pAmigos);
+        ocultarMostrarPanel(2);
+        jp_panel_contenedor.validate();
+    }
+
+    /**
+     * Mostramos el panel para los mensajes
+     */
+    public void mostrarPanelMensajes() {
+
+        jp_panel_contenedor.add(pMensajes);
+        ocultarMostrarPanel(3);
+        jp_panel_contenedor.validate();
+    }
+
+    /**
      * Mostramos el panel para el perfil
      */
     private void mostrarPanelPerfil() {
 
         jp_panel_contenedor.add(pPerfil);
-        pPerfil.setVisible(true);
+        ocultarMostrarPanel(4);
         jp_panel_contenedor.validate();
-        jp_panel_contenedor.setVisible(true);
     }
 
+    /**
+     * Metodo que oculta o muestra los paneles segun el que se pase
+     *
+     * @param panel
+     */
+    private void ocultarMostrarPanel(int panel) {
+
+        switch (panel) {
+
+            case 1:
+                pBuscar.setVisible(true);
+                pAmigos.setVisible(false);
+                pMensajes.setVisible(false);
+                pPerfil.setVisible(false);
+
+                break;
+            case 2:
+                pBuscar.setVisible(false);
+                pAmigos.setVisible(true);
+                pMensajes.setVisible(false);
+                pPerfil.setVisible(false);
+
+                break;
+            case 3:
+                pBuscar.setVisible(false);
+                pAmigos.setVisible(false);
+                pMensajes.setVisible(true);
+                pPerfil.setVisible(false);
+
+                break;
+            case 4:
+                pBuscar.setVisible(false);
+                pAmigos.setVisible(false);
+                pMensajes.setVisible(false);
+                pPerfil.setVisible(true);
+
+                break;
+        }
+
+        jp_panel_contenedor.setVisible(true);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_amigos;
