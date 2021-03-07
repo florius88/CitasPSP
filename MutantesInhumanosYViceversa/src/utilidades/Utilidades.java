@@ -41,9 +41,7 @@ public class Utilidades {
     public static boolean validarPwd(char[] pwd, char[] confirmPwd) {
         boolean correcto = true;
         int puntero = 0;
-        if (4 > pwd.length || 4 > confirmPwd.length) {
-            correcto = false;
-        } else if (pwd.length != confirmPwd.length) {
+        if (pwd.length != confirmPwd.length) {
             correcto = false;
         } else {
             while ((correcto) && (puntero < pwd.length)) {

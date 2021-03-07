@@ -112,6 +112,7 @@
           <Font name="Book Antiqua" size="20" style="1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Enviar"/>
+        <Property name="toolTipText" type="java.lang.String" value="Enviar el mensaje"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_enviarActionPerformed"/>
@@ -126,6 +127,7 @@
           <Font name="Book Antiqua" size="20" style="1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Volver"/>
+        <Property name="toolTipText" type="java.lang.String" value="Volver"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_volverActionPerformed"/>
@@ -198,6 +200,7 @@
           <Font name="Book Antiqua" size="20" style="1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Adjuntar"/>
+        <Property name="toolTipText" type="java.lang.String" value="Adjuntar imagen"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_adjuntarActionPerformed"/>
@@ -212,6 +215,7 @@
           <Font name="Book Antiqua" size="20" style="1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Eliminar"/>
+        <Property name="toolTipText" type="java.lang.String" value="Eliminar imagen"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_eliminarActionPerformed"/>

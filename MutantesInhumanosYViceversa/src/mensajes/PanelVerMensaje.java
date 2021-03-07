@@ -1,6 +1,20 @@
 package mensajes;
 
+import java.awt.Component;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import principal.Principal;
+import utilidades.Constantes;
 
 /**
  *
@@ -11,7 +25,9 @@ public class PanelVerMensaje extends javax.swing.JPanel {
     private Principal principal = null;
 
     /**
-     * Creates new form PanelVerMensaje
+     * Constructor
+     *
+     * @param principal
      */
     public PanelVerMensaje(Principal principal) {
         initComponents();
@@ -38,20 +54,124 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         java.awt.Font fuente = new java.awt.Font("Book Antiqua", 1, 20);
         jt_tabla_adjuntos.getTableHeader().setFont(fuente);
 
+        //Cambiamos el renderizador de las siguientes celdas para incluir imagenes
+        jt_tabla_adjuntos.getColumnModel().getColumn(1).setCellRenderer(new CellRenderer());
+
+        //Captura el evento de doble click para ver el mensaje
         jt_tabla_adjuntos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    System.out.println("Se ha hecho doble click: " + jt_tabla_adjuntos.getSelectedRow());
-
-                    // TODO
+                    verDocumentoAdjunto();
                 }
+            }
+        });
+
+        //Captura el evento del intro en el teclado para ver el mensaje
+        jt_tabla_adjuntos.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    verDocumentoAdjunto();
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
             }
         });
     }
 
+    /**
+     * Abre el dialogo con la imagen adjunta
+     */
+    private void verDocumentoAdjunto() {
+        //Obtiene el nombre del documento para mostrar en el dialogo
+        String txtAdj = (String) jt_tabla_adjuntos.getModel().getValueAt(jt_tabla_adjuntos.getSelectedRow(), 0);
+
+        //TODO
+        Image retValue = Toolkit.getDefaultToolkit().
+                getImage(ClassLoader.getSystemResource(Constantes.ICO_APP));
+
+        ImageIcon icon = new ImageIcon(retValue);
+
+        //Muestra el dialogo
+        DialogAdjunto dialog = new DialogAdjunto(principal, true, icon);
+        dialog.setTitle(txtAdj);
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }
+
+    /**
+     * Metodo para renderizar la celda en la que queremos mostrar una imagen
+     */
+    private class CellRenderer implements TableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+            TableColumn tb1 = jt_tabla_adjuntos.getColumnModel().getColumn(1);
+            tb1.setMaxWidth(70);
+            tb1.setMinWidth(70);
+
+            jt_tabla_adjuntos.setRowHeight(60);
+
+            if (value instanceof JLabel) {
+                JLabel label = (JLabel) value;
+
+                //para hacer visible la etiqueta en primer plano y fondo
+                label.setOpaque(true);
+                fillColor(table, label, isSelected);
+                return label;
+            }
+
+            return (Component) value;
+        }
+
+        public void fillColor(JTable t, JLabel l, boolean isSelected) {
+            //Establecer el fondo y el primer plano cuando se selecciona JLabel
+            if (isSelected) {
+                l.setBackground(t.getSelectionBackground());
+                l.setForeground(t.getSelectionForeground());
+            } else {
+                l.setBackground(t.getBackground());
+                l.setForeground(t.getForeground());
+            }
+        }
+    }
+
+    /**
+     * Carga la informacion en el panel
+     *
+     * @param msj
+     */
     private void cargarDatos() {
 
-        // TODO
+        String nick = "NickEmisor";
+        String fecha = new SimpleDateFormat("dd-MM-yyyy HH:mm").format(new Date());
+        String mensaje = "bla bla";
+
+        lbl_txt_nick.setText(nick);
+        lbl_txt_fecha.setText(fecha);
+
+        jta_mensaje.setText(mensaje);
+        //Coloca el scroll arriba del todo
+        jta_mensaje.setCaretPosition(0);
+
+        DefaultTableModel model = (DefaultTableModel) jt_tabla_adjuntos.getModel();
+
+        ImageIcon iconAdj = new ImageIcon(getClass().getResource(Constantes.ICO_ADJUNTOS));
+        JLabel lIcono = new JLabel(iconAdj);
+        //Muestra un ToolTip en cada imagen de la tabla
+        lIcono.setToolTipText("Doble click o Intro para ver el documento");
+
+        model.addRow(new Object[]{"Imagen adjunta nº: " + 1, lIcono});
+
+        jt_tabla_adjuntos.setModel(model);
     }
 
     /**
@@ -80,6 +200,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         btn_volver.setBackground(new java.awt.Color(249, 246, 246));
         btn_volver.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_volver.setText("Volver");
+        btn_volver.setToolTipText("Volver");
         btn_volver.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_volverActionPerformed(evt);
@@ -89,6 +210,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         btn_responder.setBackground(new java.awt.Color(249, 246, 246));
         btn_responder.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_responder.setText("Responder");
+        btn_responder.setToolTipText("Responder mensaje");
         btn_responder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_responderActionPerformed(evt);
@@ -102,7 +224,6 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         lbl_txt_nick.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_txt_nick.setForeground(new java.awt.Color(255, 255, 255));
         lbl_txt_nick.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        lbl_txt_nick.setText("jLabel1");
 
         lbl_fecha.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_fecha.setForeground(new java.awt.Color(255, 255, 255));
@@ -110,7 +231,6 @@ public class PanelVerMensaje extends javax.swing.JPanel {
 
         lbl_txt_fecha.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_txt_fecha.setForeground(new java.awt.Color(255, 255, 255));
-        lbl_txt_fecha.setText("dd-MM-yyyy HH:mm");
 
         jta_mensaje.setEditable(false);
         jta_mensaje.setBackground(new java.awt.Color(232, 195, 158));

@@ -58,7 +58,7 @@ public class Registro extends javax.swing.JFrame {
         txt_pwd = new javax.swing.JPasswordField();
         lbl_confirm_pwd = new javax.swing.JLabel();
         txt_confirm_pwd = new javax.swing.JPasswordField();
-        jButton1 = new javax.swing.JButton();
+        btn_guardar = new javax.swing.JButton();
         lbl_nota = new javax.swing.JLabel();
         lbl_fondo = new javax.swing.JLabel();
 
@@ -109,16 +109,16 @@ public class Registro extends javax.swing.JFrame {
         txt_confirm_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         getContentPane().add(txt_confirm_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(300, 250, 250, -1));
 
-        jButton1.setBackground(new java.awt.Color(249, 246, 246));
-        jButton1.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        jButton1.setText("Guardar");
-        jButton1.setToolTipText("Guardar");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btn_guardar.setBackground(new java.awt.Color(249, 246, 246));
+        btn_guardar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        btn_guardar.setText("Guardar");
+        btn_guardar.setToolTipText("Guardar");
+        btn_guardar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btn_guardarActionPerformed(evt);
             }
         });
-        getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 350, 340, -1));
+        getContentPane().add(btn_guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 350, 340, -1));
 
         lbl_nota.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
         lbl_nota.setForeground(new java.awt.Color(255, 255, 255));
@@ -131,7 +131,7 @@ public class Registro extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
        
         if (validarInformacion()) {
             //TODO Insertamos en la BD el registro, comprobando que no exista el usuario
@@ -181,7 +181,7 @@ public class Registro extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton btn_guardar;
     private javax.swing.JLabel lbl_confirm_pwd;
     private javax.swing.JLabel lbl_email;
     private javax.swing.JLabel lbl_fondo;

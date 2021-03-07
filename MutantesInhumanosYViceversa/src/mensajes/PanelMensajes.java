@@ -1,7 +1,16 @@
 package mensajes;
 
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import principal.Principal;
 
 /**
@@ -12,8 +21,13 @@ public class PanelMensajes extends javax.swing.JPanel {
 
     private Principal principal = null;
 
+    private final String COL_LEIDO = "Leido";
+    private final String MSJ_NO_LEIDO = "NO";
+
     /**
-     * Creates new form PanelMensajes
+     * Constructor
+     *
+     * @param principal
      */
     public PanelMensajes(Principal principal) {
         initComponents();
@@ -22,9 +36,6 @@ public class PanelMensajes extends javax.swing.JPanel {
 
         //Cambiamos preferencias de la tabla
         initTabla();
-
-        //Cargamos la informacion
-        cargarDatos();
     }
 
     /**
@@ -40,13 +51,129 @@ public class PanelMensajes extends javax.swing.JPanel {
         java.awt.Font fuente = new java.awt.Font("Book Antiqua", 1, 20);
         jt_tabla.getTableHeader().setFont(fuente);
 
+        //Cambiamos el renderizador de las siguientes celdas para incluir imagenes
+        jt_tabla.getColumn(COL_LEIDO).setCellRenderer(new CellRenderer());
+        jt_tabla.getColumnModel().getColumn(3).setCellRenderer(new CellRenderer());
+
+        //Se asigna un nuevo renderizador para poder cambiar de color las filas
+        ColorearFilas colorear = new ColorearFilas();
+        jt_tabla.setDefaultRenderer(Object.class, colorear);
+
+        //Captura el evento de doble click para ver el mensaje
         jt_tabla.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    System.out.println("Se ha hecho doble click: " + jt_tabla.getSelectedRow());
+                    verDetalleMensaje();
                 }
             }
         });
+
+        //Captura el evento del intro en el teclado para ver el mensaje
+        jt_tabla.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    verDetalleMensaje();
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
+    }
+
+    /**
+     * Recoge la informacion y redirige al panel del detalle
+     */
+    private void verDetalleMensaje() {
+        //Redirige al panel para ver el mensaje
+        principal.mostrarPanelVerMensaje();
+    }
+
+    /**
+     * Se encarga de cambiar de color del resto de celdas en el caso de no estar
+     * leido
+     */
+    private class ColorearFilas extends DefaultTableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean Selected, boolean hasFocus, int row, int col) {
+
+            super.getTableCellRendererComponent(table, value, Selected, hasFocus, row, col);
+
+            if (table.getValueAt(row, 0) instanceof JLabel) {
+                JLabel label = (JLabel) table.getValueAt(row, 0);
+
+                if (Selected) {
+                    setBackground(table.getSelectionBackground());
+                    setForeground(table.getSelectionForeground());
+                } else {
+                    //En caso de no estar leido, le cambia el color
+                    if (null != label.getName() && label.getName().equals(MSJ_NO_LEIDO)) {
+                        setBackground(new Color(186, 124, 69));
+                        setForeground(table.getForeground());
+                    } else {
+                        setBackground(table.getBackground());
+                        setForeground(table.getForeground());
+                    }
+                }
+            }
+
+            return this;
+        }
+    }
+
+    /**
+     * Metodo para renderizar la celda en la que queremos mostrar una imagen
+     */
+    private class CellRenderer implements TableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+            TableColumn tb1 = jt_tabla.getColumn(COL_LEIDO);
+            tb1.setMaxWidth(70);
+            tb1.setMinWidth(70);
+
+            TableColumn tb2 = jt_tabla.getColumnModel().getColumn(3);
+            tb2.setMaxWidth(70);
+            tb2.setMinWidth(70);
+
+            jt_tabla.setRowHeight(60);
+
+            if (value instanceof JLabel) {
+                JLabel label = (JLabel) value;
+
+                //para hacer visible la etiqueta en primer plano y fondo
+                label.setOpaque(true);
+                fillColor(table, label, isSelected);
+                return label;
+            }
+
+            return (Component) value;
+        }
+
+        public void fillColor(JTable t, JLabel l, boolean isSelected) {
+            //Establecer el fondo y el primer plano cuando se selecciona JLabel
+            if (isSelected) {
+                l.setBackground(t.getSelectionBackground());
+                l.setForeground(t.getSelectionForeground());
+            } else {
+                //En caso de no estar leido, le cambia el color
+                if (null != l.getName() && l.getName().equals(MSJ_NO_LEIDO)) {
+                    l.setBackground(new Color(186, 124, 69));
+                } else {
+                    l.setBackground(t.getBackground());
+                    l.setForeground(t.getForeground());
+                }
+            }
+        }
     }
 
     /**
@@ -106,14 +233,15 @@ public class PanelMensajes extends javax.swing.JPanel {
         jt_tabla.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(jt_tabla);
         if (jt_tabla.getColumnModel().getColumnCount() > 0) {
-            jt_tabla.getColumnModel().getColumn(2).setMinWidth(155);
+            jt_tabla.getColumnModel().getColumn(2).setResizable(false);
             jt_tabla.getColumnModel().getColumn(2).setPreferredWidth(155);
-            jt_tabla.getColumnModel().getColumn(2).setMaxWidth(155);
+            jt_tabla.getColumnModel().getColumn(3).setResizable(false);
         }
 
         btn_eliminar.setBackground(new java.awt.Color(249, 246, 246));
         btn_eliminar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_eliminar.setText("Eliminar");
+        btn_eliminar.setToolTipText("Eliminar mensaje");
         btn_eliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_eliminarActionPerformed(evt);
@@ -148,6 +276,7 @@ public class PanelMensajes extends javax.swing.JPanel {
 
         int posMensaje = jt_tabla.getSelectedRow();
 
+        //Se valida que tenga seleccionado un mensaje
         if (posMensaje < 0) {
             JOptionPane.showMessageDialog(this, "Debe seleccionar un mensaje de la tabla.");
         } else {
@@ -173,8 +302,22 @@ public class PanelMensajes extends javax.swing.JPanel {
      * Cargamos la informacion en la tabla
      *
      */
-    private void cargarDatos() {
+    public void cargarDatos() {
         // TODO
+    }
+
+    /**
+     * Limpia la tabla de todos los registros
+     */
+    public void limpiarTabla() {
+        try {
+            DefaultTableModel modelo = (DefaultTableModel) jt_tabla.getModel();
+            int filas = jt_tabla.getRowCount();
+            for (int i = 0; filas > i; i++) {
+                modelo.removeRow(0);
+            }
+        } catch (Exception e) {
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

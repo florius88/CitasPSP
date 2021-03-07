@@ -1,5 +1,13 @@
 package amigos;
 
+import java.awt.Component;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import principal.Principal;
 
 /**
@@ -11,7 +19,9 @@ public class PanelAmigos extends javax.swing.JPanel {
     private Principal principal = null;
 
     /**
-     * Creates new form PanelAmigos
+     * Constructor
+     *
+     * @param principal
      */
     public PanelAmigos(Principal principal) {
         initComponents();
@@ -20,9 +30,6 @@ public class PanelAmigos extends javax.swing.JPanel {
 
         //Cambiamos preferencias de la tabla
         initTabla();
-
-        //Cargamos la informacion
-        cargarDatos();
     }
 
     /**
@@ -38,23 +45,107 @@ public class PanelAmigos extends javax.swing.JPanel {
         java.awt.Font fuente = new java.awt.Font("Book Antiqua", 1, 20);
         jt_tabla_amigos.getTableHeader().setFont(fuente);
 
+        //Cambiamos el renderizador de las siguientes celdas para incluir imagenes
+        jt_tabla_amigos.getColumn("Concectado").setCellRenderer(new CellRenderer());
+
+        //Captura el evento de doble click para ver el mensaje
         jt_tabla_amigos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    System.out.println("Se ha hecho doble click: " + jt_tabla_amigos.getSelectedRow());
-
-                    // TODO
+                    verAmigo();
                 }
+            }
+        });
+
+        //Captura el evento del intro en el teclado para ver el mensaje
+        jt_tabla_amigos.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    verAmigo();
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
             }
         });
     }
 
     /**
-     * Cargamos la informacion en la tabla
-     *
+     * Recoge la informacion y redirige al panel del detalle
      */
-    private void cargarDatos() {
+    private void verAmigo() {
+        //Mostramos el panel del detalle del usuario
+        principal.mostrarPanelVerAmigo();
+    }
+
+    /**
+     * Metodo para renderizar la celda en la que queremos mostrar una imagen
+     */
+    private class CellRenderer implements TableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+            TableColumn tb1 = jt_tabla_amigos.getColumn("Concectado");
+            tb1.setMaxWidth(120);
+            tb1.setMinWidth(120);
+
+            jt_tabla_amigos.setRowHeight(60);
+
+            if (value instanceof JLabel) {
+                JLabel label = (JLabel) value;
+
+                //para hacer visible la etiqueta en primer plano y fondo
+                label.setOpaque(true);
+                fillColor(table, label, isSelected);
+                return label;
+            }
+
+            return (Component) value;
+        }
+
+        public void fillColor(JTable t, JLabel l, boolean isSelected) {
+            //Establecer el fondo y el primer plano cuando se selecciona JLabel
+            if (isSelected) {
+                l.setBackground(t.getSelectionBackground());
+                l.setForeground(t.getSelectionForeground());
+            } else {
+                l.setBackground(t.getBackground());
+                l.setForeground(t.getForeground());
+            }
+        }
+    }
+
+    /**
+     * Cargamos la informacion en la tabla
+     */
+    public void cargarDatos() {
         // TODO
+        limpiarTabla();
+
+        jp_contenedor.setVisible(false);
+        lbl_no_amigos.setVisible(true);
+    }
+
+    /**
+     * Limpia la tabla de todos los registros
+     */
+    public void limpiarTabla() {
+        try {
+            DefaultTableModel modelo = (DefaultTableModel) jt_tabla_amigos.getModel();
+            int filas = jt_tabla_amigos.getRowCount();
+            for (int i = 0; filas > i; i++) {
+                modelo.removeRow(0);
+            }
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -66,6 +157,8 @@ public class PanelAmigos extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        lbl_no_amigos = new javax.swing.JLabel();
+        jp_contenedor = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jt_tabla_amigos = new javax.swing.JTable();
 
@@ -73,6 +166,13 @@ public class PanelAmigos extends javax.swing.JPanel {
         setMinimumSize(new java.awt.Dimension(970, 510));
         setOpaque(false);
         setPreferredSize(new java.awt.Dimension(970, 510));
+        setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        lbl_no_amigos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_no_amigos.png"))); // NOI18N
+        add(lbl_no_amigos, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 0, -1, -1));
+
+        jp_contenedor.setOpaque(false);
+        jp_contenedor.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jt_tabla_amigos.setBackground(new java.awt.Color(232, 195, 158));
         jt_tabla_amigos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -101,27 +201,16 @@ public class PanelAmigos extends javax.swing.JPanel {
         jt_tabla_amigos.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(jt_tabla_amigos);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(194, 194, 194)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 582, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(194, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(63, 63, 63)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 384, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(63, Short.MAX_VALUE))
-        );
+        jp_contenedor.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(194, 63, 582, 384));
+
+        add(jp_contenedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, 510));
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel jp_contenedor;
     private javax.swing.JTable jt_tabla_amigos;
+    private javax.swing.JLabel lbl_no_amigos;
     // End of variables declaration//GEN-END:variables
 }

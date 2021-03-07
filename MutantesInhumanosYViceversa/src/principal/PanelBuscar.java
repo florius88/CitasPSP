@@ -1,6 +1,7 @@
 package principal;
 
 import javax.swing.ImageIcon;
+import utilidades.Constantes;
 
 /**
  *
@@ -11,27 +12,59 @@ public class PanelBuscar extends javax.swing.JPanel {
     private Principal principal = null;
 
     private boolean meGusta = false;
-    private int posicionAfines = -1;
+    private int posicionAfines = 0;
 
     /**
-     * Creates new form PanelBuscar
+     * Constructor
+     *
+     * @param principal
      */
     public PanelBuscar(Principal principal) {
         initComponents();
 
         this.principal = principal;
-
-        //Cargamos la informacion
-        cargarDatos();
     }
 
     /**
      * Cargamos la informacion en la tabla
      *
      */
-    private void cargarDatos() {
+    public void cargarDatos() {
 
         // TODO -- CARGAR AFINES
+        jp_contenedor.setVisible(false);
+        lbl_buscando.setVisible(true);
+    }
+
+    /**
+     * Aumenta o decrementa valores en la variable posicionAfines para cambiar a
+     * los usuarios en la pantalla
+     *
+     * @param mas
+     */
+    private void cambiarPosicionAfines(boolean mas) {
+
+        if (mas) {
+            posicionAfines++;
+        } else {
+            posicionAfines--;
+        }
+    }
+
+    /**
+     * Carga el icono correspondiente para el me gusta
+     *
+     * @param meGusta
+     */
+    private void cargarImagenMeGusta(boolean meGusta) {
+        ImageIcon iconMegusta = null;
+
+        if (meGusta) {
+            iconMegusta = new ImageIcon(getClass().getResource(Constantes.ICO_NO_ME_GUSTA));
+        } else {
+            iconMegusta = new ImageIcon(getClass().getResource(Constantes.ICO_ME_GUSTA));
+        }
+        lbl_me_gusta.setIcon(iconMegusta);
     }
 
     /**
@@ -43,6 +76,8 @@ public class PanelBuscar extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        lbl_buscando = new javax.swing.JLabel();
+        jp_contenedor = new javax.swing.JPanel();
         lbl_foto = new javax.swing.JLabel();
         lbl_nick = new javax.swing.JLabel();
         lbl_txt_nick = new javax.swing.JLabel();
@@ -50,7 +85,7 @@ public class PanelBuscar extends javax.swing.JPanel {
         lbl_flecha_izq = new javax.swing.JLabel();
         lbl_flecha_der = new javax.swing.JLabel();
         lbl_mensaje = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        lbl_fondo = new javax.swing.JLabel();
 
         setBackground(new java.awt.Color(155, 131, 131));
         setMinimumSize(new java.awt.Dimension(970, 510));
@@ -58,18 +93,23 @@ public class PanelBuscar extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(970, 510));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
+        lbl_buscando.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_buscando.png"))); // NOI18N
+        add(lbl_buscando, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 0, -1, -1));
+
+        jp_contenedor.setOpaque(false);
+        jp_contenedor.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
         lbl_foto.setBackground(new java.awt.Color(180, 137, 105));
-        lbl_foto.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 137, 105), 2));
+        lbl_foto.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(180, 137, 105), 2, true));
         lbl_foto.setOpaque(true);
-        add(lbl_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 60, 420, 360));
+        jp_contenedor.add(lbl_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 60, 420, 360));
 
         lbl_nick.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_nick.setText("Nick:");
-        add(lbl_nick, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 30, -1, -1));
+        jp_contenedor.add(lbl_nick, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 30, -1, -1));
 
         lbl_txt_nick.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        lbl_txt_nick.setText("Nombre");
-        add(lbl_txt_nick, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 30, -1, -1));
+        jp_contenedor.add(lbl_txt_nick, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 30, -1, -1));
 
         lbl_me_gusta.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_no_me_gusta.png"))); // NOI18N
         lbl_me_gusta.setToolTipText("Me gusta");
@@ -78,7 +118,7 @@ public class PanelBuscar extends javax.swing.JPanel {
                 lbl_me_gustaMouseClicked(evt);
             }
         });
-        add(lbl_me_gusta, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 430, -1, -1));
+        jp_contenedor.add(lbl_me_gusta, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 430, -1, -1));
 
         lbl_flecha_izq.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_flecha_izq.png"))); // NOI18N
         lbl_flecha_izq.setToolTipText("Siguiente");
@@ -87,7 +127,7 @@ public class PanelBuscar extends javax.swing.JPanel {
                 lbl_flecha_izqMouseClicked(evt);
             }
         });
-        add(lbl_flecha_izq, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, -1, -1));
+        jp_contenedor.add(lbl_flecha_izq, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, -1, -1));
 
         lbl_flecha_der.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_flecha_der.png"))); // NOI18N
         lbl_flecha_der.setToolTipText("Anterior");
@@ -96,7 +136,7 @@ public class PanelBuscar extends javax.swing.JPanel {
                 lbl_flecha_derMouseClicked(evt);
             }
         });
-        add(lbl_flecha_der, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 140, -1, -1));
+        jp_contenedor.add(lbl_flecha_der, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 140, -1, -1));
 
         lbl_mensaje.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mensaje_sin_leer.png"))); // NOI18N
         lbl_mensaje.setToolTipText("Enviar mensaje");
@@ -105,12 +145,14 @@ public class PanelBuscar extends javax.swing.JPanel {
                 lbl_mensajeMouseClicked(evt);
             }
         });
-        add(lbl_mensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 440, -1, -1));
+        jp_contenedor.add(lbl_mensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 440, -1, -1));
 
-        jLabel1.setBackground(new java.awt.Color(232, 195, 158));
-        jLabel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 137, 105), 2));
-        jLabel1.setOpaque(true);
-        add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 20, 460, 460));
+        lbl_fondo.setBackground(new java.awt.Color(232, 195, 158));
+        lbl_fondo.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 137, 105), 2));
+        lbl_fondo.setOpaque(true);
+        jp_contenedor.add(lbl_fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 20, 460, 460));
+
+        add(jp_contenedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 970, 510));
     }// </editor-fold>//GEN-END:initComponents
 
     private void lbl_me_gustaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_me_gustaMouseClicked
@@ -118,10 +160,10 @@ public class PanelBuscar extends javax.swing.JPanel {
         ImageIcon iconMegusta = null;
 
         if (meGusta) {
-            iconMegusta = new ImageIcon(getClass().getResource("/recursos/ico/ico_no_me_gusta.png"));
+            cargarImagenMeGusta(meGusta);
             meGusta = false;
         } else {
-            iconMegusta = new ImageIcon(getClass().getResource("/recursos/ico/ico_me_gusta.png"));
+            cargarImagenMeGusta(meGusta);
             meGusta = true;
         }
         lbl_me_gusta.setIcon(iconMegusta);
@@ -134,17 +176,21 @@ public class PanelBuscar extends javax.swing.JPanel {
 
     private void lbl_flecha_izqMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_flecha_izqMouseClicked
         // TODO
+        cambiarPosicionAfines(true);
     }//GEN-LAST:event_lbl_flecha_izqMouseClicked
 
     private void lbl_flecha_derMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_flecha_derMouseClicked
         // TODO
+        cambiarPosicionAfines(false);
     }//GEN-LAST:event_lbl_flecha_derMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JPanel jp_contenedor;
+    private javax.swing.JLabel lbl_buscando;
     private javax.swing.JLabel lbl_flecha_der;
     private javax.swing.JLabel lbl_flecha_izq;
+    private javax.swing.JLabel lbl_fondo;
     private javax.swing.JLabel lbl_foto;
     private javax.swing.JLabel lbl_me_gusta;
     private javax.swing.JLabel lbl_mensaje;

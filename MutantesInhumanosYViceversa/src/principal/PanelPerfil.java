@@ -37,14 +37,22 @@ public class PanelPerfil extends javax.swing.JPanel {
         lbl_relacion = new javax.swing.JLabel();
         cb_relacion = new javax.swing.JComboBox<>();
         lbl_deportivos = new javax.swing.JLabel();
+        lbl_deporte_menos = new javax.swing.JLabel();
         sl_deportivo = new javax.swing.JSlider();
+        lbl_deporte_mas = new javax.swing.JLabel();
         lbl_artistico = new javax.swing.JLabel();
+        lbl_arte_menos = new javax.swing.JLabel();
         sl_artisticos = new javax.swing.JSlider();
+        lbl_arte_mas = new javax.swing.JLabel();
         lbl_politicos = new javax.swing.JLabel();
+        lbl_politico_menos = new javax.swing.JLabel();
         sl_politicos = new javax.swing.JSlider();
+        lbl_politico_mas = new javax.swing.JLabel();
         lbl_hijos = new javax.swing.JLabel();
         cb_hijos = new javax.swing.JComboBox<>();
         lbl_interes = new javax.swing.JLabel();
+        lbl_sexo = new javax.swing.JLabel();
+        cb_sexo = new javax.swing.JComboBox<>();
         cb_interes = new javax.swing.JComboBox<>();
         btn_guardar = new javax.swing.JButton();
 
@@ -57,28 +65,29 @@ public class PanelPerfil extends javax.swing.JPanel {
         lbl_foto.setBackground(new java.awt.Color(204, 204, 204));
         lbl_foto.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(232, 195, 158), 2));
         lbl_foto.setOpaque(true);
-        add(lbl_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 70, 130, 130));
+        add(lbl_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 60, 130, 130));
 
         btn_selec_foto.setBackground(new java.awt.Color(249, 246, 246));
         btn_selec_foto.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_selec_foto.setText("Sel. Foto");
+        btn_selec_foto.setToolTipText("Seleccionar foto");
         btn_selec_foto.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_selec_fotoActionPerformed(evt);
             }
         });
-        add(btn_selec_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 210, 130, -1));
+        add(btn_selec_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 200, 130, -1));
 
         lbl_datos.setFont(new java.awt.Font("Book Antiqua", 1, 22)); // NOI18N
         lbl_datos.setForeground(new java.awt.Color(255, 255, 255));
         lbl_datos.setText("Datos personales");
-        add(lbl_datos, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 20, -1, -1));
-        add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 50, 770, 10));
+        add(lbl_datos, new org.netbeans.lib.awtextra.AbsoluteConstraints(735, 10, -1, -1));
+        add(jSeparator2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 40, 900, 10));
 
         lbl_nick.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_nick.setForeground(new java.awt.Color(255, 255, 255));
         lbl_nick.setText("Nick:");
-        add(lbl_nick, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 80, -1, -1));
+        add(lbl_nick, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 82, -1, -1));
 
         txt_nick.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         add(txt_nick, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 80, 250, -1));
@@ -86,7 +95,7 @@ public class PanelPerfil extends javax.swing.JPanel {
         lbl_email.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_email.setForeground(new java.awt.Color(255, 255, 255));
         lbl_email.setText("Email:");
-        add(lbl_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 120, -1, -1));
+        add(lbl_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 122, -1, -1));
 
         txt_email.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         add(txt_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 120, 250, -1));
@@ -94,7 +103,7 @@ public class PanelPerfil extends javax.swing.JPanel {
         lbl_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_pwd.setForeground(new java.awt.Color(255, 255, 255));
         lbl_pwd.setText("Contraseña:");
-        add(lbl_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(312, 160, -1, -1));
+        add(lbl_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 162, -1, -1));
 
         txt_pwd.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         add(txt_pwd, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 160, 250, -1));
@@ -102,56 +111,86 @@ public class PanelPerfil extends javax.swing.JPanel {
         lbl_titulo_pref.setFont(new java.awt.Font("Book Antiqua", 1, 22)); // NOI18N
         lbl_titulo_pref.setForeground(new java.awt.Color(255, 255, 255));
         lbl_titulo_pref.setText("Preferencias");
-        add(lbl_titulo_pref, new org.netbeans.lib.awtextra.AbsoluteConstraints(750, 230, -1, -1));
-        add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 260, 770, 10));
+        add(lbl_titulo_pref, new org.netbeans.lib.awtextra.AbsoluteConstraints(780, 220, -1, -1));
+        add(jSeparator1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 250, 900, 10));
 
         lbl_relacion.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_relacion.setForeground(new java.awt.Color(255, 255, 255));
         lbl_relacion.setText("Relación:");
-        add(lbl_relacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 290, -1, -1));
+        add(lbl_relacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(132, 270, -1, -1));
 
+        cb_relacion.setBackground(new java.awt.Color(249, 246, 246));
         cb_relacion.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        add(cb_relacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 290, 250, -1));
+        add(cb_relacion, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 270, 250, -1));
 
         lbl_deportivos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_deportivos.setForeground(new java.awt.Color(255, 255, 255));
         lbl_deportivos.setText("Deportivos:");
-        add(lbl_deportivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 290, -1, -1));
+        add(lbl_deportivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 270, -1, -1));
+
+        lbl_deporte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        add(lbl_deporte_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 270, -1, -1));
 
         sl_deportivo.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        add(sl_deportivo, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 290, 250, 35));
+        add(sl_deportivo, new org.netbeans.lib.awtextra.AbsoluteConstraints(672, 270, 150, 35));
+
+        lbl_deporte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        add(lbl_deporte_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 270, -1, -1));
 
         lbl_artistico.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_artistico.setForeground(new java.awt.Color(255, 255, 255));
         lbl_artistico.setText("Artísticos:");
-        add(lbl_artistico, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 330, -1, -1));
+        add(lbl_artistico, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 350, -1, -1));
+
+        lbl_arte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        add(lbl_arte_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 350, -1, -1));
 
         sl_artisticos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        add(sl_artisticos, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 330, 250, 35));
+        add(sl_artisticos, new org.netbeans.lib.awtextra.AbsoluteConstraints(672, 350, 150, 35));
+
+        lbl_arte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        add(lbl_arte_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 350, -1, -1));
 
         lbl_politicos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_politicos.setForeground(new java.awt.Color(255, 255, 255));
         lbl_politicos.setText("Políticos:");
-        add(lbl_politicos, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 330, -1, -1));
+        add(lbl_politicos, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 310, -1, -1));
+
+        lbl_politico_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        add(lbl_politico_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 310, -1, -1));
 
         sl_politicos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        add(sl_politicos, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 330, 250, 35));
+        add(sl_politicos, new org.netbeans.lib.awtextra.AbsoluteConstraints(672, 310, 150, 35));
+
+        lbl_politico_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        add(lbl_politico_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 310, -1, -1));
 
         lbl_hijos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_hijos.setForeground(new java.awt.Color(255, 255, 255));
         lbl_hijos.setText("Tiene/Quiere hijos:");
-        add(lbl_hijos, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 370, -1, -1));
+        add(lbl_hijos, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 310, -1, -1));
 
+        cb_hijos.setBackground(new java.awt.Color(249, 246, 246));
         cb_hijos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        add(cb_hijos, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 370, 250, -1));
+        add(cb_hijos, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 310, 250, -1));
 
         lbl_interes.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_interes.setForeground(new java.awt.Color(255, 255, 255));
         lbl_interes.setText("Interés en:");
-        add(lbl_interes, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 370, -1, -1));
+        add(lbl_interes, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 396, -1, -1));
 
+        lbl_sexo.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        lbl_sexo.setForeground(new java.awt.Color(255, 255, 255));
+        lbl_sexo.setText("Sexo:");
+        add(lbl_sexo, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 353, -1, -1));
+
+        cb_sexo.setBackground(new java.awt.Color(249, 246, 246));
+        cb_sexo.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        add(cb_sexo, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 350, 250, -1));
+
+        cb_interes.setBackground(new java.awt.Color(249, 246, 246));
         cb_interes.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        add(cb_interes, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 370, 250, -1));
+        add(cb_interes, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 390, 250, -1));
 
         btn_guardar.setBackground(new java.awt.Color(249, 246, 246));
         btn_guardar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -179,19 +218,27 @@ public class PanelPerfil extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> cb_hijos;
     private javax.swing.JComboBox<String> cb_interes;
     private javax.swing.JComboBox<String> cb_relacion;
+    private javax.swing.JComboBox<String> cb_sexo;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JLabel lbl_arte_mas;
+    private javax.swing.JLabel lbl_arte_menos;
     private javax.swing.JLabel lbl_artistico;
     private javax.swing.JLabel lbl_datos;
+    private javax.swing.JLabel lbl_deporte_mas;
+    private javax.swing.JLabel lbl_deporte_menos;
     private javax.swing.JLabel lbl_deportivos;
     private javax.swing.JLabel lbl_email;
     private javax.swing.JLabel lbl_foto;
     private javax.swing.JLabel lbl_hijos;
     private javax.swing.JLabel lbl_interes;
     private javax.swing.JLabel lbl_nick;
+    private javax.swing.JLabel lbl_politico_mas;
+    private javax.swing.JLabel lbl_politico_menos;
     private javax.swing.JLabel lbl_politicos;
     private javax.swing.JLabel lbl_pwd;
     private javax.swing.JLabel lbl_relacion;
+    private javax.swing.JLabel lbl_sexo;
     private javax.swing.JLabel lbl_titulo_pref;
     private javax.swing.JSlider sl_artisticos;
     private javax.swing.JSlider sl_deportivo;

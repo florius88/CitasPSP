@@ -95,12 +95,12 @@
                   <Editor/>
                   <Renderer/>
                 </Column>
-                <Column maxWidth="155" minWidth="155" prefWidth="155" resizable="true">
+                <Column maxWidth="-1" minWidth="-1" prefWidth="155" resizable="false">
                   <Title/>
                   <Editor/>
                   <Renderer/>
                 </Column>
-                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="false">
                   <Title/>
                   <Editor/>
                   <Renderer/>
@@ -135,6 +135,7 @@
           <Font name="Book Antiqua" size="20" style="1"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Eliminar"/>
+        <Property name="toolTipText" type="java.lang.String" value="Eliminar mensaje"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btn_eliminarActionPerformed"/>

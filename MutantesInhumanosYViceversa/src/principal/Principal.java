@@ -1,6 +1,7 @@
 package principal;
 
 import amigos.PanelAmigos;
+import amigos.PanelVerAmigo;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -9,7 +10,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
+import mensajes.PanelEnviarMensaje;
 import mensajes.PanelMensajes;
+import mensajes.PanelVerMensaje;
 import registro.Login;
 import utilidades.Constantes;
 
@@ -21,8 +24,11 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
 
     private PanelBuscar pBuscar = null;
     private PanelAmigos pAmigos = null;
-    private PanelPerfil pPerfil = null;
+    private PanelVerAmigo pVerAmigo = null;
     private PanelMensajes pMensajes = null;
+    private PanelPerfil pPerfil = null;
+    private PanelVerMensaje pVerMensaje = null;
+    private PanelEnviarMensaje pEnviarMensaje = null;
 
     /**
      * Creates new form Principal
@@ -77,9 +83,9 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         lbl_txt_total_user = new javax.swing.JLabel();
         lbl_total_user = new javax.swing.JLabel();
         lbl_txt_amigos_conect = new javax.swing.JLabel();
-        lbl_total_amigos = new javax.swing.JLabel();
-        lbl_separador = new javax.swing.JLabel();
         lbl_amigos_conect = new javax.swing.JLabel();
+        lbl_separador = new javax.swing.JLabel();
+        lbl_total_amigos = new javax.swing.JLabel();
         lbl_fondo = new javax.swing.JLabel();
         mb_menu = new javax.swing.JMenuBar();
         m_opciones = new javax.swing.JMenu();
@@ -88,6 +94,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         mi_mensajes = new javax.swing.JMenuItem();
         mi_perfil = new javax.swing.JMenuItem();
         m_cerrar = new javax.swing.JMenu();
+        m_salir = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Mutantes e Inhumanos y viceversa");
@@ -154,25 +161,24 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         jp_panel_info.setBackground(new java.awt.Color(232, 195, 158));
         jp_panel_info.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 137, 105), 2));
 
-        lbl_txt_total_user.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        lbl_txt_total_user.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
         lbl_txt_total_user.setText("El total de usuarios que utilizan la aplicación son:");
 
-        lbl_total_user.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        lbl_total_user.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
         lbl_total_user.setText("0");
 
-        lbl_txt_amigos_conect.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        lbl_txt_amigos_conect.setText("El total de amigos que tienes son:");
+        lbl_txt_amigos_conect.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
+        lbl_txt_amigos_conect.setText("El total de amigos son:");
 
-        lbl_total_amigos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        lbl_total_amigos.setText("0");
-        lbl_total_amigos.setToolTipText("");
+        lbl_amigos_conect.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
+        lbl_amigos_conect.setForeground(new java.awt.Color(51, 153, 0));
+        lbl_amigos_conect.setText("0");
 
-        lbl_separador.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        lbl_separador.setFont(new java.awt.Font("Book Antiqua", 1, 16)); // NOI18N
         lbl_separador.setText(" /");
 
-        lbl_amigos_conect.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
-        lbl_amigos_conect.setForeground(new java.awt.Color(0, 204, 0));
-        lbl_amigos_conect.setText("0");
+        lbl_total_amigos.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
+        lbl_total_amigos.setText("0");
 
         javax.swing.GroupLayout jp_panel_infoLayout = new javax.swing.GroupLayout(jp_panel_info);
         jp_panel_info.setLayout(jp_panel_infoLayout);
@@ -182,35 +188,33 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 .addContainerGap()
                 .addComponent(lbl_txt_total_user)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbl_total_user, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 122, Short.MAX_VALUE)
+                .addComponent(lbl_total_user, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 219, Short.MAX_VALUE)
                 .addComponent(lbl_txt_amigos_conect)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbl_total_amigos, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lbl_amigos_conect)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbl_separador, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lbl_separador)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbl_amigos_conect, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(lbl_total_amigos)
                 .addContainerGap())
         );
         jp_panel_infoLayout.setVerticalGroup(
             jp_panel_infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jp_panel_infoLayout.createSequentialGroup()
-                .addGroup(jp_panel_infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jp_panel_infoLayout.createSequentialGroup()
+                .addGap(0, 3, Short.MAX_VALUE)
                     .addGroup(jp_panel_infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(lbl_txt_total_user)
-                        .addComponent(lbl_total_user))
-                    .addGroup(jp_panel_infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbl_total_user)
                         .addComponent(lbl_txt_amigos_conect)
-                        .addComponent(lbl_total_amigos)
+                    .addComponent(lbl_amigos_conect)
                         .addComponent(lbl_separador)
-                        .addComponent(lbl_amigos_conect)))
-                .addGap(0, 1, Short.MAX_VALUE))
+                    .addComponent(lbl_total_amigos)))
         );
 
         getContentPane().add(jp_panel_info, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 640, 1010, 30));
 
-        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_principal_1.jpg"))); // NOI18N
+        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_principal5.jpg"))); // NOI18N
         lbl_fondo.setOpaque(true);
         getContentPane().add(lbl_fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, -90, 1040, 760));
 
@@ -247,6 +251,15 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
             }
         });
         mb_menu.add(m_cerrar);
+
+        m_salir.setText("Salir");
+        m_salir.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        m_salir.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                m_salirMouseClicked(evt);
+            }
+        });
+        mb_menu.add(m_salir);
 
         setJMenuBar(mb_menu);
 
@@ -320,6 +333,20 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         mostrarPanelPerfil();
     }//GEN-LAST:event_btn_perfilActionPerformed
 
+    private void m_salirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_m_salirMouseClicked
+        int option;
+        option = JOptionPane.showConfirmDialog(
+                this,
+                "¿Estás seguro de que quieres cerrar la aplicación?",
+                "Salir",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (option == JOptionPane.YES_OPTION) {
+            //Eliminamos la conexion
+            System.exit(0);
+        }
+    }//GEN-LAST:event_m_salirMouseClicked
+
     /**
      * Metodo que implementa las acciones de cada ítem del menu
      *
@@ -350,6 +377,8 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      */
     public void mostrarPanelBusqueda() {
 
+        //Carga la informacion de nuevo para comprobar si hay nuevos amigos que buscar
+        pBuscar.cargarDatos();
         jp_panel_contenedor.add(pBuscar);
         ocultarMostrarPanel(1);
         jp_panel_contenedor.validate();
@@ -360,6 +389,8 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      */
     public void mostrarPanelAmigos() {
 
+        //Carga la informacion de nuevo para comprobar si hay nuevos amigos
+        pAmigos.cargarDatos();
         jp_panel_contenedor.add(pAmigos);
         ocultarMostrarPanel(2);
         jp_panel_contenedor.validate();
@@ -370,6 +401,8 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      */
     public void mostrarPanelMensajes() {
 
+        //Carga la informacion de nuevo para comprobar si hay nuevos mensajes
+        pMensajes.cargarDatos();
         jp_panel_contenedor.add(pMensajes);
         ocultarMostrarPanel(3);
         jp_panel_contenedor.validate();
@@ -382,6 +415,44 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
 
         jp_panel_contenedor.add(pPerfil);
         ocultarMostrarPanel(4);
+        jp_panel_contenedor.validate();
+    }
+
+    /**
+     * Mostramos el panel para ver el mensaje
+     *
+     */
+    public void mostrarPanelVerMensaje() {
+
+        pVerMensaje = new PanelVerMensaje(this);
+        jp_panel_contenedor.add(pVerMensaje);
+        ocultarMostrarPanel(5);
+        jp_panel_contenedor.validate();
+    }
+
+    /**
+     *
+     * Mostramos el panel para enviar el mensaje
+     *
+     * @param tipo
+     */
+    public void mostrarPanelEnviarMensaje(int tipo) {
+
+        pEnviarMensaje = new PanelEnviarMensaje(this, tipo);
+        jp_panel_contenedor.add(pEnviarMensaje);
+        ocultarMostrarPanel(6);
+        jp_panel_contenedor.validate();
+    }
+
+    /**
+     * Mostramos el panel para ver el amigo
+     *
+     */
+    public void mostrarPanelVerAmigo() {
+
+        pVerAmigo = new PanelVerAmigo(this);
+        jp_panel_contenedor.add(pVerAmigo);
+        ocultarMostrarPanel(7);
         jp_panel_contenedor.validate();
     }
 
@@ -399,28 +470,117 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 pAmigos.setVisible(false);
                 pMensajes.setVisible(false);
                 pPerfil.setVisible(false);
-
+                if (null != pVerMensaje) {
+                    pVerMensaje.setVisible(false);
+                    pVerMensaje = null;
+                }
+                if (null != pEnviarMensaje) {
+                    pEnviarMensaje.setVisible(false);
+                    pEnviarMensaje = null;
+                }
+                if (null != pVerAmigo) {
+                    pVerAmigo.setVisible(false);
+                    pVerAmigo = null;
+                }
                 break;
             case 2:
                 pBuscar.setVisible(false);
                 pAmigos.setVisible(true);
                 pMensajes.setVisible(false);
                 pPerfil.setVisible(false);
-
+                if (null != pVerMensaje) {
+                    pVerMensaje.setVisible(false);
+                    pVerMensaje = null;
+                }
+                if (null != pEnviarMensaje) {
+                    pEnviarMensaje.setVisible(false);
+                    pEnviarMensaje = null;
+                }
+                if (null != pVerAmigo) {
+                    pVerAmigo.setVisible(false);
+                    pVerAmigo = null;
+                }
                 break;
             case 3:
                 pBuscar.setVisible(false);
                 pAmigos.setVisible(false);
                 pMensajes.setVisible(true);
                 pPerfil.setVisible(false);
-
+                if (null != pVerMensaje) {
+                    pVerMensaje.setVisible(false);
+                    pVerMensaje = null;
+                }
+                if (null != pEnviarMensaje) {
+                    pEnviarMensaje.setVisible(false);
+                    pEnviarMensaje = null;
+                }
+                if (null != pVerAmigo) {
+                    pVerAmigo.setVisible(false);
+                    pVerAmigo = null;
+                }
                 break;
             case 4:
                 pBuscar.setVisible(false);
                 pAmigos.setVisible(false);
                 pMensajes.setVisible(false);
                 pPerfil.setVisible(true);
-
+                if (null != pVerMensaje) {
+                    pVerMensaje.setVisible(false);
+                    pVerMensaje = null;
+                }
+                if (null != pEnviarMensaje) {
+                    pEnviarMensaje.setVisible(false);
+                    pEnviarMensaje = null;
+                }
+                if (null != pVerAmigo) {
+                    pVerAmigo.setVisible(false);
+                    pVerAmigo = null;
+                }
+                break;
+            case 5:
+                pBuscar.setVisible(false);
+                pAmigos.setVisible(false);
+                pMensajes.setVisible(false);
+                pPerfil.setVisible(false);
+                pVerMensaje.setVisible(true);
+                if (null != pEnviarMensaje) {
+                    pEnviarMensaje.setVisible(false);
+                    pEnviarMensaje = null;
+                }
+                if (null != pVerAmigo) {
+                    pVerAmigo.setVisible(false);
+                    pVerAmigo = null;
+                }
+                break;
+            case 6:
+                pBuscar.setVisible(false);
+                pAmigos.setVisible(false);
+                pMensajes.setVisible(false);
+                pPerfil.setVisible(false);
+                if (null != pVerMensaje) {
+                    pVerMensaje.setVisible(false);
+                    pVerMensaje = null;
+                }
+                pEnviarMensaje.setVisible(true);
+                if (null != pVerAmigo) {
+                    pVerAmigo.setVisible(false);
+                    pVerAmigo = null;
+                }
+                break;
+            case 7:
+                pBuscar.setVisible(false);
+                pAmigos.setVisible(false);
+                pMensajes.setVisible(false);
+                pPerfil.setVisible(false);
+                if (null != pVerMensaje) {
+                    pVerMensaje.setVisible(false);
+                    pVerMensaje = null;
+                }
+                if (null != pEnviarMensaje) {
+                    pEnviarMensaje.setVisible(false);
+                    pEnviarMensaje = null;
+                }
+                pVerAmigo.setVisible(true);
                 break;
         }
 
@@ -443,6 +603,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     private javax.swing.JLabel lbl_txt_total_user;
     private javax.swing.JMenu m_cerrar;
     private javax.swing.JMenu m_opciones;
+    private javax.swing.JMenu m_salir;
     private javax.swing.JMenuBar mb_menu;
     private javax.swing.JMenuItem mi_amigos;
     private javax.swing.JMenuItem mi_buscar;

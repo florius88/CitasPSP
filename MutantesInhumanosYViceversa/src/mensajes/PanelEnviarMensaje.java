@@ -1,6 +1,12 @@
 package mensajes;
 
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.ImageIcon;
 import principal.Principal;
+import utilidades.Constantes;
 
 /**
  *
@@ -12,7 +18,10 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
     private int ventana = 0;
 
     /**
-     * Creates new form PanelEnviarMensaje
+     * Constructor
+     *
+     * @param principal
+     * @param ventana
      */
     public PanelEnviarMensaje(Principal principal, int ventana) {
         initComponents();
@@ -40,22 +49,73 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         java.awt.Font fuente = new java.awt.Font("Book Antiqua", 1, 20);
         jt_tabla_adjuntos.getTableHeader().setFont(fuente);
 
-        //Cambiamos el renderizador de las siguientes celdas para incluir imagenes
-        //jt_tabla_adjuntos.getColumnModel().getColumn(1).setCellRenderer(new PanelVerMensaje.CellRenderer());
+        //Captura el evento de doble click para ver el mensaje
         jt_tabla_adjuntos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    System.out.println("Se ha hecho doble click: " + jt_tabla_adjuntos.getSelectedRow());
-
-                    // TODO
+                    verDocumentoAdjunto();
                 }
+            }
+        });
+
+        //Captura el evento del intro en el teclado para ver el mensaje
+        jt_tabla_adjuntos.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    verDocumentoAdjunto();
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
             }
         });
     }
 
-    private void cargarDatos() {
+    /**
+     * Muestra el dialogo con el documento adjuntado
+     */
+    private void verDocumentoAdjunto() {
+        //Obtiene el nombre del documento para mostrar en el dialogo
+        String txtAdj = (String) jt_tabla_adjuntos.getModel().getValueAt(jt_tabla_adjuntos.getSelectedRow(), 0);
 
+        //TODO
+        Image retValue = Toolkit.getDefaultToolkit().
+                getImage(ClassLoader.getSystemResource(Constantes.ICO_APP));
+
+        ImageIcon icon = new ImageIcon(retValue);
+
+        //Muestra el dialogo
+        DialogAdjunto dialog = new DialogAdjunto(principal, true, icon);
+        dialog.setTitle(txtAdj);
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }
+
+    private void cargarDatos() {
         // TODO
+    }
+
+    /**
+     * Metodo encargado de redirigir al panel que corresponda
+     */
+    private void volver() {
+        switch (ventana) {
+            case Constantes.TIPO_MENSAJE:
+                principal.mostrarPanelVerMensaje();
+                break;
+            case Constantes.TIPO_BUSQUEDA:
+                principal.mostrarPanelBusqueda();
+                break;
+            case Constantes.TIPO_AMIGOS:
+                principal.mostrarPanelVerAmigo();
+                break;
+        }
     }
 
     /**
@@ -93,6 +153,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         btn_enviar.setBackground(new java.awt.Color(249, 246, 246));
         btn_enviar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_enviar.setText("Enviar");
+        btn_enviar.setToolTipText("Enviar el mensaje");
         btn_enviar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_enviarActionPerformed(evt);
@@ -102,6 +163,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         btn_volver.setBackground(new java.awt.Color(249, 246, 246));
         btn_volver.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_volver.setText("Volver");
+        btn_volver.setToolTipText("Volver");
         btn_volver.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_volverActionPerformed(evt);
@@ -145,6 +207,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         btn_adjuntar.setBackground(new java.awt.Color(249, 246, 246));
         btn_adjuntar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_adjuntar.setText("Adjuntar");
+        btn_adjuntar.setToolTipText("Adjuntar imagen");
         btn_adjuntar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_adjuntarActionPerformed(evt);
@@ -154,6 +217,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         btn_eliminar.setBackground(new java.awt.Color(249, 246, 246));
         btn_eliminar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_eliminar.setText("Eliminar");
+        btn_eliminar.setToolTipText("Eliminar imagen");
         btn_eliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_eliminarActionPerformed(evt);
@@ -209,8 +273,8 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_volverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_volverActionPerformed
-
         // TODO
+        volver();
     }//GEN-LAST:event_btn_volverActionPerformed
 
     private void btn_enviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_enviarActionPerformed
