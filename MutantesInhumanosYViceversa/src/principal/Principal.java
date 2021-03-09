@@ -2,6 +2,11 @@ package principal;
 
 import amigos.PanelAmigos;
 import amigos.PanelVerAmigo;
+import mensajes.PanelMensajes;
+import mensajes.PanelVerMensaje;
+import entidades.Mensaje;
+import entidades.Usuario;
+import envio.MsjServConexion;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -11,8 +16,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
 import mensajes.PanelEnviarMensaje;
-import mensajes.PanelMensajes;
-import mensajes.PanelVerMensaje;
 import registro.Login;
 import utilidades.Constantes;
 
@@ -21,6 +24,8 @@ import utilidades.Constantes;
  * @author Flor
  */
 public class Principal extends javax.swing.JFrame implements ActionListener {
+
+    private Usuario usuario = null;
 
     private PanelBuscar pBuscar = null;
     private PanelAmigos pAmigos = null;
@@ -31,10 +36,15 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     private PanelEnviarMensaje pEnviarMensaje = null;
 
     /**
-     * Creates new form Principal
+     * Constructor
+     *
+     * @param usuario
      */
-    public Principal() {
+    public Principal(Usuario usuario) {
         initComponents();
+        
+        //Cargamos la informacion
+        cargarDatos(usuario);
 
         //Inicializamos los paneles y eventos
         initPaneles();
@@ -51,6 +61,14 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE);
                 if (option == JOptionPane.YES_OPTION) {
+                    //Eliminamos la conexion
+                    MsjServConexion mConexion = new MsjServConexion();
+                    mConexion.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
+                    mConexion.setIdUsuario(usuario.getIdUsuario());
+
+                    //TODO ERROR!!!!!!!!!!!!!!! - No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
+                    System.out.println("El servidor devuelve: " + mConexion.getCodError() + " Mensaje: " + mConexion.getMensaje());
+
                     System.exit(0);
                 }
             }
@@ -203,12 +221,12 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
             jp_panel_infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jp_panel_infoLayout.createSequentialGroup()
                 .addGap(0, 3, Short.MAX_VALUE)
-                    .addGroup(jp_panel_infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lbl_txt_total_user)
+                .addGroup(jp_panel_infoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbl_txt_total_user)
                     .addComponent(lbl_total_user)
-                        .addComponent(lbl_txt_amigos_conect)
+                    .addComponent(lbl_txt_amigos_conect)
                     .addComponent(lbl_amigos_conect)
-                        .addComponent(lbl_separador)
+                    .addComponent(lbl_separador)
                     .addComponent(lbl_total_amigos)))
         );
 
@@ -279,6 +297,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         pBuscar = new PanelBuscar(this);
         pBuscar.setVisible(false);
         mi_buscar.addActionListener(this);
+
         pAmigos = new PanelAmigos(this);
         pAmigos.setVisible(false);
         mi_amigos.addActionListener(this);
@@ -287,9 +306,36 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         pMensajes.setVisible(false);
         mi_mensajes.addActionListener(this);
 
-        pPerfil = new PanelPerfil();
+        pPerfil = new PanelPerfil(usuario);
         pPerfil.setVisible(false);
         mi_perfil.addActionListener(this);
+    }
+
+    /**
+     * Cargamos la informacion en la tabla
+     *
+     * @param usuario
+     */
+    private void cargarDatos(Usuario usuario) {
+
+        this.usuario = usuario;
+
+        //Insertamos la conexion para mostrar que esta en linea
+        MsjServConexion mConexion = new MsjServConexion();
+        mConexion.setAccion(Constantes.ACCION_CREAR_CONEXION);
+        mConexion.setIdUsuario(usuario.getIdUsuario());
+
+        //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
+        switch (mConexion.getCodError()) {
+            case Constantes.OK:
+                //TODO ERROR!!!!!!!!!!!!!!! - No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
+                System.out.println("El servidor devuelve: " + mConexion.getCodError() + " Mensaje: " + mConexion.getMensaje());
+
+                lbl_total_user.setText(String.valueOf(mConexion.getTotalUsuarios()));
+                lbl_amigos_conect.setText(String.valueOf(mConexion.getTotalAmigosConectados()));
+                lbl_total_amigos.setText(String.valueOf(mConexion.getTotalAmigos()));
+                break;
+        }
     }
 
     private void m_cerrarMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_m_cerrarMouseClicked
@@ -302,6 +348,13 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);
         if (option == JOptionPane.YES_OPTION) {
+            //Eliminamos la conexion
+            MsjServConexion mConexion = new MsjServConexion();
+            mConexion.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
+            mConexion.setIdUsuario(usuario.getIdUsuario());
+
+            //TODO ERROR!!!!!!!!!!!!!!! - No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
+            System.out.println("El servidor devuelve: " + mConexion.getCodError() + " Mensaje: " + mConexion.getMensaje());
 
             //Ocultamos la ventana actual
             this.setVisible(false);
@@ -343,6 +396,13 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 JOptionPane.QUESTION_MESSAGE);
         if (option == JOptionPane.YES_OPTION) {
             //Eliminamos la conexion
+            MsjServConexion mConexion = new MsjServConexion();
+            mConexion.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
+            mConexion.setIdUsuario(usuario.getIdUsuario());
+
+            //TODO ERROR!!!!!!!!!!!!!!! - No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
+            System.out.println("El servidor devuelve: " + mConexion.getCodError() + " Mensaje: " + mConexion.getMensaje());
+
             System.exit(0);
         }
     }//GEN-LAST:event_m_salirMouseClicked
@@ -378,7 +438,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     public void mostrarPanelBusqueda() {
 
         //Carga la informacion de nuevo para comprobar si hay nuevos amigos que buscar
-        pBuscar.cargarDatos();
+        pBuscar.cargarDatos(usuario);
         jp_panel_contenedor.add(pBuscar);
         ocultarMostrarPanel(1);
         jp_panel_contenedor.validate();
@@ -390,7 +450,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     public void mostrarPanelAmigos() {
 
         //Carga la informacion de nuevo para comprobar si hay nuevos amigos
-        pAmigos.cargarDatos();
+        pAmigos.cargarDatos(usuario);
         jp_panel_contenedor.add(pAmigos);
         ocultarMostrarPanel(2);
         jp_panel_contenedor.validate();
@@ -402,7 +462,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     public void mostrarPanelMensajes() {
 
         //Carga la informacion de nuevo para comprobar si hay nuevos mensajes
-        pMensajes.cargarDatos();
+        pMensajes.cargarDatos(usuario);
         jp_panel_contenedor.add(pMensajes);
         ocultarMostrarPanel(3);
         jp_panel_contenedor.validate();
@@ -421,10 +481,11 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     /**
      * Mostramos el panel para ver el mensaje
      *
+     * @param msj
      */
-    public void mostrarPanelVerMensaje() {
+    public void mostrarPanelVerMensaje(Mensaje msj) {
 
-        pVerMensaje = new PanelVerMensaje(this);
+        pVerMensaje = new PanelVerMensaje(msj, this);
         jp_panel_contenedor.add(pVerMensaje);
         ocultarMostrarPanel(5);
         jp_panel_contenedor.validate();
@@ -434,11 +495,28 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      *
      * Mostramos el panel para enviar el mensaje
      *
+     * @param msj
      * @param tipo
      */
-    public void mostrarPanelEnviarMensaje(int tipo) {
+    public void mostrarPanelEnviarMensaje(Mensaje msj, int tipo) {
 
-        pEnviarMensaje = new PanelEnviarMensaje(this, tipo);
+        pEnviarMensaje = new PanelEnviarMensaje(msj, this, tipo);
+        jp_panel_contenedor.add(pEnviarMensaje);
+        ocultarMostrarPanel(6);
+        jp_panel_contenedor.validate();
+    }
+
+    /**
+     * Mostramos el panel para enviar el mensaje
+     *
+     * @param tipo
+     * @param usuario
+     * @param conectado
+     * @param idUsuario
+     */
+    public void mostrarPanelEnviarMensaje(int tipo, Usuario usuario, boolean conectado, int idUsuario) {
+
+        pEnviarMensaje = new PanelEnviarMensaje(this, tipo, usuario, conectado, idUsuario);
         jp_panel_contenedor.add(pEnviarMensaje);
         ocultarMostrarPanel(6);
         jp_panel_contenedor.validate();
@@ -447,10 +525,13 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     /**
      * Mostramos el panel para ver el amigo
      *
+     * @param usuario
+     * @param conectado
+     * @param idUsuario
      */
-    public void mostrarPanelVerAmigo() {
+    public void mostrarPanelVerAmigo(Usuario usuario, boolean conectado, int idUsuario) {
 
-        pVerAmigo = new PanelVerAmigo(this);
+        pVerAmigo = new PanelVerAmigo(usuario, conectado, idUsuario, this);
         jp_panel_contenedor.add(pVerAmigo);
         ocultarMostrarPanel(7);
         jp_panel_contenedor.validate();

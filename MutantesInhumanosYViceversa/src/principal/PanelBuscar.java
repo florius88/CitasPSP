@@ -1,6 +1,12 @@
 package principal;
 
+import entidades.Amigos;
+import entidades.Usuario;
+import envio.MsjServAmigos;
+import java.awt.Image;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import utilidades.Constantes;
 
 /**
@@ -10,8 +16,10 @@ import utilidades.Constantes;
 public class PanelBuscar extends javax.swing.JPanel {
 
     private Principal principal = null;
+    private int idUsuario = 0;
 
-    private boolean meGusta = false;
+    private ArrayList<Amigos> listaUsuariosAfines;
+
     private int posicionAfines = 0;
 
     /**
@@ -26,14 +34,57 @@ public class PanelBuscar extends javax.swing.JPanel {
     }
 
     /**
-     * Cargamos la informacion en la tabla
+     * Cargamos la informacion
      *
+     * @param usuario
      */
-    public void cargarDatos() {
+    public void cargarDatos(Usuario usuario) {
 
-        // TODO -- CARGAR AFINES
-        jp_contenedor.setVisible(false);
-        lbl_buscando.setVisible(true);
+        idUsuario = usuario.getIdUsuario();
+
+        //idUsuario = usuario.getIdUsuario();
+        MsjServAmigos mAmigos = new MsjServAmigos();
+        mAmigos.setIdUsuario(usuario.getIdUsuario());
+        mAmigos.setAccion(Constantes.ACCION_BUSCAR_AMIGO);
+
+        //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
+        switch (mAmigos.getCodError()) {
+            case Constantes.OK:
+                //Ocultamos la imagen de no afines
+                lbl_buscando.setVisible(false);
+                //Carga la lista de personas afines
+                listaUsuariosAfines = mAmigos.getListaAmigos();
+                //Carga la informacion en pantalla
+                cargarAmigo();
+                break;
+            case Constantes.ERROR_NO_AMIGOS:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mAmigos.getMensaje(), "Amigos", JOptionPane.INFORMATION_MESSAGE);
+                //Ocultamos el panel
+                jp_contenedor.setVisible(false);
+                //Mostramos la imagen de no afines
+                lbl_buscando.setVisible(true);
+                break;
+        }
+    }
+
+    /**
+     * Carga la informacion del amigo en pantalla
+     */
+    private void cargarAmigo() {
+
+        Amigos amigo = listaUsuariosAfines.get(posicionAfines);
+
+        String nick = amigo.getNick();
+        Image foto = amigo.getFoto();
+
+        lbl_txt_nick.setText(nick);
+
+        ImageIcon icon = new ImageIcon(foto);
+        lbl_foto.setIcon(icon);
+
+        //Cargamos la imagen de me gusta
+        cargarImagenMeGusta(amigo.isMeGusta());
     }
 
     /**
@@ -44,10 +95,19 @@ public class PanelBuscar extends javax.swing.JPanel {
      */
     private void cambiarPosicionAfines(boolean mas) {
 
-        if (mas) {
-            posicionAfines++;
-        } else {
-            posicionAfines--;
+        if (null != listaUsuariosAfines && !listaUsuariosAfines.isEmpty()) {
+            if (mas) {
+                posicionAfines++;
+            } else {
+                posicionAfines--;
+            }
+
+            if (0 > posicionAfines) {
+                posicionAfines = 0;
+            }
+            if (listaUsuariosAfines.size() == posicionAfines) {
+                posicionAfines = listaUsuariosAfines.size() - 1;
+            }
         }
     }
 
@@ -157,31 +217,54 @@ public class PanelBuscar extends javax.swing.JPanel {
 
     private void lbl_me_gustaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_me_gustaMouseClicked
 
-        ImageIcon iconMegusta = null;
+        MsjServAmigos mAmigos = new MsjServAmigos();
+        mAmigos.setIdUsuario(idUsuario);
+
+        Amigos amigo = listaUsuariosAfines.get(posicionAfines);
+        boolean meGusta = amigo.isMeGusta();
 
         if (meGusta) {
-            cargarImagenMeGusta(meGusta);
             meGusta = false;
+            amigo.setMeGusta(meGusta);
         } else {
-            cargarImagenMeGusta(meGusta);
             meGusta = true;
+            amigo.setMeGusta(meGusta);
         }
-        lbl_me_gusta.setIcon(iconMegusta);
 
+        mAmigos.getListaAmigos().add(amigo);
+
+        mAmigos.setAccion(Constantes.ACCION_ME_GUSTA);
+
+        //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
+        switch (mAmigos.getCodError()) {
+            case Constantes.OK:
+                cargarImagenMeGusta(meGusta);
+                break;
+            case Constantes.ERROR_BD:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mAmigos.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
     }//GEN-LAST:event_lbl_me_gustaMouseClicked
 
     private void lbl_mensajeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_mensajeMouseClicked
-        // TODO
+        Amigos amigo = listaUsuariosAfines.get(posicionAfines);
+        
+        Usuario user = new Usuario();
+        user.setIdUsuario(amigo.getIdUsuario());
+        user.setNick(amigo.getNick());
+        
+        principal.mostrarPanelEnviarMensaje(Constantes.TIPO_BUSQUEDA, user, true, idUsuario);
     }//GEN-LAST:event_lbl_mensajeMouseClicked
 
     private void lbl_flecha_izqMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_flecha_izqMouseClicked
-        // TODO
         cambiarPosicionAfines(true);
+        cargarAmigo();
     }//GEN-LAST:event_lbl_flecha_izqMouseClicked
 
     private void lbl_flecha_derMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_flecha_derMouseClicked
-        // TODO
         cambiarPosicionAfines(false);
+        cargarAmigo();
     }//GEN-LAST:event_lbl_flecha_derMouseClicked
 
 

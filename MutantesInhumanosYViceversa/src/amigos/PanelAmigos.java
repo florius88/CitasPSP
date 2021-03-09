@@ -1,14 +1,22 @@
 package amigos;
 
+import entidades.Amigos;
+import entidades.Usuario;
+import envio.MsjServAmigos;
+import envio.MsjServUsuario;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import java.util.ArrayList;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import principal.Principal;
+import utilidades.Constantes;
 
 /**
  *
@@ -16,6 +24,8 @@ import principal.Principal;
  */
 public class PanelAmigos extends javax.swing.JPanel {
 
+    private int idUsuario;
+    private ArrayList<Amigos> listaAmigos = null;
     private Principal principal = null;
 
     /**
@@ -80,8 +90,29 @@ public class PanelAmigos extends javax.swing.JPanel {
      * Recoge la informacion y redirige al panel del detalle
      */
     private void verAmigo() {
-        //Mostramos el panel del detalle del usuario
-        principal.mostrarPanelVerAmigo();
+        
+        MsjServUsuario mUsuario = new MsjServUsuario();
+        mUsuario.setAccion(Constantes.ACCION_DEVOLVER_USUARIO);
+        Usuario usuario = new Usuario();
+        
+        Amigos amigo = listaAmigos.get(jt_tabla_amigos.getSelectedRow());
+        
+        usuario.setIdUsuario(amigo.getIdUsuario());
+        
+        mUsuario.setUsuario(usuario);
+
+        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+        switch (mUsuario.getCodError()) {
+            case Constantes.OK:
+                //Mostramos el panel del detalle del usuario
+                principal.mostrarPanelVerAmigo(mUsuario.getUsuario(),amigo.isConectado(),idUsuario);
+                break;
+            case Constantes.ERROR_BD:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
+
     }
 
     /**
@@ -125,13 +156,65 @@ public class PanelAmigos extends javax.swing.JPanel {
 
     /**
      * Cargamos la informacion en la tabla
+     *
+     * @param usuario
      */
-    public void cargarDatos() {
-        // TODO
-        limpiarTabla();
+    public void cargarDatos(Usuario usuario) {
 
-        jp_contenedor.setVisible(false);
-        lbl_no_amigos.setVisible(true);
+        limpiarTabla();
+        
+        idUsuario = usuario.getIdUsuario();
+
+        MsjServAmigos mAmigos = new MsjServAmigos();
+        mAmigos.setIdUsuario(usuario.getIdUsuario());
+        mAmigos.setAccion(Constantes.ACCION_LISTA_AMIGOS);
+
+        //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
+        switch (mAmigos.getCodError()) {
+            case Constantes.OK:
+                //Ocultamos la imagen de no amigos
+                lbl_no_amigos.setVisible(false);
+                
+                //TODO REVISAR, el servidor al dar el OK tiene que tener informacion, si no seria el otro error!!!!!!!!!!!
+                if (null != mAmigos.getListaAmigos() && !mAmigos.getListaAmigos().isEmpty()) {
+
+                    listaAmigos = mAmigos.getListaAmigos();
+
+                    DefaultTableModel model = (DefaultTableModel) jt_tabla_amigos.getModel();
+
+                    for (Amigos amigo : listaAmigos) {
+
+                        if (null != amigo) {
+
+                            String nick = amigo.getNick();
+
+                            JLabel lConectado;
+
+                            if (amigo.isConectado()) {
+                                ImageIcon iconLeido = new ImageIcon(getClass().getResource(Constantes.ICO_CONECTADO));
+                                lConectado = new JLabel(iconLeido);
+                            } else {
+                                ImageIcon iconLeido = new ImageIcon(getClass().getResource(Constantes.ICO_NO_CONECTADO));
+                                lConectado = new JLabel(iconLeido);
+                            }
+
+                            model.addRow(new Object[]{nick, lConectado});
+                        }
+                    }
+
+                    jt_tabla_amigos.setModel(model);
+                }
+
+                break;
+            case Constantes.ERROR_NO_AMIGOS:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mAmigos.getMensaje(), "Amigos", JOptionPane.INFORMATION_MESSAGE);
+                //Ocultamos el panel
+                jp_contenedor.setVisible(false);
+                //Mostramos la imagen de no amigos
+                lbl_no_amigos.setVisible(true);
+                break;
+        }
     }
 
     /**

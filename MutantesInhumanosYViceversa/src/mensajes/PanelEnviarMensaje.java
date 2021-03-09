@@ -1,11 +1,19 @@
 package mensajes;
 
+import entidades.Adjuntos;
+import entidades.Mensaje;
+import entidades.Usuario;
+import envio.MsjServMsj;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import principal.Principal;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import utilidades.Constantes;
 
 /**
@@ -14,26 +22,57 @@ import utilidades.Constantes;
  */
 public class PanelEnviarMensaje extends javax.swing.JPanel {
 
+    private final Mensaje msjEnviar = new Mensaje();
+    private Mensaje msjRecibido;
     private Principal principal = null;
     private int ventana = 0;
+    private Usuario usuario;
+    private boolean conectado;
+    private int idUsuario;
 
     /**
      * Constructor
-     *
+     * 
      * @param principal
      * @param ventana
+     * @param usuario
+     * @param conectado
+     * @param idUsuario 
      */
-    public PanelEnviarMensaje(Principal principal, int ventana) {
+    public PanelEnviarMensaje(Principal principal, int ventana, Usuario usuario, boolean conectado, int idUsuario) {
         initComponents();
 
         this.principal = principal;
         this.ventana = ventana;
-
+        this.usuario = usuario;
+        this.conectado = conectado;
+        this.idUsuario = idUsuario;
+        
         //Cambiamos preferencias de la tabla
         initTabla();
 
         //Cargamos la informacion
-        cargarDatos();
+        cargarDatos(null);
+    }
+    
+    /**
+     * Constructor
+     *
+     * @param msj
+     * @param principal
+     * @param ventana
+     */
+    public PanelEnviarMensaje(Mensaje msj, Principal principal, int ventana) {
+        initComponents();
+
+        this.principal = principal;
+        this.ventana = ventana;
+        
+        //Cambiamos preferencias de la tabla
+        initTabla();
+
+        //Cargamos la informacion
+        cargarDatos(msj);
     }
 
     /**
@@ -84,11 +123,9 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         //Obtiene el nombre del documento para mostrar en el dialogo
         String txtAdj = (String) jt_tabla_adjuntos.getModel().getValueAt(jt_tabla_adjuntos.getSelectedRow(), 0);
 
-        //TODO
-        Image retValue = Toolkit.getDefaultToolkit().
-                getImage(ClassLoader.getSystemResource(Constantes.ICO_APP));
+        Adjuntos adj = msjEnviar.getListaAdjuntosEmisor().get(jt_tabla_adjuntos.getSelectedRow());
 
-        ImageIcon icon = new ImageIcon(retValue);
+        ImageIcon icon = new ImageIcon(adj.getAdjunto());
 
         //Muestra el dialogo
         DialogAdjunto dialog = new DialogAdjunto(principal, true, icon);
@@ -97,8 +134,34 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         dialog.setVisible(true);
     }
 
-    private void cargarDatos() {
-        // TODO
+    /**
+     * Carga informacion en el panel
+     *
+     * @param msj
+     */
+    private void cargarDatos(Mensaje msj) {
+        if (null != msj) {
+            this.msjRecibido = msj;
+            String nick = msjRecibido.getNickEmisor();
+            lbl_txt_nick.setText(nick);
+
+            //El emisor del mensaje es el usuario que lo recibio
+            msjEnviar.setIdUsuarioEmisor(msjRecibido.getIdUsuarioReceptor());
+            //El receptor del mensaje es el usuario que lo envio
+            msjEnviar.setIdUsuarioReceptor(msjRecibido.getIdUsuarioEmisor());
+            msjEnviar.setNickEmisor(nick);
+            
+        } else if (null != usuario){
+            
+            String nick = usuario.getNick();
+            lbl_txt_nick.setText(nick);
+
+            //El emisor del mensaje es el usuario que lo recibio
+            msjEnviar.setIdUsuarioEmisor(idUsuario);
+            //El receptor del mensaje es el usuario que lo envio
+            msjEnviar.setIdUsuarioReceptor(usuario.getIdUsuario());
+            msjEnviar.setNickEmisor(nick);
+        }
     }
 
     /**
@@ -107,13 +170,13 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
     private void volver() {
         switch (ventana) {
             case Constantes.TIPO_MENSAJE:
-                principal.mostrarPanelVerMensaje();
+                principal.mostrarPanelVerMensaje(msjRecibido);
                 break;
             case Constantes.TIPO_BUSQUEDA:
                 principal.mostrarPanelBusqueda();
                 break;
             case Constantes.TIPO_AMIGOS:
-                principal.mostrarPanelVerAmigo();
+                principal.mostrarPanelVerAmigo(usuario,conectado,idUsuario);
                 break;
         }
     }
@@ -273,22 +336,100 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_volverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_volverActionPerformed
-        // TODO
+        //Redirigir al panel que corresponda
         volver();
     }//GEN-LAST:event_btn_volverActionPerformed
 
     private void btn_enviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_enviarActionPerformed
-        // TODO
+
+        //Obtiene la informacion del panel
+        informacionVentana();
+
+        MsjServMsj mMsj = new MsjServMsj();
+        mMsj.setAccion(Constantes.ACCION_ENVIAR_MSJ);
+        mMsj.setMsj(msjEnviar);
+
+        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+        switch (mMsj.getCodError()) {
+            case Constantes.OK:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mMsj.getMensaje());
+                //Redirigir al panel que corresponda
+                volver();
+                break;
+            case Constantes.ERROR_NO_MENSAJES:
+            case Constantes.ERROR_BD:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mMsj.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
     }//GEN-LAST:event_btn_enviarActionPerformed
 
     private void btn_adjuntarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_adjuntarActionPerformed
-        // TODO
+        //Muestra el cuadro de dialogo para seleccionar imagenes
+        JFileChooser selectorArchivos = new JFileChooser();
+        FileNameExtensionFilter filtroImagen = new FileNameExtensionFilter("JPG, PNG", "jpg", "png");
+        selectorArchivos.setFileFilter(filtroImagen);
+        selectorArchivos.showOpenDialog(this);
+        File archivo = selectorArchivos.getSelectedFile();
+
+        //En caso de seleccionar un documento lo guarda en el objeto a enviar
+        if (null != archivo) {
+            String origen = archivo.getPath();
+            ImageIcon icon = new ImageIcon(origen);
+            //Redimensionamos la imagen al espacio del label
+            Image image = icon.getImage();
+            //Se ecala de manera suave
+            Image newimg = image.getScaledInstance(800, 600, java.awt.Image.SCALE_SMOOTH);
+
+            Adjuntos adj = new Adjuntos();
+            adj.setAdjunto(newimg);
+
+            msjEnviar.getListaAdjuntosEmisor().add(adj);
+
+            DefaultTableModel model = (DefaultTableModel) jt_tabla_adjuntos.getModel();
+
+            model.addRow(new Object[]{origen});
+
+            jt_tabla_adjuntos.setModel(model);
+        }
     }//GEN-LAST:event_btn_adjuntarActionPerformed
 
     private void btn_eliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_eliminarActionPerformed
-        // TODO
+        //Elimina de la tabla el documento adjunto seleccionado
+        DefaultTableModel model = (DefaultTableModel) jt_tabla_adjuntos.getModel();
+
+        int posAdj = jt_tabla_adjuntos.getSelectedRow();
+
+        //Comprueba de que este seleccionado un documento, para quitarlo del objeto
+        if (posAdj < 0) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar una imagen de la tabla.");
+        } else {
+
+            int option;
+            option = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Estás seguro de que quieres quitar la imagen?",
+                    "Mensaje",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (option == JOptionPane.YES_OPTION) {
+
+                msjEnviar.getListaAdjuntosEmisor().remove(posAdj);
+                model.removeRow(posAdj);
+            }
+        }
     }//GEN-LAST:event_btn_eliminarActionPerformed
 
+    /**
+     * Obtiene la informacion de la ventana y la pasa al usuario
+     */
+    private void informacionVentana() {
+
+        //Se obtiene el contenido del mensaje
+        String texto = jta_mensaje.getText();
+        msjEnviar.setMensajeEmisor(texto);
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_adjuntar;

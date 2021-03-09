@@ -146,7 +146,7 @@ public class Login extends javax.swing.JFrame {
             this.setVisible(false);
 
             //Inicializamos la ventana de registro y la mostramos
-            Preferencias preferencias = new Preferencias();
+            Preferencias preferencias = new Preferencias(null);
             preferencias.setLocationRelativeTo(null);
             preferencias.setVisible(true);
         }

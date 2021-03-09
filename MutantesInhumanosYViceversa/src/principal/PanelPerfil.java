@@ -1,16 +1,42 @@
 package principal;
 
+import entidades.Hijos;
+import entidades.Interes;
+import entidades.Relacion;
+import entidades.Sexo;
+import entidades.Usuario;
+import envio.MsjServCargaVentana;
+import envio.MsjServUsuario;
+import java.awt.Image;
+import java.io.File;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import utilidades.Constantes;
+
 /**
  *
  * @author Flor
  */
 public class PanelPerfil extends javax.swing.JPanel {
 
+    private Usuario usuario = null;
+
     /**
      * Creates new form PanelPerfil
+     *
+     * @param usuario
      */
-    public PanelPerfil() {
+    public PanelPerfil(Usuario usuario) {
         initComponents();
+
+        //Rellenamos los combos
+        rellenarCombos();
+
+        //Cargamos la informacion
+        cargarInformacion(usuario);
     }
 
     /**
@@ -205,12 +231,164 @@ public class PanelPerfil extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_selec_fotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_selec_fotoActionPerformed
-        //TODO
+        //Muestra el cuadro de dialogo para seleccionar imagenes
+        JFileChooser selectorArchivos = new JFileChooser();
+        FileNameExtensionFilter filtroImagen = new FileNameExtensionFilter("JPG, PNG", "jpg", "png");
+        selectorArchivos.setFileFilter(filtroImagen);
+        selectorArchivos.showOpenDialog(this);
+        File archivo = selectorArchivos.getSelectedFile();
+
+        //En caso de seleccionar un documento lo guarda en el objeto a enviar
+        if (null != archivo) {
+            String origen = archivo.getPath();
+            ImageIcon icon = new ImageIcon(origen);
+            //Redimensionamos la imagen al espacio del label
+            Image image = icon.getImage();
+            //Se ecala de manera suave
+            Image newimg = image.getScaledInstance(420, 360, java.awt.Image.SCALE_SMOOTH);
+
+            //Almacenamos la imagen en el usuario para almacenarla con una escala grande
+            usuario.setFoto(newimg);
+
+            //Se escala de manera suave para mostrarla
+            Image imgLbl = newimg.getScaledInstance(130, 130, java.awt.Image.SCALE_SMOOTH);
+            icon = new ImageIcon(imgLbl);
+            //Pasamos la imgane al label
+            this.lbl_foto.setIcon(icon);
+        }
     }//GEN-LAST:event_btn_selec_fotoActionPerformed
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
-        //TODO
+        //Obtenemos la informacion de la ventana
+        MsjServUsuario mUsuario = new MsjServUsuario();
+        mUsuario.setAccion(Constantes.ACCION_GUARDAR_PREFERENCIAS);
+        //Obtenemos la informacion de la ventana
+        informacionVentana();
+        mUsuario.setUsuario(usuario);
+
+        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+        switch (mUsuario.getCodError()) {
+            case Constantes.OK:
+                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Perfil", JOptionPane.INFORMATION_MESSAGE);
+                break;
+            case Constantes.ERROR_NO_NICK:
+            case Constantes.ERROR_FORMATO_EMAIL:
+            case Constantes.ERROR_PWD:
+            case Constantes.ERROR_NO_FOTO:
+            case Constantes.ERROR_BD:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Perfil", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
     }//GEN-LAST:event_btn_guardarActionPerformed
+
+    /**
+     * Rellena la informacion de los combos
+     */
+    private void rellenarCombos() {
+
+        DefaultComboBoxModel modelRelacion = new DefaultComboBoxModel();
+        cb_relacion.setModel(modelRelacion);
+
+        DefaultComboBoxModel modelHijos = new DefaultComboBoxModel();
+        cb_hijos.setModel(modelHijos);
+
+        DefaultComboBoxModel modelSexo = new DefaultComboBoxModel();
+        cb_sexo.setModel(modelSexo);
+
+        DefaultComboBoxModel modelInteres = new DefaultComboBoxModel();
+        cb_interes.setModel(modelInteres);
+
+        //cb_relacion.setModel(mdljComboBox);
+        MsjServCargaVentana mServCargaVentana = new MsjServCargaVentana();
+
+        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+        switch (mServCargaVentana.getCodError()) {
+            case Constantes.OK:
+
+                for (Relacion relacion : mServCargaVentana.getListaRelacion()) {
+                    //Relacion
+                    modelRelacion.addElement(relacion);
+                }
+                for (Hijos hijos : mServCargaVentana.getListaHijos()) {
+                    //Hijos
+                    modelHijos.addElement(hijos);
+                }
+                for (Sexo sexo : mServCargaVentana.getListaSexo()) {
+                    //Sexo
+                    modelSexo.addElement(sexo);
+                }
+                for (Interes interes : mServCargaVentana.getListaInteres()) {
+                    //Interes
+                    modelInteres.addElement(interes);
+                }
+
+                break;
+            case Constantes.ERROR_BD:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mServCargaVentana.getMensaje(), "Preferencias", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
+    }
+
+    /**
+     * Cargamos la informacion del usuario en la pantalla
+     *
+     * @param usuario
+     */
+    private void cargarInformacion(Usuario usuario) {
+        this.usuario = usuario;
+
+        //Datos personales
+        if (null != usuario.getFoto()) {
+            //Se ecala de manera suave
+            Image newimg = usuario.getFoto().getScaledInstance(130, 130, java.awt.Image.SCALE_SMOOTH);
+            ImageIcon icon = new ImageIcon(newimg);
+            //Pasamos la imgane al label
+            this.lbl_foto.setIcon(icon);
+        }
+        txt_nick.setText(usuario.getNick());
+        txt_email.setText(usuario.getEmail());
+        txt_pwd.setText(usuario.getPwd());
+
+        //Preferencias
+        cb_relacion.setSelectedIndex(usuario.getRelacion()-1);
+        sl_deportivo.setValue(usuario.getDeporte());
+        sl_artisticos.setValue(usuario.getArte());
+        sl_politicos.setValue(usuario.getPolitica());
+        cb_hijos.setSelectedIndex(usuario.getHijos()-1);
+        cb_sexo.setSelectedIndex(usuario.getSexo()-1);
+        cb_interes.setSelectedIndex(usuario.getInteres()-1);
+    }
+
+    /**
+     * Obtiene la informacion de la ventana y la pasa al usuario
+     */
+    private void informacionVentana() {
+
+        String nick = txt_nick.getText();
+        usuario.setNick(nick);
+        String email = txt_email.getText();
+        usuario.setEmail(email);
+        char[] pwd = txt_pwd.getPassword();
+        if (0 < pwd.length) {
+            usuario.setPwd(String.valueOf(pwd));
+        }
+        Relacion relacion = (Relacion) cb_relacion.getSelectedItem();
+        usuario.setRelacion(relacion.getId());
+        int deporte = sl_deportivo.getValue();
+        usuario.setDeporte(deporte);
+        int arte = sl_artisticos.getValue();
+        usuario.setArte(arte);
+        int politica = sl_politicos.getValue();
+        usuario.setPolitica(politica);
+        Hijos hijos = (Hijos) cb_hijos.getSelectedItem();
+        usuario.setHijos(hijos.getId());
+        Sexo sexo = (Sexo) cb_sexo.getSelectedItem();
+        usuario.setSexo(sexo.getId());
+        Interes interes = (Interes) cb_interes.getSelectedItem();
+        usuario.setInteres(interes.getId());
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_guardar;

@@ -1,9 +1,16 @@
 package mensajes;
 
+import entidades.Mensaje;
+import entidades.Usuario;
+import envio.MsjServMensajes;
+import envio.MsjServMsj;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
@@ -12,17 +19,23 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import principal.Principal;
+import utilidades.Constantes;
 
 /**
  *
  * @author Flor
  */
 public class PanelMensajes extends javax.swing.JPanel {
-
+    private ArrayList<Mensaje> listaMensajes = null;
     private Principal principal = null;
 
     private final String COL_LEIDO = "Leido";
     private final String MSJ_NO_LEIDO = "NO";
+
+    private final int ICONO_VACIO = 1;
+    private final int ICONO_MSJ_LEIDO = 2;
+    private final int ICONO_MSJ_NO_LEIDO = 3;
+    private final int ICONO_ADJ = 4;
 
     /**
      * Constructor
@@ -91,8 +104,23 @@ public class PanelMensajes extends javax.swing.JPanel {
      * Recoge la informacion y redirige al panel del detalle
      */
     private void verDetalleMensaje() {
+        //Obtenemos el mensaje de la lista para mostrarlo
+        Mensaje msj = listaMensajes.get(jt_tabla.getSelectedRow());
+
+        //Si el mensaje no esta leido
+        if (!msj.isLeidoReceptor()) {
+            //se marca como leido 
+            msj.setLeidoReceptor(true);
+
+            MsjServMsj mMsj = new MsjServMsj();
+            mMsj.setAccion(Constantes.ACCION_ACTUALIZAR_MSJ);
+            mMsj.setMsj(msj);
+
+            //TODO No mostramos al usuario mensaje en caso de error!!!!!!!!!!!!!
+        }
+
         //Redirige al panel para ver el mensaje
-        principal.mostrarPanelVerMensaje();
+        principal.mostrarPanelVerMensaje(msj);
     }
 
     /**
@@ -277,9 +305,9 @@ public class PanelMensajes extends javax.swing.JPanel {
         int posMensaje = jt_tabla.getSelectedRow();
 
         //Se valida que tenga seleccionado un mensaje
-        if (posMensaje < 0) {
+        if (posMensaje < 0 && null != listaMensajes && !listaMensajes.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Debe seleccionar un mensaje de la tabla.");
-        } else {
+        } else if (null != listaMensajes && !listaMensajes.isEmpty()) {
 
             int option;
             option = JOptionPane.showConfirmDialog(
@@ -289,11 +317,27 @@ public class PanelMensajes extends javax.swing.JPanel {
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
             if (option == JOptionPane.YES_OPTION) {
-                //TODO ELIMINAR DE LA BD
+                //Obtenemos el mensaje de la lista para eliminarlo
+                Mensaje msj = listaMensajes.get(posMensaje);
 
-                model.removeRow(posMensaje);
+                MsjServMsj mMsj = new MsjServMsj();
+                mMsj.setAccion(Constantes.ACCION_ELIMINAR_MSJ);
+                mMsj.setMsj(msj);
 
-                JOptionPane.showMessageDialog(this, "Mensaje Eliminado.");
+                //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+                switch (mMsj.getCodError()) {
+                    case Constantes.OK:
+                        //Eliminamos de la lista el mensaje
+                        listaMensajes.remove(posMensaje);
+                        //Eliminamos de la tabla el mensaje
+                        model.removeRow(posMensaje);
+                        JOptionPane.showMessageDialog(this, mMsj.getMensaje());
+                        break;
+                    case Constantes.ERROR_BD:
+                        //Mostramos el mensaje devuelto por el servidor
+                        JOptionPane.showMessageDialog(this, mMsj.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
+                        break;
+                }
             }
         }
     }//GEN-LAST:event_btn_eliminarActionPerformed
@@ -301,9 +345,63 @@ public class PanelMensajes extends javax.swing.JPanel {
     /**
      * Cargamos la informacion en la tabla
      *
+     * @param usuario
      */
-    public void cargarDatos() {
-        // TODO
+    public void cargarDatos(Usuario usuario) {
+
+        limpiarTabla();
+
+        MsjServMensajes mMensajes = new MsjServMensajes();
+        mMensajes.setIdUsuario(usuario.getIdUsuario());
+
+        //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
+        switch (mMensajes.getCodError()) {
+            case Constantes.OK:
+
+                if (null != mMensajes.getListaMensajes() && !mMensajes.getListaMensajes().isEmpty()) {
+
+                    listaMensajes = mMensajes.getListaMensajes();
+
+                    DefaultTableModel model = (DefaultTableModel) jt_tabla.getModel();
+
+                    for (Mensaje msj : listaMensajes) {
+
+                        if (null != msj) {
+
+                            String nick = msj.getNickEmisor();
+                            String fecha = new SimpleDateFormat("dd-MM-yyyy HH:mm").format(msj.getFechaEnvioEmisor());
+
+                            JLabel lLeido;
+                            boolean noLeido = false;
+
+                            if (msj.isLeidoReceptor()) {
+                                lLeido = iconoTabla(ICONO_MSJ_LEIDO, noLeido);
+                            } else {
+                                noLeido = true;
+                                lLeido = iconoTabla(ICONO_MSJ_NO_LEIDO, noLeido);
+                            }
+
+                            JLabel lAdj;
+
+                            if (null != msj.getListaAdjuntosEmisor() && !msj.getListaAdjuntosEmisor().isEmpty()) {
+                                lAdj = iconoTabla(ICONO_ADJ, noLeido);
+                            } else {
+                                lAdj = iconoTabla(ICONO_VACIO, noLeido);
+                            }
+
+                            model.addRow(new Object[]{lLeido, nick, fecha, lAdj});
+                        }
+                    }
+
+                    jt_tabla.setModel(model);
+                }
+
+                break;
+            case Constantes.ERROR_NO_MENSAJES:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mMensajes.getMensaje(), "Mensajes", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
     }
 
     /**
@@ -318,6 +416,45 @@ public class PanelMensajes extends javax.swing.JPanel {
             }
         } catch (Exception e) {
         }
+    }
+
+    /**
+     * Devuelve un label con el icono que se pide
+     *
+     * @param tipo
+     * @return
+     */
+    private JLabel iconoTabla(int tipo, boolean noLeido) {
+
+        JLabel lIcono = null;
+
+        switch (tipo) {
+            case ICONO_VACIO:
+                lIcono = new JLabel();
+                break;
+            case ICONO_MSJ_LEIDO:
+                ImageIcon iconLeido = new ImageIcon(getClass().getResource(Constantes.ICO_MENSAJE));
+                lIcono = new JLabel(iconLeido);
+                break;
+            case ICONO_MSJ_NO_LEIDO:
+                ImageIcon iconNoLeido = new ImageIcon(getClass().getResource(Constantes.ICO_MENSAJE_NO_LEIDO));
+                lIcono = new JLabel(iconNoLeido);
+                break;
+            case ICONO_ADJ:
+                ImageIcon iconAdj = new ImageIcon(getClass().getResource(Constantes.ICO_ADJUNTOS));
+                lIcono = new JLabel(iconAdj);
+                
+                break;
+        }
+
+        if (null != lIcono && noLeido) {
+            lIcono.setName(MSJ_NO_LEIDO);
+        }
+        
+        //Muestra un ToolTip en cada imagen de la tabla
+        lIcono.setToolTipText("Doble click o Intro para ver el mensaje");
+
+        return lIcono;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

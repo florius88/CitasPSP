@@ -1,6 +1,17 @@
 package amigos;
 
+import entidades.Hijos;
+import entidades.Interes;
+import entidades.Relacion;
+import entidades.Sexo;
 import principal.Principal;
+import entidades.Usuario;
+import envio.MsjServAmigos;
+import envio.MsjServCargaVentana;
+import java.util.ArrayList;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import utilidades.Constantes;
 
 /**
  *
@@ -8,17 +19,31 @@ import principal.Principal;
  */
 public class PanelVerAmigo extends javax.swing.JPanel {
 
+    private Usuario usuarioAmigo = null;
+    private boolean conectado = false;
+    private final int idUsuario;
     private Principal principal = null;
+    private ArrayList<Relacion> listaRelacion = null;
+    private ArrayList<Hijos> listaHijos = null;
+    private ArrayList<Sexo> listaSexo = null;
+    private ArrayList<Interes> listaInteres = null;
 
     /**
      * Constructor
      *
+     * @param usuarioAmigo
+     * @param conectado
+     * @param idUsuario
      * @param principal
      */
-    public PanelVerAmigo(Principal principal) {
+    public PanelVerAmigo(Usuario usuarioAmigo, boolean conectado, int idUsuario, Principal principal) {
         initComponents();
 
+        this.idUsuario = idUsuario;
         this.principal = principal;
+
+        //Carga la informacion en el panel
+        cargarDatos(usuarioAmigo, conectado);
     }
 
     /**
@@ -197,16 +222,128 @@ public class PanelVerAmigo extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_mensajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_mensajeActionPerformed
-        // TODO
+        principal.mostrarPanelEnviarMensaje(Constantes.TIPO_AMIGOS, usuarioAmigo, conectado, idUsuario);
     }//GEN-LAST:event_btn_mensajeActionPerformed
 
     private void btn_volverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_volverActionPerformed
-        // TODO
+        principal.mostrarPanelAmigos();
     }//GEN-LAST:event_btn_volverActionPerformed
 
     private void lbl_me_gustaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_me_gustaMouseClicked
-        // TODO
+        // Se pide una confirmación antes de dejar de ser amigos
+        int option;
+        option = JOptionPane.showConfirmDialog(
+                this,
+                "¿Estás seguro de que quieres dejar de ser su amigo?",
+                "Amigo",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (option == JOptionPane.YES_OPTION) {
+
+            MsjServAmigos mAmigos = new MsjServAmigos();
+            mAmigos.setIdUsuario(usuarioAmigo.getIdUsuario());
+            mAmigos.setAccion(Constantes.ACCION_DEJAR_AMIGO);
+
+            //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
+            switch (mAmigos.getCodError()) {
+                case Constantes.OK:
+                    //Vuelve al panel de amigos
+                    principal.mostrarPanelAmigos();
+                    break;
+                case Constantes.ERROR_BD:
+                    //Mostramos el mensaje devuelto por el servidor
+                    JOptionPane.showMessageDialog(this, mAmigos.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+        }
     }//GEN-LAST:event_lbl_me_gustaMouseClicked
+
+    /**
+     * Cargamos la informacion en el panel
+     *
+     * @param usuarioAmigo
+     * @param conectado
+     */
+    private void cargarDatos(Usuario usuarioAmigo, boolean conectado) {
+
+        obtenerListasPreferencias();
+        
+        this.usuarioAmigo = usuarioAmigo;
+        this.conectado = conectado;
+
+        String nick = usuarioAmigo.getNick();
+        
+        String relacion = "";
+        if (null != listaRelacion && 0 < usuarioAmigo.getRelacion()-1){
+            relacion = listaRelacion.get(usuarioAmigo.getRelacion()-1).getDescripcion();
+        }
+        int deporte = usuarioAmigo.getDeporte();
+        int arte = usuarioAmigo.getArte();
+        int politica = usuarioAmigo.getPolitica();
+        
+        String hijos = "";
+        if (null != listaRelacion && 0 < usuarioAmigo.getHijos()-1){
+            hijos = listaHijos.get(usuarioAmigo.getHijos()-1).getDescripcion();
+        }
+        
+        String sexo = "";
+        if (null != listaRelacion && 0 < usuarioAmigo.getSexo()-1){
+            sexo = listaSexo.get(usuarioAmigo.getSexo()-1).getDescripcion();
+        }
+        
+        String interes = "";
+        if (null != listaRelacion && 0 < usuarioAmigo.getInteres()-1){
+            interes = listaInteres.get(usuarioAmigo.getInteres()-1).getDescripcion();
+        }
+
+        lbl_txt_nick.setText(nick);
+        lbl_txt_relacion.setText(relacion);
+        js_deporte.setValue(deporte);
+        js_arte.setValue(arte);
+        js_politica.setValue(politica);
+        lbl_txt_hijos.setText(hijos);
+        lbl_txt_sexo.setText(sexo);
+        lbl_txt_interes.setText(interes);
+
+        if (null != usuarioAmigo.getFoto()) {
+            ImageIcon icon = new ImageIcon(usuarioAmigo.getFoto());
+            //Pasamos la imgane al label
+            this.lbl_foto.setIcon(icon);
+        }
+
+        if (conectado) {
+            ImageIcon iconLeido = new ImageIcon(getClass().getResource(Constantes.ICO_CONECTADO));
+            lbl_conectado.setIcon(iconLeido);
+        } else {
+            ImageIcon iconLeido = new ImageIcon(getClass().getResource(Constantes.ICO_NO_CONECTADO));
+            lbl_conectado.setIcon(iconLeido);
+        }
+    }
+
+    /**
+     * Recupera la informacion de las listas de preferencias
+     */
+    private void obtenerListasPreferencias() {
+
+        //cb_relacion.setModel(mdljComboBox);
+        MsjServCargaVentana mServCargaVentana = new MsjServCargaVentana();
+
+        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+        switch (mServCargaVentana.getCodError()) {
+            case Constantes.OK:
+
+                listaRelacion = mServCargaVentana.getListaRelacion();
+                listaHijos = mServCargaVentana.getListaHijos();
+                listaSexo = mServCargaVentana.getListaSexo();
+                listaInteres = mServCargaVentana.getListaInteres();
+
+                break;
+            case Constantes.ERROR_BD:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mServCargaVentana.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -1,12 +1,24 @@
 package preferencias;
 
+import entidades.Hijos;
+import entidades.Interes;
+import entidades.Relacion;
+import entidades.Sexo;
+import entidades.Usuario;
+import envio.MsjServCargaVentana;
+import envio.MsjServUsuario;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import principal.Principal;
 import registro.Login;
 import utilidades.Constantes;
@@ -17,12 +29,21 @@ import utilidades.Constantes;
  */
 public class Preferencias extends javax.swing.JFrame {
 
+    private Usuario usuario = null;
+
     /**
      * Creates new form Preferencias
      *
+     * @param usuario
      */
-    public Preferencias() {
+    public Preferencias(Usuario usuario) {
         initComponents();
+
+        //Rellenamos los combos
+        rellenarCombos();
+
+        //Cargamos la informacion
+        cargarInformacion(usuario);
 
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -234,28 +255,154 @@ public class Preferencias extends javax.swing.JFrame {
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
 
-        JOptionPane.showMessageDialog(this, "Guardadas las preferencias", "Preferencias", JOptionPane.INFORMATION_MESSAGE);
+        MsjServUsuario mUsuario = new MsjServUsuario();
+        mUsuario.setAccion(Constantes.ACCION_GUARDAR_PREFERENCIAS);
+        //Obtenemos la informacion de la ventana
+        informacionVentana();
+        mUsuario.setUsuario(usuario);
 
-        //Ocultamos la ventana actual
-        this.setVisible(false);
+        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+        switch (mUsuario.getCodError()) {
+            case Constantes.OK:
+                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Preferencias", JOptionPane.INFORMATION_MESSAGE);
 
-        //Inicializamos la ventana de login y la mostramos
-        Principal principal = new Principal();
-        principal.setLocationRelativeTo(null);
-        principal.setVisible(true);
+                //Ocultamos la ventana actual
+                this.setVisible(false);
 
+                //Inicializamos la ventana de login y la mostramos
+                Principal principal = new Principal(usuario);
+                principal.setLocationRelativeTo(null);
+                principal.setVisible(true);
+                break;
+            case Constantes.ERROR_NO_NICK:
+            case Constantes.ERROR_NO_FOTO:
+            case Constantes.ERROR_BD:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Preferencias", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
     }//GEN-LAST:event_btn_guardarActionPerformed
 
     private void btn_selec_fotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_selec_fotoActionPerformed
-        //TODO
+        //Muestra el cuadro de dialogo para seleccionar imagenes
+        JFileChooser selectorArchivos = new JFileChooser();
+        FileNameExtensionFilter filtroImagen = new FileNameExtensionFilter("JPG, PNG", "jpg", "png");
+        selectorArchivos.setFileFilter(filtroImagen);
+        selectorArchivos.showOpenDialog(this);
+        File archivo = selectorArchivos.getSelectedFile();
+
+        //En caso de seleccionar un documento lo guarda en el objeto a enviar
+        if (null != archivo) {
+            String origen = archivo.getPath();
+            ImageIcon icon = new ImageIcon(origen);
+            //Redimensionamos la imagen al espacio del label
+            Image image = icon.getImage();
+            //Se escala de manera suave
+            Image newimg = image.getScaledInstance(420, 360, java.awt.Image.SCALE_SMOOTH);
+
+            //Almacenamos la imagen en el usuario para almacenarla
+            usuario.setFoto(newimg);
+
+            //Se escala de manera suave para mostrarla
+            Image imgLbl = newimg.getScaledInstance(130, 130, java.awt.Image.SCALE_SMOOTH);
+            icon = new ImageIcon(imgLbl);
+            //Pasamos la imgane al label
+            this.lbl_foto.setIcon(icon);
+
+        } else {
+            //Informa al usuario de que seleccione una imagen
+            JOptionPane.showMessageDialog(this, "Por favor seleccione un archivo.", "Seleccionar foto", JOptionPane.INFORMATION_MESSAGE);
+        }
     }//GEN-LAST:event_btn_selec_fotoActionPerformed
+
+    /**
+     * Rellena la informacion de los combos
+     */
+    private void rellenarCombos() {
+
+        DefaultComboBoxModel modelRelacion = new DefaultComboBoxModel();
+        cb_relacion.setModel(modelRelacion);
+
+        DefaultComboBoxModel modelHijos = new DefaultComboBoxModel();
+        cb_hijos.setModel(modelHijos);
+
+        DefaultComboBoxModel modelSexo = new DefaultComboBoxModel();
+        cb_sexo.setModel(modelSexo);
+
+        DefaultComboBoxModel modelInteres = new DefaultComboBoxModel();
+        cb_interes.setModel(modelInteres);
+
+        //cb_relacion.setModel(mdljComboBox);
+        MsjServCargaVentana mServCargaVentana = new MsjServCargaVentana();
+
+        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+        switch (mServCargaVentana.getCodError()) {
+            case Constantes.OK:
+
+                for (Relacion relacion : mServCargaVentana.getListaRelacion()) {
+                    //Relacion
+                    modelRelacion.addElement(relacion);
+                }
+                for (Hijos hijos : mServCargaVentana.getListaHijos()) {
+                    //Hijos
+                    modelHijos.addElement(hijos);
+                }
+                for (Sexo sexo : mServCargaVentana.getListaSexo()) {
+                    //Sexo
+                    modelSexo.addElement(sexo);
+                }
+                for (Interes interes : mServCargaVentana.getListaInteres()) {
+                    //Interes
+                    modelInteres.addElement(interes);
+                }
+
+                break;
+            case Constantes.ERROR_BD:
+                //Mostramos el mensaje devuelto por el servidor
+                JOptionPane.showMessageDialog(this, mServCargaVentana.getMensaje(), "Preferencias", JOptionPane.ERROR_MESSAGE);
+                break;
+        }
+    }
+
+    /**
+     * Cargamos la informacion del usuario en la pantalla
+     *
+     * @param usuario
+     */
+    private void cargarInformacion(Usuario usuario) {
+        this.usuario = usuario;
+        txt_nick.setText(usuario.getNick());
+    }
+
+    /**
+     * Obtiene la informacion de la ventana y la pasa al usuario
+     */
+    private void informacionVentana() {
+
+        String nick = txt_nick.getText();
+        usuario.setNick(nick);
+        Relacion relacion = (Relacion) cb_relacion.getSelectedItem();
+        usuario.setRelacion(relacion.getId());
+        int deporte = sl_deportivo.getValue();
+        usuario.setDeporte(deporte);
+        int arte = sl_arte.getValue();
+        usuario.setArte(arte);
+        int politica = sl_politico.getValue();
+        usuario.setPolitica(politica);
+        Hijos hijos = (Hijos) cb_hijos.getSelectedItem();
+        usuario.setHijos(hijos.getId());
+        Sexo sexo = (Sexo) cb_sexo.getSelectedItem();
+        usuario.setSexo(sexo.getId());
+        Interes interes = (Interes) cb_interes.getSelectedItem();
+        usuario.setInteres(interes.getId());
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_guardar;
     private javax.swing.JButton btn_selec_foto;
     private javax.swing.JComboBox<String> cb_hijos;
     private javax.swing.JComboBox<String> cb_interes;
-    private javax.swing.JComboBox<String> cb_relacion;
+    private javax.swing.JComboBox<Relacion> cb_relacion;
     private javax.swing.JComboBox<String> cb_sexo;
     private javax.swing.JLabel lbl_arte;
     private javax.swing.JLabel lbl_arte_mas;

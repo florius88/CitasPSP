@@ -1,12 +1,11 @@
 package mensajes;
 
+import entidades.Adjuntos;
+import entidades.Mensaje;
 import java.awt.Component;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -22,14 +21,16 @@ import utilidades.Constantes;
  */
 public class PanelVerMensaje extends javax.swing.JPanel {
 
+    private Mensaje msj;
     private Principal principal = null;
 
     /**
      * Constructor
      *
+     * @param msj
      * @param principal
      */
-    public PanelVerMensaje(Principal principal) {
+    public PanelVerMensaje(Mensaje msj, Principal principal) {
         initComponents();
 
         this.principal = principal;
@@ -38,7 +39,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         initTabla();
 
         //Cargamos la informacion
-        cargarDatos();
+        cargarDatos(msj);
     }
 
     /**
@@ -92,11 +93,9 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         //Obtiene el nombre del documento para mostrar en el dialogo
         String txtAdj = (String) jt_tabla_adjuntos.getModel().getValueAt(jt_tabla_adjuntos.getSelectedRow(), 0);
 
-        //TODO
-        Image retValue = Toolkit.getDefaultToolkit().
-                getImage(ClassLoader.getSystemResource(Constantes.ICO_APP));
+        Adjuntos adj = msj.getListaAdjuntosEmisor().get(jt_tabla_adjuntos.getSelectedRow());
 
-        ImageIcon icon = new ImageIcon(retValue);
+        ImageIcon icon = new ImageIcon(adj.getAdjunto());
 
         //Muestra el dialogo
         DialogAdjunto dialog = new DialogAdjunto(principal, true, icon);
@@ -149,11 +148,13 @@ public class PanelVerMensaje extends javax.swing.JPanel {
      *
      * @param msj
      */
-    private void cargarDatos() {
+    private void cargarDatos(Mensaje msj) {
 
-        String nick = "NickEmisor";
-        String fecha = new SimpleDateFormat("dd-MM-yyyy HH:mm").format(new Date());
-        String mensaje = "bla bla";
+        this.msj = msj;
+
+        String nick = msj.getNickEmisor();
+        String fecha = new SimpleDateFormat("dd-MM-yyyy HH:mm").format(msj.getFechaEnvioEmisor());
+        String mensaje = msj.getMensajeEmisor();
 
         lbl_txt_nick.setText(nick);
         lbl_txt_fecha.setText(fecha);
@@ -162,16 +163,27 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         //Coloca el scroll arriba del todo
         jta_mensaje.setCaretPosition(0);
 
-        DefaultTableModel model = (DefaultTableModel) jt_tabla_adjuntos.getModel();
+        if (null != msj.getListaAdjuntosEmisor() && !msj.getListaAdjuntosEmisor().isEmpty()) {
 
-        ImageIcon iconAdj = new ImageIcon(getClass().getResource(Constantes.ICO_ADJUNTOS));
-        JLabel lIcono = new JLabel(iconAdj);
-        //Muestra un ToolTip en cada imagen de la tabla
-        lIcono.setToolTipText("Doble click o Intro para ver el documento");
+            DefaultTableModel model = (DefaultTableModel) jt_tabla_adjuntos.getModel();
 
-        model.addRow(new Object[]{"Imagen adjunta nº: " + 1, lIcono});
+            int contador = 1;
+            for (Adjuntos adj : msj.getListaAdjuntosEmisor()) {
 
-        jt_tabla_adjuntos.setModel(model);
+                if (null != adj) {
+
+                    ImageIcon iconAdj = new ImageIcon(getClass().getResource(Constantes.ICO_ADJUNTOS));
+                    JLabel lIcono = new JLabel(iconAdj);
+                    //Muestra un ToolTip en cada imagen de la tabla
+                    lIcono.setToolTipText("Doble click o Intro para ver el documento");
+
+                    model.addRow(new Object[]{"Imagen adjunta nº: " + contador, lIcono});
+                }
+                contador++;
+            }
+
+            jt_tabla_adjuntos.setModel(model);
+        }
     }
 
     /**
@@ -315,11 +327,13 @@ public class PanelVerMensaje extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_volverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_volverActionPerformed
-        // TODO
+        //Vuelve al panel de todos los mensajes
+        principal.mostrarPanelMensajes();
     }//GEN-LAST:event_btn_volverActionPerformed
 
     private void btn_responderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_responderActionPerformed
-        // TODO
+        //Muestra el panel para responder el mensaje
+        principal.mostrarPanelEnviarMensaje(msj, Constantes.TIPO_MENSAJE);
     }//GEN-LAST:event_btn_responderActionPerformed
 
 

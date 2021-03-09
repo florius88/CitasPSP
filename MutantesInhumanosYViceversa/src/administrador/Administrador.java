@@ -1,5 +1,7 @@
 package administrador;
 
+import entidades.Usuario;
+import envio.MsjServAdmin;
 import java.awt.Component;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -7,7 +9,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import registro.Login;
 import utilidades.Constantes;
 
@@ -17,23 +26,33 @@ import utilidades.Constantes;
  */
 public class Administrador extends javax.swing.JFrame {
 
+    private final int COL_ACTIVO = 3;
+
+    private ArrayList<Usuario> listaUsuarios = null;
+    private Usuario usuario = null;
+
     /**
      * Constructor
      *
+     * @param usuario
      */
-    public Administrador() {
+    public Administrador(Usuario usuario) {
         initComponents();
 
+        this.usuario = usuario;
+        
         //Cambiamos preferencias de la tabla
         initTabla();
 
         //Cargamos la informacion
         cargarDatos();
 
+        jp_contenedor.setVisible(false);
+
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                // Se pide una confirmación antes de finalizar el programa
+                // Se pide una confirmacion antes de finalizar el programa
                 int option;
                 option = JOptionPane.showConfirmDialog(
                         (Component) e.getSource(),
@@ -57,7 +76,7 @@ public class Administrador extends javax.swing.JFrame {
     }
 
     /**
-     * Cambiamos preferencias de la tabla
+     * Metodo en el que cambiamos las preferencias de la tabla
      */
     private void initTabla() {
 
@@ -69,10 +88,15 @@ public class Administrador extends javax.swing.JFrame {
         java.awt.Font fuente = new java.awt.Font("Book Antiqua", 1, 20);
         jt_tabla.getTableHeader().setFont(fuente);
 
+        //Cambiamos el renderizador de las siguientes celdas para incluir imagenes
+        jt_tabla.getColumn("Activo").setCellRenderer(new CellRenderer());
+
         //Captura el evento de doble click para ver el mensaje
         jt_tabla.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
+                    //Muestra la edicion del usuario
+                    edicionUsuario();
                 }
             }
         });
@@ -82,6 +106,8 @@ public class Administrador extends javax.swing.JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    //Muestra la edicion del usuario
+                    edicionUsuario();
                 }
             }
 
@@ -96,15 +122,167 @@ public class Administrador extends javax.swing.JFrame {
     }
 
     /**
-     * Cargamos la informacion en la tabla
-     *
-     * @param usuario
+     * Metodo para renderizar la celda en la que queremos mostrar una imagen
      */
-    private void cargarDatos() {
+    private class CellRenderer implements TableCellRenderer {
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table,
+                Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+
+            TableColumn tb1 = jt_tabla.getColumn("Activo");
+            tb1.setMaxWidth(120);
+            tb1.setMinWidth(120);
+
+            jt_tabla.setRowHeight(60);
+
+            if (value instanceof JLabel) {
+                JLabel label = (JLabel) value;
+
+                //Para hacer visible la etiqueta en primer plano y fondo
+                label.setOpaque(true);
+                fillColor(table, label, isSelected);
+                return label;
+            }
+
+            return (Component) value;
+        }
+
+        public void fillColor(JTable t, JLabel l, boolean isSelected) {
+            //Establecer el fondo y el primer plano cuando se selecciona JLabel
+            if (isSelected) {
+                l.setBackground(t.getSelectionBackground());
+                l.setForeground(t.getSelectionForeground());
+            } else {
+                l.setBackground(t.getBackground());
+                l.setForeground(t.getForeground());
+            }
+        }
+    }
+
+    /**
+     * Metodo para cargar la informacion en la tabla
+     */
+    public void cargarDatos() {
+        
+        //Limpia la tabla
+        limpiarTabla();
+
+        lbl_txt_email.setText(usuario.getEmail());
 
         //TODO REVISAR
-        lbl_txt_email.setText("Email");
-        lbl_txt_rol.setText("Rol");
+        lbl_txt_rol.setText(String.valueOf(usuario.getRol()));
+
+        MsjServAdmin mAdmin = new MsjServAdmin();
+        mAdmin.setAccion(Constantes.ACCION_CARGAR_ADMIN);
+        mAdmin.setIdUsuario(usuario.getIdUsuario());
+
+        //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
+        switch (mAdmin.getCodError()) {
+            case Constantes.OK:
+                if (null != mAdmin.getListaUsuarios() && !mAdmin.getListaUsuarios().isEmpty()) {
+
+                    listaUsuarios = mAdmin.getListaUsuarios();
+
+                    DefaultTableModel model = (DefaultTableModel) jt_tabla.getModel();
+
+                    for (Usuario user : listaUsuarios) {
+
+                        if (null != user) {
+
+                            int idUsuario = user.getIdUsuario();
+                            String email = user.getEmail();
+                            String rol = String.valueOf(user.getRol());
+
+                            //Obtiene el icono para mostrar en la tabla
+                            JLabel lActivo = iconoActivoDesactivo(user.getActivo());
+
+                            model.addRow(new Object[]{idUsuario, email, rol, lActivo});
+                        }
+                    }
+
+                    jt_tabla.setModel(model);
+                }
+                break;
+            case Constantes.ERROR_NO_USUARIOS:
+                break;
+        }
+    }
+
+    /**
+     * Metodo que devuelve un label con el icono correspondiente
+     *
+     * @param activo
+     * @return
+     */
+    private JLabel iconoActivoDesactivo(boolean activo) {
+
+        JLabel lActivo;
+
+        if (activo) {
+            ImageIcon iconLeido = new ImageIcon(getClass().getResource(Constantes.ICO_USUARIO_CONECTADO));
+            lActivo = new JLabel(iconLeido);
+        } else {
+            ImageIcon iconLeido = new ImageIcon(getClass().getResource(Constantes.ICO_USUARIO_NO_CONECTADO));
+            lActivo = new JLabel(iconLeido);
+        }
+
+        return lActivo;
+    }
+
+    /**
+     * Metodo que muestra de nuevo el panel principal
+     */
+    public void mostrarPanelPrincipal() {
+
+        jp_contenedor.setVisible(false);
+        jp_contenedor.removeAll();
+        jp_panel_principal.setVisible(true);
+        jp_panel_principal.validate();
+    }
+
+    /**
+     * Metodo que redirige al panel de edicion del usuario
+     */
+    private void edicionUsuario() {
+        int posUsuario = jt_tabla.getSelectedRow();
+
+        //Se valida que tenga seleccionado un usuario
+        if (posUsuario < 0 && null != listaUsuarios && !listaUsuarios.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un usuarios de la tabla.");
+        } else if (null != listaUsuarios && !listaUsuarios.isEmpty()) {
+            int option;
+            option = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Estás seguro de querer editar al usuario?",
+                    "Administrador",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (option == JOptionPane.YES_OPTION) {
+                //Oculta el panel principal
+                jp_panel_principal.setVisible(false);
+
+                AltaEdicionAdministrador altaEdicion = new AltaEdicionAdministrador(this, listaUsuarios.get(posUsuario), true);
+                altaEdicion.setVisible(true);
+                jp_contenedor.add(altaEdicion);
+                jp_contenedor.setVisible(true);
+                jp_contenedor.validate();
+            }
+        }
+    }
+    
+    /**
+     * Metodo que limpia la tabla de todos los registros
+     */
+    public void limpiarTabla() {
+        try {
+            DefaultTableModel modelo = (DefaultTableModel) jt_tabla.getModel();
+            int filas = jt_tabla.getRowCount();
+            for (int i = 0; filas > i; i++) {
+                modelo.removeRow(0);
+            }
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -116,6 +294,7 @@ public class Administrador extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jp_panel_principal = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jt_tabla = new javax.swing.JTable();
         lbl_email = new javax.swing.JLabel();
@@ -126,6 +305,7 @@ public class Administrador extends javax.swing.JFrame {
         btn_baja = new javax.swing.JButton();
         btn_editar = new javax.swing.JButton();
         btn_activar = new javax.swing.JButton();
+        jp_contenedor = new javax.swing.JPanel();
         mb_menu = new javax.swing.JMenuBar();
         m_cerrar_sesion = new javax.swing.JMenu();
         m_salir = new javax.swing.JMenu();
@@ -137,6 +317,10 @@ public class Administrador extends javax.swing.JFrame {
         setPreferredSize(new java.awt.Dimension(1010, 670));
         setResizable(false);
 
+        jp_panel_principal.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        jt_tabla.setBackground(new java.awt.Color(232, 195, 158));
+        jt_tabla.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         jt_tabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -146,7 +330,7 @@ public class Administrador extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Boolean.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false
@@ -160,32 +344,76 @@ public class Administrador extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        jt_tabla.setGridColor(new java.awt.Color(255, 255, 255));
+        jt_tabla.setOpaque(false);
+        jt_tabla.setRowHeight(30);
+        jt_tabla.setSelectionBackground(new java.awt.Color(180, 137, 105));
+        jt_tabla.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        jt_tabla.setShowGrid(true);
         jScrollPane1.setViewportView(jt_tabla);
+
+        jp_panel_principal.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(44, 100, 910, 460));
 
         lbl_email.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_email.setText("Email:");
+        jp_panel_principal.add(lbl_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(44, 57, -1, -1));
 
         lbl_txt_email.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_txt_email.setText("Email");
+        jp_panel_principal.add(lbl_txt_email, new org.netbeans.lib.awtextra.AbsoluteConstraints(109, 57, -1, -1));
 
         lbl_rol.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_rol.setText("Rol:");
+        jp_panel_principal.add(lbl_rol, new org.netbeans.lib.awtextra.AbsoluteConstraints(66, 26, -1, -1));
 
         lbl_txt_rol.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_txt_rol.setText("Rol");
+        jp_panel_principal.add(lbl_txt_rol, new org.netbeans.lib.awtextra.AbsoluteConstraints(109, 26, -1, -1));
 
         btn_alta.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_alta.setText("Alta");
+        btn_alta.setToolTipText("Crear usuario");
+        btn_alta.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_altaActionPerformed(evt);
+            }
+        });
+        jp_panel_principal.add(btn_alta, new org.netbeans.lib.awtextra.AbsoluteConstraints(484, 34, -1, -1));
 
         btn_baja.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_baja.setText("Baja");
-        btn_baja.setToolTipText("");
+        btn_baja.setToolTipText("Eliminar usuario");
+        btn_baja.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_bajaActionPerformed(evt);
+            }
+        });
+        jp_panel_principal.add(btn_baja, new org.netbeans.lib.awtextra.AbsoluteConstraints(567, 34, -1, -1));
 
         btn_editar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_editar.setText("Editar");
+        btn_editar.setToolTipText("Editar usuario");
+        btn_editar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_editarActionPerformed(evt);
+            }
+        });
+        jp_panel_principal.add(btn_editar, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 34, -1, -1));
 
         btn_activar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_activar.setText("Activar/Desactivar");
+        btn_activar.setToolTipText("Activar/Desactivar usuario");
+        btn_activar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_activarActionPerformed(evt);
+            }
+        });
+        jp_panel_principal.add(btn_activar, new org.netbeans.lib.awtextra.AbsoluteConstraints(749, 34, -1, -1));
+
+        jp_contenedor.setMinimumSize(new java.awt.Dimension(1010, 600));
+        jp_contenedor.setPreferredSize(new java.awt.Dimension(1010, 600));
+        jp_contenedor.setRequestFocusEnabled(false);
+        jp_contenedor.setLayout(new java.awt.BorderLayout());
 
         m_cerrar_sesion.setText("Cerrar sesión");
         m_cerrar_sesion.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -212,55 +440,23 @@ public class Administrador extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(44, 44, 44)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(lbl_email)
-                            .addComponent(lbl_rol))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lbl_txt_rol)
-                            .addComponent(lbl_txt_email))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btn_alta)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btn_baja)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btn_editar)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btn_activar))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 910, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(56, Short.MAX_VALUE))
+                .addComponent(jp_panel_principal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jp_contenedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lbl_email)
-                            .addComponent(lbl_txt_email))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lbl_rol)
-                            .addComponent(lbl_txt_rol)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btn_alta)
-                        .addComponent(btn_baja)
-                        .addComponent(btn_editar)
-                        .addComponent(btn_activar)))
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 488, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(44, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jp_panel_principal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(jp_contenedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void m_cerrar_sesionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_m_cerrar_sesionMouseClicked
-        // Se pide una confirmación antes de cerrar la sesion
+        // Se pide una confirmacion antes de cerrar la sesion
         int option;
         option = JOptionPane.showConfirmDialog(
                 this,
@@ -292,12 +488,135 @@ public class Administrador extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_m_salirMouseClicked
 
+    private void btn_bajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_bajaActionPerformed
+        DefaultTableModel model = (DefaultTableModel) jt_tabla.getModel();
+
+        int posUsuario = jt_tabla.getSelectedRow();
+
+        //Se valida que tenga seleccionado un usuario
+        if (posUsuario < 0 && null != listaUsuarios && !listaUsuarios.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un usuarios de la tabla.");
+        } else if (null != listaUsuarios && !listaUsuarios.isEmpty()) {
+            int option;
+            option = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Estás seguro de querer dar de baja al usuario?",
+                    "Administrador",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (option == JOptionPane.YES_OPTION) {
+                //Obtenemos el usuario de la lista para eliminarlo
+                Usuario user = listaUsuarios.get(posUsuario);
+
+                MsjServAdmin mAdmin = new MsjServAdmin();
+                mAdmin.setAccion(Constantes.ACCION_BAJA_USUARIO);
+                mAdmin.setIdUsuario(usuario.getIdUsuario());
+                mAdmin.getListaUsuarios().add(user);
+
+                //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+                switch (mAdmin.getCodError()) {
+                    case Constantes.OK:
+                        //Eliminamos de la lista al usuario
+                        listaUsuarios.remove(posUsuario);
+                        //Eliminamos de la tabla al usuario
+                        model.removeRow(posUsuario);
+                        JOptionPane.showMessageDialog(this, mAdmin.getMensaje());
+                        break;
+                    case Constantes.ERROR_BD:
+                        //Mostramos el mensaje devuelto por el servidor
+                        JOptionPane.showMessageDialog(this, mAdmin.getMensaje(), "Administrador", JOptionPane.ERROR_MESSAGE);
+                        break;
+                }
+            }
+        }
+    }//GEN-LAST:event_btn_bajaActionPerformed
+
+    private void btn_activarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_activarActionPerformed
+        DefaultTableModel model = (DefaultTableModel) jt_tabla.getModel();
+
+        int posUsuario = jt_tabla.getSelectedRow();
+
+        //Se valida que tenga seleccionado un usuario
+        if (posUsuario < 0 && null != listaUsuarios && !listaUsuarios.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un usuarios de la tabla.");
+        } else if (null != listaUsuarios && !listaUsuarios.isEmpty()) {
+            //Obtenemos el usuario de la lista para eliminarlo
+            Usuario user = listaUsuarios.get(posUsuario);
+
+            String mensajeDialog;
+
+            //Segun su estado se muestra un mensaje u otro
+            if (user.getActivo()) {
+                mensajeDialog = "¿Estás seguro de querer desactivar al usuario?";
+            } else {
+                mensajeDialog = "¿Estás seguro de querer activar al usuario?";
+            }
+
+            int option;
+            option = JOptionPane.showConfirmDialog(
+                    this,
+                    mensajeDialog,
+                    "Administrador",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (option == JOptionPane.YES_OPTION) {
+                MsjServAdmin mAdmin = new MsjServAdmin();
+                mAdmin.setAccion(Constantes.ACCION_ACTIVAR_USUARIO);
+                mAdmin.setIdUsuario(usuario.getIdUsuario());
+
+                //Se cambia el valor de su estado
+                if (user.getActivo()) {
+                    user.setActivo(false);
+                } else {
+                    user.setActivo(true);
+                }
+
+                mAdmin.getListaUsuarios().add(user);
+
+                //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+                switch (mAdmin.getCodError()) {
+                    case Constantes.OK:
+                        //Actualizamos la informacion del usuario en la lista
+                        listaUsuarios.get(posUsuario).setActivo(user.getActivo());
+                        //Mostramos en nuevo icono en la tabla
+                        JLabel lActivo = iconoActivoDesactivo(user.getActivo());
+                        model.setValueAt(lActivo, posUsuario, COL_ACTIVO);
+                        //Mostramos el mensaje devuelto por el servidor
+                        JOptionPane.showMessageDialog(this, mAdmin.getMensaje());
+                        break;
+                    case Constantes.ERROR_BD:
+                        //Mostramos el mensaje devuelto por el servidor
+                        JOptionPane.showMessageDialog(this, mAdmin.getMensaje(), "Administrador", JOptionPane.ERROR_MESSAGE);
+                        break;
+                }
+            }
+        }
+    }//GEN-LAST:event_btn_activarActionPerformed
+
+    private void btn_altaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_altaActionPerformed
+        //Oculta el panel principal
+        jp_panel_principal.setVisible(false);
+
+        AltaEdicionAdministrador altaEdicion = new AltaEdicionAdministrador(this, null, false);
+        altaEdicion.setVisible(true);
+        jp_contenedor.add(altaEdicion);
+        jp_contenedor.setVisible(true);
+        jp_contenedor.validate();
+    }//GEN-LAST:event_btn_altaActionPerformed
+
+    private void btn_editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_editarActionPerformed
+        //Muestra la edicion del usuario
+        edicionUsuario();
+    }//GEN-LAST:event_btn_editarActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_activar;
     private javax.swing.JButton btn_alta;
     private javax.swing.JButton btn_baja;
     private javax.swing.JButton btn_editar;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel jp_contenedor;
+    private javax.swing.JPanel jp_panel_principal;
     private javax.swing.JTable jt_tabla;
     private javax.swing.JLabel lbl_email;
     private javax.swing.JLabel lbl_rol;
