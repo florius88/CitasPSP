@@ -212,7 +212,7 @@
     <Component class="javax.swing.JLabel" name="lbl_fondo">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/recursos/fondo_registro_1.jpg"/>
+          <Image iconType="3" name="/recursos/fondo_registro_nuevo1.jpg.png"/>
         </Property>
       </Properties>
       <Constraints>

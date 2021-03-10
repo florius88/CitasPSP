@@ -12,12 +12,12 @@ import java.util.Date;
 public class ConexBD {
 
     /**
-     * Busca si el usuario esta conectado por Id de usuario
+     * Metodo que busca si el usuario esta conectado por Id de usuario
      *
      * @param idUsuario
      * @return
      */
-    public boolean getConexionByIdUsuario(int idUsuario) {
+    public synchronized boolean getConexionByIdUsuario(int idUsuario) {
 
         boolean conectado = false;
 
@@ -51,12 +51,12 @@ public class ConexBD {
     }
 
     /**
-     * Inserta la conexion en la BD por Id de usuario
+     * Metodo que inserta la conexion en la BD por Id de usuario
      *
      * @param idUsuario
      * @return
      */
-    public boolean insertarConexionByIdUsuario(int idUsuario) {
+    public synchronized boolean insertarConexionByIdUsuario(int idUsuario) {
 
         boolean insertado = true;
 
@@ -91,12 +91,12 @@ public class ConexBD {
     }
 
     /**
-     * Elimina la conexion para el Id de usuario
+     * Metodo que elimina la conexion para el Id de usuario
      *
      * @param idUsuario
      * @return
      */
-    public boolean eliminarConexionByIdUsuario(int idUsuario) {
+    public synchronized boolean eliminarConexionByIdUsuario(int idUsuario) {
 
         boolean eliminado = true;
 

@@ -2,9 +2,9 @@ package mensajes;
 
 import mensajes.entidades.Usuario;
 import java.io.Serializable;
+import mensajes.entidades.UsuarioFirmado;
 
 /**
- *  Objeto serializable de comunicacion con el servidor para pasar el usuario
  * 
  * @author Flor
  */
@@ -15,6 +15,7 @@ public class MsjServUsuario implements Serializable{
     private int codError = 0;
     private String mensaje = "";
     private Usuario usuario;
+    private UsuarioFirmado usuarioFirmado;
 
     public int getAccion() {
         return accion;
@@ -46,5 +47,13 @@ public class MsjServUsuario implements Serializable{
 
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
+    }
+
+    public UsuarioFirmado getUsuarioFirmado() {
+        return usuarioFirmado;
+    }
+
+    public void setUsuarioFirmado(UsuarioFirmado usuarioFirmado) {
+        this.usuarioFirmado = usuarioFirmado;
     }
 }

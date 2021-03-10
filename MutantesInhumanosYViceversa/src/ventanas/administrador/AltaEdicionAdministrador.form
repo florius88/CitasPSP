@@ -219,6 +219,11 @@
       </Properties>
     </Component>
     <Container class="javax.swing.JPanel" name="jp_inf_usuario">
+      <Properties>
+        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+          <Color blue="86" green="6a" red="9f" type="rgb"/>
+        </Property>
+      </Properties>
 
       <Layout>
         <DimensionLayout dim="0">

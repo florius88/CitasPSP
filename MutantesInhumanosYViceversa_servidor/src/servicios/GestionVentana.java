@@ -46,7 +46,7 @@ public class GestionVentana {
      * @param mCargaVentana
      * @return
      */
-    public MsjServCargaVentana obtenerInfoCargaVentana(MsjServCargaVentana mCargaVentana) {
+    public synchronized MsjServCargaVentana obtenerInfoCargaVentana(MsjServCargaVentana mCargaVentana) {
 
         //Obtiene la lista de las relaciones
         ArrayList<Relacion> listaRelacionBD = servRelacion.getListaRelacion();

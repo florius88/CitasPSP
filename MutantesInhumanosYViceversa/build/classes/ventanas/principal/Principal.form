@@ -240,12 +240,12 @@
     <Container class="javax.swing.JPanel" name="jp_panel_info">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="9e" green="c3" red="e8" type="rgb"/>
+          <Color blue="b5" green="a7" red="dd" type="rgb"/>
         </Property>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
             <LineBorder thickness="2">
-              <Color PropertyName="color" blue="69" green="89" red="b4" type="rgb"/>
+              <Color PropertyName="color" blue="86" green="6a" red="9f" type="rgb"/>
             </LineBorder>
           </Border>
         </Property>
@@ -323,7 +323,7 @@
               <Font name="Book Antiqua" size="18" style="1"/>
             </Property>
             <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="0" green="99" red="33" type="rgb"/>
+              <Color blue="33" green="ff" red="66" type="rgb"/>
             </Property>
             <Property name="text" type="java.lang.String" value="0"/>
           </Properties>
@@ -349,7 +349,7 @@
     <Component class="javax.swing.JLabel" name="lbl_fondo">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/recursos/fondo_principal5.jpg"/>
+          <Image iconType="3" name="/recursos/fondo_principal_nuevo1.jpg"/>
         </Property>
         <Property name="opaque" type="boolean" value="true"/>
       </Properties>

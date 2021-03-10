@@ -14,7 +14,7 @@ public class ConexionBD {
     private java.sql.Connection Conex;
 
     /**
-     * Abre la conexion con la BD
+     * Metodo que abre la conexion con la BD
      *
      * @return
      * @throws SQLException
@@ -38,7 +38,7 @@ public class ConexionBD {
     }
 
     /**
-     * Cierra la conexion con la BD
+     * Metodo que cierra la conexion con la BD y realiza un commit de los datos
      *
      * @throws SQLException
      */

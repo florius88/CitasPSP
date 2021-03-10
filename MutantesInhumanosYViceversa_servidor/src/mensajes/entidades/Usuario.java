@@ -4,8 +4,6 @@ import java.io.Serializable;
 import javax.swing.ImageIcon;
 
 /**
- *
- * Objeto que almacena la informacion del usuario
  * 
  * @author Flor
  */

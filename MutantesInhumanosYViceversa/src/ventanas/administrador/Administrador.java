@@ -15,11 +15,13 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import ventanas.login.Login;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -74,7 +76,7 @@ public class Administrador extends javax.swing.JFrame {
     }
 
     /**
-     * Cambiamos preferencias de la tabla
+     * Metodo que cambia las preferencias de la tabla
      */
     private void initTabla() {
 
@@ -93,8 +95,22 @@ public class Administrador extends javax.swing.JFrame {
         jt_tabla.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
+                    //Ventana de dialogo de espera
+                    DialogoEspera wait = new DialogoEspera();
+
+                    SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground() throws Exception {
                     //Muestra la edicion del usuario
                     edicionUsuario();
+                            wait.close();
+                            return null;
+                        }
+                    };
+
+                    mySwingWorker.execute();
+                    wait.makeWaitMouseTable("Cargando", e);
                 }
             }
         });
@@ -104,8 +120,22 @@ public class Administrador extends javax.swing.JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    //Ventana de dialogo de espera
+                    DialogoEspera wait = new DialogoEspera();
+
+                    SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground() throws Exception {
                     //Muestra la edicion del usuario
                     edicionUsuario();
+                            wait.close();
+                            return null;
+                        }
+                    };
+
+                    mySwingWorker.execute();
+                    wait.makeWaitKeyTable("Cargando", e);
                 }
             }
 
@@ -159,7 +189,7 @@ public class Administrador extends javax.swing.JFrame {
     }
 
     /**
-     * Cargamos la informacion en la tabla
+     * Metodo para cargar la informacion en la tabla
      *
      */
     public void cargarDatos() {
@@ -180,6 +210,7 @@ public class Administrador extends javax.swing.JFrame {
         //Envia la informacion al servidor
         MsjServAdmin mAdminRecibido = (MsjServAdmin) ConexionServidor.envioObjetoServidor(mAdminEnvio);
 
+        if (null != mAdminRecibido) {
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
         switch (mAdminRecibido.getCodError()) {
             case Constantes.OK:
@@ -210,10 +241,14 @@ public class Administrador extends javax.swing.JFrame {
             case Constantes.ERROR_NO_USUARIOS:
                 break;
         }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(this, "No hay conexión con el servidor, por favor, intentelo más tarde", "Login", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
-     * Devuelve un label con el icono correspondiente
+     * Metodo que devuelve un label con la imagen correspondiente
      *
      * @param activo
      * @return
@@ -234,7 +269,7 @@ public class Administrador extends javax.swing.JFrame {
     }
 
     /**
-     * Muestra de nuevo el panel principal
+     * Metodo que muestra el panel principal
      */
     public void mostrarPanelPrincipal() {
 
@@ -245,7 +280,7 @@ public class Administrador extends javax.swing.JFrame {
     }
 
     /**
-     * Redirige al panel de edicion del usuario
+     * Metodo que redirige al panel de edicion del usuario
      */
     private void edicionUsuario() {
         int posUsuario = jt_tabla.getSelectedRow();
@@ -267,7 +302,7 @@ public class Administrador extends javax.swing.JFrame {
     }
 
     /**
-     * Limpia la tabla de todos los registros
+     * Metodo para limpiar la tabla de todos los registros
      */
     public void limpiarTabla() {
         try {
@@ -307,13 +342,15 @@ public class Administrador extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("Administración");
+        setBackground(new java.awt.Color(159, 106, 134));
         setIconImage(getIconImage());
         setMinimumSize(new java.awt.Dimension(1010, 670));
         setResizable(false);
 
+        jp_panel_principal.setBackground(new java.awt.Color(159, 106, 134));
         jp_panel_principal.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jt_tabla.setBackground(new java.awt.Color(232, 195, 158));
+        jt_tabla.setBackground(new java.awt.Color(221, 167, 181));
         jt_tabla.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         jt_tabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -338,12 +375,14 @@ public class Administrador extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jt_tabla.setGridColor(new java.awt.Color(255, 255, 255));
+        jt_tabla.setGridColor(new java.awt.Color(0, 0, 0));
         jt_tabla.setOpaque(false);
         jt_tabla.setRowHeight(30);
-        jt_tabla.setSelectionBackground(new java.awt.Color(180, 137, 105));
+        jt_tabla.setSelectionBackground(new java.awt.Color(159, 106, 134));
         jt_tabla.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jt_tabla.setShowGrid(true);
+        jt_tabla.getTableHeader().setResizingAllowed(false);
+        jt_tabla.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(jt_tabla);
 
         jp_panel_principal.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(44, 100, 910, 460));
@@ -404,6 +443,7 @@ public class Administrador extends javax.swing.JFrame {
         });
         jp_panel_principal.add(btn_activar, new org.netbeans.lib.awtextra.AbsoluteConstraints(749, 34, -1, -1));
 
+        jp_contenedor.setBackground(new java.awt.Color(159, 106, 134));
         jp_contenedor.setMinimumSize(new java.awt.Dimension(1010, 600));
         jp_contenedor.setPreferredSize(new java.awt.Dimension(1010, 600));
         jp_contenedor.setRequestFocusEnabled(false);
@@ -433,17 +473,13 @@ public class Administrador extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jp_panel_principal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addComponent(jp_contenedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jp_panel_principal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jp_panel_principal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addComponent(jp_contenedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jp_panel_principal, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -499,6 +535,13 @@ public class Administrador extends javax.swing.JFrame {
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
             if (option == JOptionPane.YES_OPTION) {
+                //Ventana de dialogo de espera
+                DialogoEspera wait = new DialogoEspera();
+
+                SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground() throws Exception {
                 //Obtenemos el usuario de la lista para eliminarlo
                 Usuario user = listaUsuarios.get(posUsuario);
 
@@ -510,8 +553,7 @@ public class Administrador extends javax.swing.JFrame {
                 //Envia la informacion al servidor
                 MsjServAdmin mAdminRecibido = (MsjServAdmin) ConexionServidor.envioObjetoServidor(mAdminEnvio);
 
-                //Envia la informacion al servidor para eliminar
-                //mAdmin = (MsjServAdmin) servidor.recepcion(mAdmin);
+                        if (null != mAdminRecibido) {
                 //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
                 switch (mAdminRecibido.getCodError()) {
                     case Constantes.OK:
@@ -519,13 +561,24 @@ public class Administrador extends javax.swing.JFrame {
                         listaUsuarios.remove(posUsuario);
                         //Eliminamos de la tabla al usuario
                         model.removeRow(posUsuario);
-                        JOptionPane.showMessageDialog(this, mAdminRecibido.getMensaje());
+                                    JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mAdminRecibido.getMensaje());
                         break;
                     case Constantes.ERROR_BD:
                         //Mostramos el mensaje devuelto por el servidor
-                        JOptionPane.showMessageDialog(this, mAdminRecibido.getMensaje(), "Administrador", JOptionPane.ERROR_MESSAGE);
+                                    JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mAdminRecibido.getMensaje(), "Administrador", JOptionPane.ERROR_MESSAGE);
                         break;
                 }
+                        } else {
+                            //Mostramos el mensaje
+                            JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), "No hay conexión con el servidor, por favor, intentelo más tarde", "Administrador", JOptionPane.ERROR_MESSAGE);
+                        }
+                        wait.close();
+                        return null;
+                    }
+                };
+
+                mySwingWorker.execute();
+                wait.makeWait("Cargando", evt);
             }
         }
     }//GEN-LAST:event_btn_bajaActionPerformed
@@ -559,6 +612,13 @@ public class Administrador extends javax.swing.JFrame {
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
             if (option == JOptionPane.YES_OPTION) {
+                //Ventana de dialogo de espera
+                DialogoEspera wait = new DialogoEspera();
+
+                SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground() throws Exception {
                 MsjServAdmin mAdminEnvio = new MsjServAdmin();
                 mAdminEnvio.setAccion(Constantes.ACCION_ACTIVAR_USUARIO);
                 mAdminEnvio.setIdUsuario(usuario.getIdUsuario());
@@ -575,6 +635,7 @@ public class Administrador extends javax.swing.JFrame {
                 //Envia la informacion al servidor
                 MsjServAdmin mAdminRecibido = (MsjServAdmin) ConexionServidor.envioObjetoServidor(mAdminEnvio);
 
+                        if (null != mAdminRecibido) {
                 //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
                 switch (mAdminRecibido.getCodError()) {
                     case Constantes.OK:
@@ -584,13 +645,24 @@ public class Administrador extends javax.swing.JFrame {
                         JLabel lActivo = iconoActivoDesactivo(user.getActivo());
                         model.setValueAt(lActivo, posUsuario, COL_ACTIVO);
                         //Mostramos el mensaje devuelto por el servidor
-                        JOptionPane.showMessageDialog(this, mAdminRecibido.getMensaje());
+                                    JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mAdminRecibido.getMensaje());
                         break;
                     case Constantes.ERROR_BD:
                         //Mostramos el mensaje devuelto por el servidor
-                        JOptionPane.showMessageDialog(this, mAdminRecibido.getMensaje(), "Administrador", JOptionPane.ERROR_MESSAGE);
+                                    JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mAdminRecibido.getMensaje(), "Administrador", JOptionPane.ERROR_MESSAGE);
                         break;
                 }
+                        } else {
+                            //Mostramos el mensaje
+                            JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), "No hay conexión con el servidor, por favor, intentelo más tarde", "Administrador", JOptionPane.ERROR_MESSAGE);
+                        }
+                        wait.close();
+                        return null;
+                    }
+                };
+
+                mySwingWorker.execute();
+                wait.makeWait("Cargando", evt);
             }
         }
     }//GEN-LAST:event_btn_activarActionPerformed
@@ -607,8 +679,22 @@ public class Administrador extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_altaActionPerformed
 
     private void btn_editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_editarActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
+
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         //Muestra la edicion del usuario
         edicionUsuario();
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
     }//GEN-LAST:event_btn_editarActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -1,6 +1,7 @@
 package ventanas.perfil;
 
 import conexion.ConexionServidor;
+import java.awt.Component;
 import mensajes.entidades.Hijos;
 import mensajes.entidades.Interes;
 import mensajes.entidades.Relacion;
@@ -14,8 +15,10 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -26,7 +29,7 @@ public class PanelPerfil extends javax.swing.JPanel {
     private Usuario usuario = null;
 
     /**
-     * Creates new form PanelPerfil
+     * Constructor
      *
      * @param usuario
      */
@@ -90,7 +93,7 @@ public class PanelPerfil extends javax.swing.JPanel {
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lbl_foto.setBackground(new java.awt.Color(204, 204, 204));
-        lbl_foto.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(232, 195, 158), 2));
+        lbl_foto.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(159, 106, 134), 2));
         lbl_foto.setOpaque(true);
         add(lbl_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 60, 130, 130));
 
@@ -155,13 +158,13 @@ public class PanelPerfil extends javax.swing.JPanel {
         lbl_deportivos.setText("Deportivos:");
         add(lbl_deportivos, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 270, -1, -1));
 
-        lbl_deporte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        lbl_deporte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos-nuevo-1.png"))); // NOI18N
         add(lbl_deporte_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 270, -1, -1));
 
         sl_deportivo.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         add(sl_deportivo, new org.netbeans.lib.awtextra.AbsoluteConstraints(672, 270, 150, 35));
 
-        lbl_deporte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        lbl_deporte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas-nuevo-1.png"))); // NOI18N
         add(lbl_deporte_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 270, -1, -1));
 
         lbl_artistico.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -169,13 +172,13 @@ public class PanelPerfil extends javax.swing.JPanel {
         lbl_artistico.setText("Artísticos:");
         add(lbl_artistico, new org.netbeans.lib.awtextra.AbsoluteConstraints(510, 350, -1, -1));
 
-        lbl_arte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        lbl_arte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos-nuevo-1.png"))); // NOI18N
         add(lbl_arte_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 350, -1, -1));
 
         sl_artisticos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         add(sl_artisticos, new org.netbeans.lib.awtextra.AbsoluteConstraints(672, 350, 150, 35));
 
-        lbl_arte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        lbl_arte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas-nuevo-1.png"))); // NOI18N
         add(lbl_arte_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 350, -1, -1));
 
         lbl_politicos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -183,13 +186,13 @@ public class PanelPerfil extends javax.swing.JPanel {
         lbl_politicos.setText("Políticos:");
         add(lbl_politicos, new org.netbeans.lib.awtextra.AbsoluteConstraints(520, 310, -1, -1));
 
-        lbl_politico_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        lbl_politico_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos-nuevo-1.png"))); // NOI18N
         add(lbl_politico_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(630, 310, -1, -1));
 
         sl_politicos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         add(sl_politicos, new org.netbeans.lib.awtextra.AbsoluteConstraints(672, 310, 150, 35));
 
-        lbl_politico_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        lbl_politico_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas-nuevo-1.png"))); // NOI18N
         add(lbl_politico_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 310, -1, -1));
 
         lbl_hijos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -250,7 +253,7 @@ public class PanelPerfil extends javax.swing.JPanel {
 
             //Almacenamos la imagen en el usuario para almacenarla con una escala grande
             usuario.setFoto(new ImageIcon(newimg));
-            
+
             //Se escala de manera suave para mostrarla
             Image imgLbl = newimg.getScaledInstance(130, 130, java.awt.Image.SCALE_SMOOTH);
             icon = new ImageIcon(imgLbl);
@@ -260,34 +263,63 @@ public class PanelPerfil extends javax.swing.JPanel {
     }//GEN-LAST:event_btn_selec_fotoActionPerformed
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
-        //Obtenemos la informacion de la ventana
-        MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
-        mUsuarioEnvio.setAccion(Constantes.ACCION_GUARDAR_PERFIL);
-        //Obtenemos la informacion de la ventana
-        informacionVentana();
-        mUsuarioEnvio.setUsuario(usuario);
+        // Se pide una confirmación antes de guardar
+        int option;
+        option = JOptionPane.showConfirmDialog(
+                this,
+                "¿Estás seguro de que quieres guardar los cambios? ",
+                "Perfil",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (option == JOptionPane.YES_OPTION) {
+            //Ventana de dialogo de espera
+            DialogoEspera wait = new DialogoEspera();
 
-        //Envia la informacion al servidor
-        MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
+            SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
 
-        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-        switch (mUsuarioRecibido.getCodError()) {
-            case Constantes.OK:
-                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Perfil", JOptionPane.INFORMATION_MESSAGE);
-                break;
-            case Constantes.ERROR_NO_NICK:
-            case Constantes.ERROR_FORMATO_EMAIL:
-            case Constantes.ERROR_PWD:
-            case Constantes.ERROR_NO_FOTO:
-            case Constantes.ERROR_BD:
-                //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Perfil", JOptionPane.ERROR_MESSAGE);
-                break;
+                @Override
+                protected Void doInBackground() throws Exception {
+                    //Obtenemos la informacion de la ventana
+                    MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
+                    mUsuarioEnvio.setAccion(Constantes.ACCION_GUARDAR_PERFIL);
+                    //Obtenemos la informacion de la ventana
+                    informacionVentana();
+                    mUsuarioEnvio.setUsuario(usuario);
+
+                    //Envia la informacion al servidor
+                    MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
+
+                    if (null != mUsuarioRecibido) {
+                        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+                        switch (mUsuarioRecibido.getCodError()) {
+                            case Constantes.OK:
+                                JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mUsuarioRecibido.getMensaje(), "Perfil", JOptionPane.INFORMATION_MESSAGE);
+                                break;
+                            case Constantes.ERROR_NO_NICK:
+                            case Constantes.ERROR_FORMATO_EMAIL:
+                            case Constantes.ERROR_PWD:
+                            case Constantes.ERROR_NO_FOTO:
+                            case Constantes.ERROR_BD:
+                                //Mostramos el mensaje devuelto por el servidor
+                                JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mUsuarioRecibido.getMensaje(), "Perfil", JOptionPane.ERROR_MESSAGE);
+                                break;
+                        }
+                    } else {
+                        //Mostramos el mensaje
+                        JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), "No hay conexión con el servidor, por favor, intentelo más tarde", "Perfil", JOptionPane.ERROR_MESSAGE);
+                    }
+                    wait.close();
+                    return null;
+                }
+            };
+
+            mySwingWorker.execute();
+            wait.makeWait("Cargando", evt);
         }
     }//GEN-LAST:event_btn_guardarActionPerformed
 
     /**
-     * Rellena la informacion de los combos
+     * Metodo que carga la informacion de los combos
      */
     private void rellenarCombos() {
 
@@ -305,41 +337,46 @@ public class PanelPerfil extends javax.swing.JPanel {
 
         //cb_relacion.setModel(mdljComboBox);
         MsjServCargaVentana mServCargaVentanaEnvio = new MsjServCargaVentana();
-        
+
         //Envia la informacion al servidor
         MsjServCargaVentana mServCargaVentanaRecibido = (MsjServCargaVentana) ConexionServidor.envioObjetoServidor(mServCargaVentanaEnvio);
 
-        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-        switch (mServCargaVentanaRecibido.getCodError()) {
-            case Constantes.OK:
+        if (null != mServCargaVentanaRecibido) {
+            //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+            switch (mServCargaVentanaRecibido.getCodError()) {
+                case Constantes.OK:
 
-                for (Relacion relacion : mServCargaVentanaRecibido.getListaRelacion()) {
-                    //Relacion
-                    modelRelacion.addElement(relacion);
-                }
-                for (Hijos hijos : mServCargaVentanaRecibido.getListaHijos()) {
-                    //Hijos
-                    modelHijos.addElement(hijos);
-                }
-                for (Sexo sexo : mServCargaVentanaRecibido.getListaSexo()) {
-                    //Sexo
-                    modelSexo.addElement(sexo);
-                }
-                for (Interes interes : mServCargaVentanaRecibido.getListaInteres()) {
-                    //Interes
-                    modelInteres.addElement(interes);
-                }
+                    for (Relacion relacion : mServCargaVentanaRecibido.getListaRelacion()) {
+                        //Relacion
+                        modelRelacion.addElement(relacion);
+                    }
+                    for (Hijos hijos : mServCargaVentanaRecibido.getListaHijos()) {
+                        //Hijos
+                        modelHijos.addElement(hijos);
+                    }
+                    for (Sexo sexo : mServCargaVentanaRecibido.getListaSexo()) {
+                        //Sexo
+                        modelSexo.addElement(sexo);
+                    }
+                    for (Interes interes : mServCargaVentanaRecibido.getListaInteres()) {
+                        //Interes
+                        modelInteres.addElement(interes);
+                    }
 
-                break;
-            case Constantes.ERROR_BD:
-                //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mServCargaVentanaRecibido.getMensaje(), "Preferencias", JOptionPane.ERROR_MESSAGE);
-                break;
+                    break;
+                case Constantes.ERROR_BD:
+                    //Mostramos el mensaje devuelto por el servidor
+                    JOptionPane.showMessageDialog(this, mServCargaVentanaRecibido.getMensaje(), "Perfil", JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(this, "No hay conexión con el servidor, por favor, intentelo más tarde", "Perfil", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     /**
-     * Cargamos la informacion del usuario en la pantalla
+     * Metodo que carga la informacion
      *
      * @param usuario
      */
@@ -359,42 +396,46 @@ public class PanelPerfil extends javax.swing.JPanel {
         txt_pwd.setText(usuario.getPwd());
 
         //Preferencias
-        cb_relacion.setSelectedIndex(usuario.getRelacion()-1);
+        cb_relacion.setSelectedIndex(usuario.getRelacion() - 1);
         sl_deportivo.setValue(usuario.getDeporte());
         sl_artisticos.setValue(usuario.getArte());
         sl_politicos.setValue(usuario.getPolitica());
-        cb_hijos.setSelectedIndex(usuario.getHijos()-1);
-        cb_sexo.setSelectedIndex(usuario.getSexo()-1);
-        cb_interes.setSelectedIndex(usuario.getInteres()-1);
+        cb_hijos.setSelectedIndex(usuario.getHijos() - 1);
+        cb_sexo.setSelectedIndex(usuario.getSexo() - 1);
+        cb_interes.setSelectedIndex(usuario.getInteres() - 1);
     }
 
     /**
-     * Obtiene la informacion de la ventana y la pasa al usuario
+     * Metodo que obtiene la informacion de la ventana
      */
     private void informacionVentana() {
+        try {
+            String nick = txt_nick.getText();
+            usuario.setNick(nick);
+            String email = txt_email.getText();
+            usuario.setEmail(email);
+            char[] pwd = txt_pwd.getPassword();
+            if (0 < pwd.length) {
+                usuario.setPwd(String.valueOf(pwd));
+            }
+            Relacion relacion = (Relacion) cb_relacion.getSelectedItem();
+            usuario.setRelacion(relacion.getId());
+            int deporte = sl_deportivo.getValue();
+            usuario.setDeporte(deporte);
+            int arte = sl_artisticos.getValue();
+            usuario.setArte(arte);
+            int politica = sl_politicos.getValue();
+            usuario.setPolitica(politica);
+            Hijos hijos = (Hijos) cb_hijos.getSelectedItem();
+            usuario.setHijos(hijos.getId());
+            Sexo sexo = (Sexo) cb_sexo.getSelectedItem();
+            usuario.setSexo(sexo.getId());
+            Interes interes = (Interes) cb_interes.getSelectedItem();
+            usuario.setInteres(interes.getId());
 
-        String nick = txt_nick.getText();
-        usuario.setNick(nick);
-        String email = txt_email.getText();
-        usuario.setEmail(email);
-        char[] pwd = txt_pwd.getPassword();
-        if (0 < pwd.length) {
-            usuario.setPwd(String.valueOf(pwd));
+        } catch (Exception e) {
+
         }
-        Relacion relacion = (Relacion) cb_relacion.getSelectedItem();
-        usuario.setRelacion(relacion.getId());
-        int deporte = sl_deportivo.getValue();
-        usuario.setDeporte(deporte);
-        int arte = sl_artisticos.getValue();
-        usuario.setArte(arte);
-        int politica = sl_politicos.getValue();
-        usuario.setPolitica(politica);
-        Hijos hijos = (Hijos) cb_hijos.getSelectedItem();
-        usuario.setHijos(hijos.getId());
-        Sexo sexo = (Sexo) cb_sexo.getSelectedItem();
-        usuario.setSexo(sexo.getId());
-        Interes interes = (Interes) cb_interes.getSelectedItem();
-        usuario.setInteres(interes.getId());
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

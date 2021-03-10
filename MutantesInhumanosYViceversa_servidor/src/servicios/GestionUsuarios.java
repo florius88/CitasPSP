@@ -1,9 +1,15 @@
 package servicios;
 
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import mensajes.MsjServUsuario;
+import mensajes.entidades.Amigos;
+import mensajes.entidades.Mensaje;
 import mensajes.entidades.Usuario;
+import modelosBD.AmigosBD;
 import modelosBD.ConexBD;
+import modelosBD.MeGustaBD;
+import modelosBD.MensajeBD;
 import modelosBD.RolBD;
 import modelosBD.UsuarioBD;
 import utilidades.Constantes;
@@ -19,6 +25,9 @@ public class GestionUsuarios {
     private UsuarioBD servUsuario = null;
     private RolBD servRol = null;
     private ConexBD servConexion = null;
+    private MensajeBD servMensaje = null;
+    private MeGustaBD servMeGusta = null;
+    private AmigosBD servAmigos = null;
 
     /**
      * Constructor
@@ -28,6 +37,9 @@ public class GestionUsuarios {
         servUsuario = new UsuarioBD();
         servRol = new RolBD();
         servConexion = new ConexBD();
+        servMensaje = new MensajeBD();
+        servMeGusta = new MeGustaBD();
+        servAmigos = new AmigosBD();
     }
 
     /**
@@ -36,12 +48,12 @@ public class GestionUsuarios {
      * ---------------------------------------------------------------------------------------------------------------
      */
     /**
-     * Validamos el acceso a la aplicacion
+     * Metodo que valida el acceso a la aplicacion
      *
      * @param mUsuario
      * @return
      */
-    public MsjServUsuario entrarLogin(MsjServUsuario mUsuario) {
+    public synchronized MsjServUsuario entrarLogin(MsjServUsuario mUsuario) {
 
         Usuario usuarioMensaje = mUsuario.getUsuario();
 
@@ -57,34 +69,14 @@ public class GestionUsuarios {
                 if (servConexion.getConexionByIdUsuario(usuarioBD.getIdUsuario())) {
                     //Se rellena el mensaje con el codigo y el error
                     mUsuario.setCodError(Constantes.ERROR_ENTRAR);
-                    mUsuario.setMensaje("El usuario ya está registrado en la aplicación. Si no puede entrar contacte con el administrador.");
+                    mUsuario.setMensaje("El usuario ya está registrado en la aplicación.\nSi no puede entrar contacte con el administrador.");
                 } else {
                     //Obtiene la descripcion del Rol
                     usuarioBD.setDescripcionRol(servRol.getDescripcionRolByCodeRol(usuarioBD.getRol()));
 
-                switch (usuarioBD.getRol()) {
-                    case 1:
-                        //Super Administrador
-
-                        //Pasamos el usuario para enviarlo
-                        mUsuario.setUsuario(usuarioBD);
-
-                        //Se rellena el mensaje con el codigo y el error
-                        mUsuario.setCodError(Constantes.OK);
-                        mUsuario.setMensaje("OK");
-                        break;
-                    case 2:
-                        //Administrador
-
-                        if (null != usuarioBD.getActivo() && !usuarioBD.getActivo()) {
-                            //Si no esta activo, se informa al usuario de que no puede acceder
-
-                            //Se rellena el mensaje con el codigo y el error
-                            mUsuario.setCodError(Constantes.ERROR_USUARIO_NO_ACTIVO);
-                            mUsuario.setMensaje("El usuario no está activo, debe esperar a que el administrador valide su solicitud");
-
-                        } else if (null != usuarioBD.getActivo() && usuarioBD.getActivo()) {
-                            //Redirigimos a la ventana de preferencias para rellenar la informacion
+                    switch (usuarioBD.getRol()) {
+                        case 1:
+                            //Super Administrador
 
                             //Pasamos el usuario para enviarlo
                             mUsuario.setUsuario(usuarioBD);
@@ -92,29 +84,19 @@ public class GestionUsuarios {
                             //Se rellena el mensaje con el codigo y el error
                             mUsuario.setCodError(Constantes.OK);
                             mUsuario.setMensaje("OK");
-                        }
-                        break;
-                    case 3:
-                        //Usuario
+                            break;
+                        case 2:
+                            //Administrador
 
-                        //Obtiene la informacion del usuario
-                        Usuario infUsuarioBD = servUsuario.getInformacionUsuarioById(usuarioBD.getIdUsuario());
+                            if (null != usuarioBD.getActivo() && !usuarioBD.getActivo()) {
+                                //Si no esta activo, se informa al usuario de que no puede acceder
 
-                        if (null != infUsuarioBD){
-                        
-                            usuarioBD.setNick(infUsuarioBD.getNick());
-                            usuarioBD.setDeporte(infUsuarioBD.getDeporte());
-                            usuarioBD.setArte(infUsuarioBD.getArte());
-                            usuarioBD.setPolitica(infUsuarioBD.getPolitica());
-                            usuarioBD.setRelacion(infUsuarioBD.getRelacion());
-                            usuarioBD.setHijos(infUsuarioBD.getHijos());
-                            usuarioBD.setSexo(infUsuarioBD.getSexo());
-                            usuarioBD.setInteres(infUsuarioBD.getInteres());
-                            usuarioBD.setFoto(infUsuarioBD.getFoto());
-                            usuarioBD.setFechaAcceso(infUsuarioBD.getFechaAcceso());
+                                //Se rellena el mensaje con el codigo y el error
+                                mUsuario.setCodError(Constantes.ERROR_USUARIO_NO_ACTIVO);
+                                mUsuario.setMensaje("El usuario no está activo, debe esperar a que el administrador valide su solicitud");
 
-                            if ((null != usuarioBD.getActivo() && usuarioBD.getActivo()) && (null != usuarioBD.getFechaAcceso())) {
-                                //Si no es la primera vez que accede, se envia a la pantalla de la aplicacion
+                            } else if (null != usuarioBD.getActivo() && usuarioBD.getActivo()) {
+                                //Redirigimos a la ventana de preferencias para rellenar la informacion
 
                                 //Pasamos el usuario para enviarlo
                                 mUsuario.setUsuario(usuarioBD);
@@ -122,33 +104,63 @@ public class GestionUsuarios {
                                 //Se rellena el mensaje con el codigo y el error
                                 mUsuario.setCodError(Constantes.OK);
                                 mUsuario.setMensaje("OK");
-
-                            } else if (null != usuarioBD.getActivo() && !usuarioBD.getActivo()) {
-                                //Si no esta activo, se informa al usuario de que no puede acceder
-
-                                //Se rellena el mensaje con el codigo y el error
-                                mUsuario.setCodError(Constantes.ERROR_USUARIO_NO_ACTIVO);
-                                mUsuario.setMensaje("El usuario no está activo, debe esperar a que el administrador valide su solicitud");
-
-                            } else if ((null != usuarioBD.getActivo() && usuarioBD.getActivo()) && null == usuarioBD.getFechaAcceso()) {
-                                //Redirigimos a la ventana de preferencias para rellenar la informacion
-
-                                //Pasamos el usuario para enviarlo
-                                mUsuario.setUsuario(usuarioBD);
-
-                                //Se rellena el mensaje con el codigo y el error
-                                mUsuario.setCodError(Constantes.OK_PRIMER_ACCESO);
-                                mUsuario.setMensaje("OK");
-
-                            } else {
-                                //Se rellena el mensaje con el codigo y el error
-                                mUsuario.setCodError(Constantes.ERROR_ENTRAR);
-                                mUsuario.setMensaje("No puede acceder a la aplicación.");
                             }
-                        }
+                            break;
+                        case 3:
+                            //Usuario
 
-                        break;
-                }
+                            //Obtiene la informacion del usuario
+                            Usuario infUsuarioBD = servUsuario.getInformacionUsuarioById(usuarioBD.getIdUsuario());
+
+                            if (null != infUsuarioBD) {
+
+                                usuarioBD.setNick(infUsuarioBD.getNick());
+                                usuarioBD.setDeporte(infUsuarioBD.getDeporte());
+                                usuarioBD.setArte(infUsuarioBD.getArte());
+                                usuarioBD.setPolitica(infUsuarioBD.getPolitica());
+                                usuarioBD.setRelacion(infUsuarioBD.getRelacion());
+                                usuarioBD.setHijos(infUsuarioBD.getHijos());
+                                usuarioBD.setSexo(infUsuarioBD.getSexo());
+                                usuarioBD.setInteres(infUsuarioBD.getInteres());
+                                usuarioBD.setFoto(infUsuarioBD.getFoto());
+                                usuarioBD.setFechaAcceso(infUsuarioBD.getFechaAcceso());
+
+                                if ((null != usuarioBD.getActivo() && usuarioBD.getActivo()) && (null != usuarioBD.getFechaAcceso())) {
+                                    //Si no es la primera vez que accede, se envia a la pantalla de la aplicacion
+
+                                    //Pasamos el usuario para enviarlo
+                                    mUsuario.setUsuario(usuarioBD);
+
+                                    //Se rellena el mensaje con el codigo y el error
+                                    mUsuario.setCodError(Constantes.OK);
+                                    mUsuario.setMensaje("OK");
+
+                                } else if (null != usuarioBD.getActivo() && !usuarioBD.getActivo()) {
+                                    //Si no esta activo, se informa al usuario de que no puede acceder
+
+                                    //Se rellena el mensaje con el codigo y el error
+                                    mUsuario.setCodError(Constantes.ERROR_USUARIO_NO_ACTIVO);
+                                    mUsuario.setMensaje("El usuario no está activo, debe esperar a que el administrador valide su solicitud");
+
+                                } else if ((null != usuarioBD.getActivo() && usuarioBD.getActivo()) && null == usuarioBD.getFechaAcceso()) {
+                                    //Redirigimos a la ventana de preferencias para rellenar la informacion
+
+                                    //Pasamos el usuario para enviarlo
+                                    mUsuario.setUsuario(usuarioBD);
+
+                                    //Se rellena el mensaje con el codigo y el error
+                                    mUsuario.setCodError(Constantes.OK_PRIMER_ACCESO);
+                                    mUsuario.setMensaje("OK");
+
+                                } else {
+                                    //Se rellena el mensaje con el codigo y el error
+                                    mUsuario.setCodError(Constantes.ERROR_ENTRAR);
+                                    mUsuario.setMensaje("No puede acceder a la aplicación.");
+                                }
+                            }
+
+                            break;
+                    }
                 }
             } else {
                 //Se rellena el mensaje con el codigo y el error
@@ -161,12 +173,12 @@ public class GestionUsuarios {
     }
 
     /**
-     * Valida la informacion antes de comprobarla en la BD
+     * Metodo que valida la informacion antes de comprobarla en la BD
      *
      * @param usuario
      * @return
      */
-    private MsjServUsuario validarInformacionLogin(Usuario usuario) {
+    private synchronized MsjServUsuario validarInformacionLogin(Usuario usuario) {
 
         MsjServUsuario mUsuario = new MsjServUsuario();
 
@@ -203,12 +215,12 @@ public class GestionUsuarios {
      * ---------------------------------------------------------------------------------------------------------------
      */
     /**
-     * Almacena la informacion del registro
+     * Metodo que almacena la informacion del registro
      *
      * @param mUsuario
      * @return
      */
-    public MsjServUsuario guardarRegistro(MsjServUsuario mUsuario) {
+    public synchronized MsjServUsuario guardarRegistro(MsjServUsuario mUsuario) {
 
         Usuario usuario = mUsuario.getUsuario();
 
@@ -224,8 +236,8 @@ public class GestionUsuarios {
                     mUsuario.setCodError(Constantes.OK);
                     mUsuario.setMensaje("Se ha registrado correctamente.");
                 } else {
-                mUsuario.setCodError(Constantes.ERROR_BD);
-                mUsuario.setMensaje("Se ha producido un error al guardar la información.");
+                    mUsuario.setCodError(Constantes.ERROR_BD);
+                    mUsuario.setMensaje("Se ha producido un error al guardar la información.");
                 }
             } else {
                 mUsuario.setCodError(Constantes.ERROR_BD);
@@ -237,11 +249,12 @@ public class GestionUsuarios {
     }
 
     /**
-     * Valida el formato de la informacion antes de darla de alta en la BD
+     * Metodo que valida el formato de la informacion antes de darla de alta en
+     * la BD
      *
      * @return
      */
-    private MsjServUsuario validarInformacionRegistro(Usuario usuario) {
+    private synchronized MsjServUsuario validarInformacionRegistro(Usuario usuario) {
 
         MsjServUsuario mUsuario = new MsjServUsuario();
         boolean correcto = true;
@@ -293,12 +306,12 @@ public class GestionUsuarios {
      * ---------------------------------------------------------------------------------------------------------------
      */
     /**
-     * Almacena la informacion de las preferencias
+     * Metodo que almacena la informacion de las preferencias
      *
      * @param mUsuario
      * @return
      */
-    public MsjServUsuario guardarPreferencias(MsjServUsuario mUsuario) {
+    public synchronized MsjServUsuario guardarPreferencias(MsjServUsuario mUsuario) {
 
         Usuario usuario = mUsuario.getUsuario();
 
@@ -334,12 +347,12 @@ public class GestionUsuarios {
     }
 
     /**
-     * Almacena la informacion del perfil
+     * Metodo que almacena la informacion del perfil
      *
      * @param mUsuario
      * @return
      */
-    public MsjServUsuario guardarPerfil(MsjServUsuario mUsuario) {
+    public synchronized MsjServUsuario guardarPerfil(MsjServUsuario mUsuario) {
 
         Usuario usuario = mUsuario.getUsuario();
 
@@ -365,12 +378,13 @@ public class GestionUsuarios {
     }
 
     /**
-     * Valida el formato de la informacion antes de guardarla en la BD
+     * Metodo que valida el formato de la informacion antes de guardarla en la
+     * BD
      *
      * @param usuario
      * @return
      */
-    private MsjServUsuario validarInformacionPerfil(Usuario usuario) {
+    private synchronized MsjServUsuario validarInformacionPerfil(Usuario usuario) {
 
         MsjServUsuario mUsuario = new MsjServUsuario();
         boolean correcto = true;
@@ -417,12 +431,12 @@ public class GestionUsuarios {
     }
 
     /**
-     * Devuelve la informacion del usuario
+     * Metodo que devuelve la informacion del usuario
      *
      * @param mUsuario
      * @return
      */
-    public MsjServUsuario obtenerUsuario(MsjServUsuario mUsuario) {
+    public synchronized MsjServUsuario obtenerUsuario(MsjServUsuario mUsuario) {
 
         Usuario usuario = mUsuario.getUsuario();
 
@@ -468,12 +482,12 @@ public class GestionUsuarios {
      * ---------------------------------------------------------------------------------------------------------------
      */
     /**
-     * Crea un usuario
+     * Metodo que crea un usuario
      *
      * @param mUsuario
      * @return
      */
-    public MsjServUsuario guardarUsuario(MsjServUsuario mUsuario) {
+    public synchronized MsjServUsuario guardarUsuario(MsjServUsuario mUsuario) {
 
         Usuario usuario = mUsuario.getUsuario();
 
@@ -485,14 +499,14 @@ public class GestionUsuarios {
             Usuario usuarioBD = servUsuario.getUsuarioByEmailPwd(usuario.getEmail(), usuario.getPwd());
 
             if (null == usuarioBD) {
-            //Guardamos el usuario en la BD
-            if (servUsuario.insertarUsuario(usuario)) {
-                mUsuario.setCodError(Constantes.OK);
-                mUsuario.setMensaje("Se ha creado el usuario correctamente.");
-            } else {
-                mUsuario.setCodError(Constantes.ERROR_BD);
-                mUsuario.setMensaje("Se ha producido un error al crear el usuario.");
-            }
+                //Guardamos el usuario en la BD
+                if (servUsuario.insertarUsuario(usuario)) {
+                    mUsuario.setCodError(Constantes.OK);
+                    mUsuario.setMensaje("Se ha creado el usuario correctamente.");
+                } else {
+                    mUsuario.setCodError(Constantes.ERROR_BD);
+                    mUsuario.setMensaje("Se ha producido un error al crear el usuario.");
+                }
             } else {
                 mUsuario.setCodError(Constantes.ERROR_BD);
                 mUsuario.setMensaje("Ya exite un usuario con el mismo email.");
@@ -503,12 +517,12 @@ public class GestionUsuarios {
     }
 
     /**
-     * Actualiza un usuario
+     * Metodo que actualiza un usuario
      *
      * @param mUsuario
      * @return
      */
-    public MsjServUsuario actualizarUsuario(MsjServUsuario mUsuario) {
+    public synchronized MsjServUsuario actualizarUsuario(MsjServUsuario mUsuario) {
 
         Usuario usuarioActualizar = mUsuario.getUsuario();
 
@@ -538,15 +552,13 @@ public class GestionUsuarios {
                         } else {
                             //Cambia de Rol
 
-                            //TODO BORRAMOS LOS DATOS DEL RESTO DE TABLAS SIN USO
-                            //Eliminar conexion
-                            //Eliminar mensajes
-                            //Eliminar documentos
-                            //Eliminar me gusta
-                            //Eliminar amigos                            
                             //Actualiza la informacion
                             if (servUsuario.actualizarUsuario(usuarioActualizar)) {
                                 if (servUsuario.eliminarInformacionUsuario(usuarioActualizar.getIdUsuario())) {
+
+                                    //Elimina toda la informacion del usuario en la BD
+                                    eliminarDatosUsuario(usuarioActualizar.getIdUsuario());
+
                                     mUsuario.setCodError(Constantes.OK);
                                     mUsuario.setMensaje("Se ha actualizado el usuario correctamente.");
 
@@ -558,6 +570,7 @@ public class GestionUsuarios {
                         }
 
                         break;
+
                     case 3:
                         //Usuario
 
@@ -612,13 +625,51 @@ public class GestionUsuarios {
     }
 
     /**
-     * Valida el formato de la informacion antes de crear/actualizar un usuario
-     * en la BD
+     * Elimina toda la informacion del usuario en la BD
+     *
+     * @param idUsuario
+     */
+    private synchronized void eliminarDatosUsuario(int idUsuario) {
+        //Eliminar conexion
+        servConexion.eliminarConexionByIdUsuario(idUsuario);
+
+        //Se obtiene los mensajes que tenga el usuario
+        ArrayList<Mensaje> listaMensajes = servMensaje.obtenerListaMensajesPorIdUsuario(idUsuario);
+        if (null != listaMensajes && !listaMensajes.isEmpty()) {
+            for (Mensaje msj : listaMensajes) {
+                //Eliminar documentos
+                servMensaje.eliminarAdjuntosMensaje(msj);
+                //Eliminar mensajes
+                servMensaje.eliminarMensaje(msj);
+            }
+        }
+
+        //Se obtiene los amigos que tenga el usuario
+        ArrayList<Amigos> listaAmigosBD = servAmigos.obtenerListaAmigosPorIdUsuario(idUsuario);
+        if (null != listaAmigosBD && !listaAmigosBD.isEmpty()) {
+            for (Amigos amigo : listaAmigosBD) {
+                //Eliminar me gusta
+                servMeGusta.eliminarMeGustaByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario());
+                servMeGusta.eliminarMeGustaByIdUsuarioAmigo(idUsuario);
+                //Si tenian amistad, se elimina
+                if (servAmigos.obtenerAmistadByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario())
+                        || servAmigos.obtenerAmistadByIdUsuarioIdUsuarioAmigo(amigo.getIdUsuario(), idUsuario)) {
+                    //Eliminar amigos
+                    servAmigos.eliminarAmgioByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario());
+                    servAmigos.eliminarAmgioByIdUsuarioIdUsuarioAmigo(amigo.getIdUsuario(), idUsuario);
+                }
+            }
+        }
+    }
+
+    /**
+     * Metodo que valida el formato de la informacion antes de crear/actualizar
+     * un usuario en la BD
      *
      * @param usuario
      * @return
      */
-    private MsjServUsuario validarInformacionUsuario(Usuario usuario) {
+    private synchronized MsjServUsuario validarInformacionUsuario(Usuario usuario) {
 
         MsjServUsuario mUsuario = new MsjServUsuario();
         boolean correcto = true;

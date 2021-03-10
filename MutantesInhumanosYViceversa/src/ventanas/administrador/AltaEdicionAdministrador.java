@@ -1,6 +1,7 @@
 package ventanas.administrador;
 
 import conexion.ConexionServidor;
+import java.awt.Component;
 import mensajes.entidades.Hijos;
 import mensajes.entidades.Interes;
 import mensajes.entidades.Relacion;
@@ -12,8 +13,10 @@ import mensajes.MsjServUsuario;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import mensajes.MsjServConexion;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -47,7 +50,7 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
     }
 
     /**
-     * Rellena la informacion de los combos
+     * Metodo que carga la informacion de los combos
      */
     private void rellenarCombos() {
 
@@ -72,6 +75,7 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
         //Envia la informacion al servidor
         MsjServCargaVentana mServCargaVentanaRecibido = (MsjServCargaVentana) ConexionServidor.envioObjetoServidor(mServCargaVentanaEnvio);
 
+        if (null != mServCargaVentanaRecibido) {
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
         switch (mServCargaVentanaRecibido.getCodError()) {
             case Constantes.OK:
@@ -106,10 +110,14 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog(this, mServCargaVentanaRecibido.getMensaje(), "Administrador", JOptionPane.ERROR_MESSAGE);
                 break;
         }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(this, "No hay conexión con el servidor, por favor, intentelo más tarde", "Administrador", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
-     * Carga la informacion en la pantalla
+     * Metodo que carga la informacion en la pantalla
      *
      * @param titulo
      */
@@ -153,7 +161,7 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
     }
 
     /**
-     * Carga la imagen que corresponde
+     * Metodo que carga la imagen que corresponde
      *
      * @param activo
      * @return
@@ -171,7 +179,7 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
     }
 
     /**
-     * Habilita o no los campos de las preferencias del usuario
+     * Metodo que habilita o no los campos de las preferencias
      *
      * @param enable
      */
@@ -207,7 +215,7 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
     }
 
     /**
-     * Obtiene la informacion de la ventana y la pasa al usuario
+     * Metodo que obtiene la informacion de la ventana y la pasa al usuario
      */
     private Usuario informacionVentana() {
 
@@ -353,6 +361,8 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
         });
 
         lbl_activo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/user_activado.png"))); // NOI18N
+
+        jp_inf_usuario.setBackground(new java.awt.Color(159, 106, 134));
 
         lbl_titulo_inf.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         lbl_titulo_inf.setText("Preferencias");
@@ -628,6 +638,15 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);
         if (option == JOptionPane.YES_OPTION) {
+            //Ventana de dialogo de espera
+            DialogoEspera wait = new DialogoEspera();
+
+            SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+                @Override
+                protected Void doInBackground() throws Exception {
+                    //Actualiza la informacion del usuario
+
             //Obtenemos la informacion de la ventana
             MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
             mUsuarioEnvio.setUsuario(informacionVentana());
@@ -642,12 +661,13 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
             //Envia la informacion al servidor
             MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
 
+                    if (null != mUsuarioRecibido) {
             //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
             switch (mUsuarioRecibido.getCodError()) {
                 case Constantes.OK:
-                    JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.INFORMATION_MESSAGE);
+                                JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.INFORMATION_MESSAGE);
                     //Ocultamos el panel
-                    this.setVisible(false);
+                                //((Component) evt.getSource()).setVisible(false);
                     //Carga la informacion de la pantalla de nuevo
                     administrador.cargarDatos();
                     //Volvemos a mostrar el panel principal
@@ -657,9 +677,20 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
                 case Constantes.ERROR_FORMATO_EMAIL:
                 case Constantes.ERROR_BD:
                     //Mostramos el mensaje devuelto por el servidor
-                    JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.ERROR_MESSAGE);
                     break;
             }
+                    } else {
+                        //Mostramos el mensaje
+                        JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), "No hay conexión con el servidor, por favor, intentelo más tarde", "Administrador", JOptionPane.ERROR_MESSAGE);
+                    }
+                    wait.close();
+                    return null;
+                }
+            };
+
+            mySwingWorker.execute();
+            wait.makeWait("Cargando", evt);
         }
     }//GEN-LAST:event_btn_guardarActionPerformed
 
@@ -673,6 +704,13 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);
         if (option == JOptionPane.YES_OPTION) {
+            //Ventana de dialogo de espera
+            DialogoEspera wait = new DialogoEspera();
+
+            SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+                @Override
+                protected Void doInBackground() throws Exception {
             MsjServConexion mConexionEnvio = new MsjServConexion();
             mConexionEnvio.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
             mConexionEnvio.setIdUsuario(usuario.getIdUsuario());
@@ -680,15 +718,27 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
             //Envia la informacion al servidor
             MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
             
+                    if (null != mUsuarioRecibido) {
             switch (mUsuarioRecibido.getCodError()) {
                 case Constantes.OK:
-                    JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.INFORMATION_MESSAGE);
+                                JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.INFORMATION_MESSAGE);
                     break;
                 case Constantes.ERROR_BD:
                     //Mostramos el mensaje devuelto por el servidor
-                    JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.ERROR_MESSAGE);
                     break;
             }
+                    } else {
+                        //Mostramos el mensaje
+                        JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), "No hay conexión con el servidor, por favor, intentelo más tarde", "Administrador", JOptionPane.ERROR_MESSAGE);
+                    }
+                    wait.close();
+                    return null;
+                }
+            };
+
+            mySwingWorker.execute();
+            wait.makeWait("Cargando", evt);
         }
     }//GEN-LAST:event_btn_eliminar_conexionActionPerformed
 

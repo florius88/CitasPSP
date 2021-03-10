@@ -12,7 +12,10 @@ import mensajes.MsjServCargaVentana;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+import mensajes.entidades.Amigos;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -90,10 +93,10 @@ public class PanelVerAmigo extends javax.swing.JPanel {
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         lbl_conectado.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_luz_verde.png"))); // NOI18N
-        add(lbl_conectado, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 70, -1, -1));
+        add(lbl_conectado, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 370, -1, -1));
 
-        lbl_foto.setBackground(new java.awt.Color(180, 137, 105));
-        lbl_foto.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(232, 195, 158), 2));
+        lbl_foto.setBackground(new java.awt.Color(159, 106, 134));
+        lbl_foto.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(159, 106, 134), 2));
         lbl_foto.setOpaque(true);
         add(lbl_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 60, 420, 360));
 
@@ -122,14 +125,14 @@ public class PanelVerAmigo extends javax.swing.JPanel {
         lbl_deporte.setText("Deportivo:");
         add(lbl_deporte, new org.netbeans.lib.awtextra.AbsoluteConstraints(546, 180, -1, -1));
 
-        lbl_deporte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        lbl_deporte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos-nuevo-1.png"))); // NOI18N
         add(lbl_deporte_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 170, -1, -1));
 
         js_deporte.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         js_deporte.setEnabled(false);
         add(js_deporte, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 180, 150, -1));
 
-        lbl_deporte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        lbl_deporte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas-nuevo-1.png"))); // NOI18N
         add(lbl_deporte_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 170, -1, -1));
 
         lbl_arte.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -137,14 +140,14 @@ public class PanelVerAmigo extends javax.swing.JPanel {
         lbl_arte.setText("Artísticos:");
         add(lbl_arte, new org.netbeans.lib.awtextra.AbsoluteConstraints(550, 220, -1, -1));
 
-        lbl_arte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        lbl_arte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos-nuevo-1.png"))); // NOI18N
         add(lbl_arte_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 210, -1, -1));
 
         js_arte.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         js_arte.setEnabled(false);
         add(js_arte, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 220, 150, -1));
 
-        lbl_arte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        lbl_arte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas-nuevo-1.png"))); // NOI18N
         add(lbl_arte_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 210, -1, -1));
 
         lbl_politica.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -152,14 +155,14 @@ public class PanelVerAmigo extends javax.swing.JPanel {
         lbl_politica.setText("Políticos:");
         add(lbl_politica, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 260, -1, -1));
 
-        lbl_politica_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        lbl_politica_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos-nuevo-1.png"))); // NOI18N
         add(lbl_politica_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(660, 250, -1, -1));
 
         js_politica.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         js_politica.setEnabled(false);
         add(js_politica, new org.netbeans.lib.awtextra.AbsoluteConstraints(700, 260, 150, -1));
 
-        lbl_politica_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        lbl_politica_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas-nuevo-1.png"))); // NOI18N
         add(lbl_politica_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 250, -1, -1));
 
         lbl_hijos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -223,11 +226,39 @@ public class PanelVerAmigo extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_mensajeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_mensajeActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
+
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         principal.mostrarPanelEnviarMensaje(Constantes.TIPO_AMIGOS, usuarioAmigo, conectado, idUsuario);
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
     }//GEN-LAST:event_btn_mensajeActionPerformed
 
     private void btn_volverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_volverActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
+
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         principal.mostrarPanelAmigos();
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
     }//GEN-LAST:event_btn_volverActionPerformed
 
     private void lbl_me_gustaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_me_gustaMouseClicked
@@ -242,12 +273,17 @@ public class PanelVerAmigo extends javax.swing.JPanel {
         if (option == JOptionPane.YES_OPTION) {
 
             MsjServAmigos mAmigosEnvio = new MsjServAmigos();
-            mAmigosEnvio.setIdUsuario(usuarioAmigo.getIdUsuario());
+            mAmigosEnvio.setIdUsuario(idUsuario);
             mAmigosEnvio.setAccion(Constantes.ACCION_DEJAR_AMIGO);
+            Amigos amigo = new Amigos();
+            amigo.setIdUsuario(usuarioAmigo.getIdUsuario());
+            amigo.setMeGusta(false);
+            mAmigosEnvio.getListaAmigos().add(amigo);
 
             //Envia la informacion al servidor
             MsjServAmigos mAmigosRecibido = (MsjServAmigos) ConexionServidor.envioObjetoServidor(mAmigosEnvio);
 
+            if (null != mAmigosRecibido) {
             //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
             switch (mAmigosRecibido.getCodError()) {
                 case Constantes.OK:
@@ -259,11 +295,15 @@ public class PanelVerAmigo extends javax.swing.JPanel {
                     JOptionPane.showMessageDialog(this, mAmigosRecibido.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
                     break;
             }
+            } else {
+                //Mostramos el mensaje
+                JOptionPane.showMessageDialog(this, "No hay conexión con el servidor, por favor, intentelo más tarde", "Amigos", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_lbl_me_gustaMouseClicked
 
     /**
-     * Cargamos la informacion en el panel
+     * Metodo para cargar la informacion en el panel
      *
      * @param usuarioAmigo
      * @param conectado
@@ -278,7 +318,7 @@ public class PanelVerAmigo extends javax.swing.JPanel {
         String nick = usuarioAmigo.getNick();
         
         String relacion = "";
-        if (null != listaRelacion && 0 < usuarioAmigo.getRelacion()-1){
+        if (null != listaRelacion && 0 <= usuarioAmigo.getRelacion() - 1) {
             relacion = listaRelacion.get(usuarioAmigo.getRelacion()-1).getDescripcion();
         }
         int deporte = usuarioAmigo.getDeporte();
@@ -286,17 +326,17 @@ public class PanelVerAmigo extends javax.swing.JPanel {
         int politica = usuarioAmigo.getPolitica();
         
         String hijos = "";
-        if (null != listaRelacion && 0 < usuarioAmigo.getHijos()-1){
+        if (null != listaRelacion && 0 <= usuarioAmigo.getHijos() - 1) {
             hijos = listaHijos.get(usuarioAmigo.getHijos()-1).getDescripcion();
         }
         
         String sexo = "";
-        if (null != listaRelacion && 0 < usuarioAmigo.getSexo()-1){
+        if (null != listaRelacion && 0 <= usuarioAmigo.getSexo() - 1) {
             sexo = listaSexo.get(usuarioAmigo.getSexo()-1).getDescripcion();
         }
         
         String interes = "";
-        if (null != listaRelacion && 0 < usuarioAmigo.getInteres()-1){
+        if (null != listaRelacion && 0 <= usuarioAmigo.getInteres() - 1) {
             interes = listaInteres.get(usuarioAmigo.getInteres()-1).getDescripcion();
         }
 
@@ -310,7 +350,6 @@ public class PanelVerAmigo extends javax.swing.JPanel {
         lbl_txt_interes.setText(interes);
 
         if (null != usuarioAmigo.getFoto()) {
-            //ImageIcon icon = new ImageIcon(usuarioAmigo.getFoto());
             //Pasamos la imgane al label
             this.lbl_foto.setIcon(usuarioAmigo.getFoto());
         }
@@ -325,7 +364,7 @@ public class PanelVerAmigo extends javax.swing.JPanel {
     }
 
     /**
-     * Recupera la informacion de las listas de preferencias
+     * Metodo que recupera la informacion de las listas de preferencias
      */
     private void obtenerListasPreferencias() {
 
@@ -334,6 +373,7 @@ public class PanelVerAmigo extends javax.swing.JPanel {
         //Envia la informacion al servidor
         MsjServCargaVentana mServCargaVentanaRecibido = (MsjServCargaVentana) ConexionServidor.envioObjetoServidor(mServCargaVentanaEnvio);
 
+        if (null != mServCargaVentanaRecibido) {
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
         switch (mServCargaVentanaRecibido.getCodError()) {
             case Constantes.OK:
@@ -348,6 +388,10 @@ public class PanelVerAmigo extends javax.swing.JPanel {
                 //Mostramos el mensaje devuelto por el servidor
                 JOptionPane.showMessageDialog(this, mServCargaVentanaRecibido.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
                 break;
+        }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(this, "No hay conexión con el servidor, por favor, intentelo más tarde", "Amigos", JOptionPane.ERROR_MESSAGE);
         }
     }
 

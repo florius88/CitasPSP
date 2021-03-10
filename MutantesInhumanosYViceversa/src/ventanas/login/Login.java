@@ -10,10 +10,13 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import ventanas.preferencias.Preferencias;
 import ventanas.principal.Principal;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -28,8 +31,8 @@ public class Login extends javax.swing.JFrame {
         initComponents();
 
         //TODO Datos para pruebas
-        txt_email.setText("f@f.es");
-        txt_pwd.setText("1234");
+//        txt_email.setText("f@f.es");
+//        txt_pwd.setText("1234");
         //TODO Datos para pruebas
 
         this.addWindowListener(new WindowAdapter() {
@@ -44,6 +47,7 @@ public class Login extends javax.swing.JFrame {
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE);
                 if (option == JOptionPane.YES_OPTION) {
+                    //Cierra la pantalla y sale de la aplicacion
                     System.exit(0);
                 }
             }
@@ -127,7 +131,7 @@ public class Login extends javax.swing.JFrame {
         });
         getContentPane().add(lbl_registro, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 270, -1, -1));
 
-        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_login_1.jpg"))); // NOI18N
+        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_login_nuevo1.jpg.png"))); // NOI18N
         getContentPane().add(lbl_fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, -20, -1, -1));
 
         pack();
@@ -144,7 +148,24 @@ public class Login extends javax.swing.JFrame {
     }//GEN-LAST:event_lbl_registroMouseClicked
 
     private void btn_entrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_entrarActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
 
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                cargarLogin();
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
+    }//GEN-LAST:event_btn_entrarActionPerformed
+
+    private void cargarLogin() {
         MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
         mUsuarioEnvio.setAccion(Constantes.ACCION_VAL_LOGIN);
         mUsuarioEnvio.setUsuario(informacionVentana());
@@ -159,12 +180,11 @@ public class Login extends javax.swing.JFrame {
                     redirigirRol(mUsuarioRecibido.getUsuario());
                     break;
                 case Constantes.OK_PRIMER_ACCESO:
-                    //TODO Redirigimos a la ventana de preferencias para rellenar la informacion
-
+                    
                     //Ocultamos la ventana actual
                     this.setVisible(false);
 
-                    //Inicializamos la ventana de registro y la mostramos
+                    //Redirigimos a la ventana de preferencias para rellenar la informacion
                     Preferencias preferencias = new Preferencias(mUsuarioRecibido.getUsuario());
                     preferencias.setLocationRelativeTo(null);
                     preferencias.setVisible(true);
@@ -178,11 +198,14 @@ public class Login extends javax.swing.JFrame {
                     JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Login", JOptionPane.ERROR_MESSAGE);
                     break;
             }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(this, "No hay conexión con el servidor, por favor, intentelo más tarde", "Login", JOptionPane.ERROR_MESSAGE);
         }
-    }//GEN-LAST:event_btn_entrarActionPerformed
+    }
 
     /**
-     * Dependiendo del rol, se redirige a un formulario u otro
+     * Metodo que redirige a un formulario u otro, segun el rol
      *
      * @param user
      */
@@ -228,7 +251,7 @@ public class Login extends javax.swing.JFrame {
     }
 
     /**
-     * Obtiene la informacion de la ventana y la pasa al usuario
+     * Metodo que obtiene la informacion de la ventana y la pasa al usuario
      *
      * @return
      */
@@ -324,12 +347,19 @@ public class Login extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
 
-                //TODO Conecta con el servidor
-                ConexionServidor.conectarServidor();
+                try {
 
                 Login login = new Login();
                 login.setLocationRelativeTo(null);
                 login.setVisible(true);
+
+                    //TODO Conecta con el servidor
+                    ConexionServidor.conectarServidor();
+
+                } catch (IOException ex) {
+                    //Mostramos el mensaje
+                    JOptionPane.showMessageDialog(null, "No hay conexión con el servidor, por favor, intentelo más tarde", "Login", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
         //</editor-fold>

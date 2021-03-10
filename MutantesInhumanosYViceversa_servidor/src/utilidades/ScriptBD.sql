@@ -74,7 +74,6 @@ insert into HIJOS (CODE,DESCRIPTION) values
 
 select * from HIJOS;
 
-
 -----------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------
 --Tablas para la gestion de la aplicación
@@ -98,16 +97,6 @@ insert into USUARIO (EMAIL,PWD,ROL,ACTIVO) values
 ('admin@admin.es','admin',1,1);
 
 select * from USUARIO;
-
-
---PRUEBAS
-DELETE FROM USUARIO WHERE ID = 2
-DELETE FROM INFORMACION_USUARIO WHERE ID_USUARIO = 3;
-
-SELECT * FROM USUARIO WHERE EMAIL = 'admin@admin.es' AND PWD = 'admin'
-SELECT * FROM INFORMACION_USUARIO
-
-INSERT INTO INFORMACION_USUARIO VALUES (11,'ver',50,50,50,1,1,1,1,null,null)
 
 -----------------------------------------------------------------------------------------------------Informacion del usuario
 
@@ -150,6 +139,8 @@ PRIMARY KEY ([ID_USUARIO] ASC))
 ALTER TABLE [CONEXION]  WITH CHECK ADD FOREIGN KEY([ID_USUARIO])
 REFERENCES [USUARIO] ([ID])
 
+select * from CONEXION
+
 -----------------------------------------------------------------------------------------------------Me gusta
 CREATE TABLE [ME_GUSTA](
 	[ID_USUARIO] [int] NOT NULL,
@@ -161,6 +152,8 @@ REFERENCES [USUARIO] ([ID])
 
 ALTER TABLE [ME_GUSTA]  WITH CHECK ADD FOREIGN KEY([ID_USUARIO_GUSTA])
 REFERENCES [USUARIO] ([ID])
+
+select * from ME_GUSTA;
 
 -----------------------------------------------------------------------------------------------------Amigos
 
@@ -175,26 +168,23 @@ REFERENCES [USUARIO] ([ID])
 ALTER TABLE [AMIGOS]  WITH CHECK ADD FOREIGN KEY([ID_USUARIO_AMIGO])
 REFERENCES [USUARIO] ([ID])
 
+select * from AMIGOS;
 
 -----------------------------------------------------------------------------------------------------Mensajes
+drop table MENSAJE
 CREATE TABLE [MENSAJE](
 	[ID] [int] IDENTITY(1,1) NOT NULL,
 	[ID_USUARIO_EMISOR] [int] NOT NULL,
 	[ID_USUARIO_RECEPTOR] [int] NOT NULL,
 	[MENSAJE] [varchar](max) NOT NULL,	
-	[FECHA_ACCESO] [datetime] NOT NULL,
+	[FECHA_ENVIO] [varchar](16) NOT NULL,
 	[LEIDO] [bit] NOT NULL default 0,
 PRIMARY KEY ([ID] ASC))
 
-ALTER TABLE [MENSAJE]  WITH CHECK ADD FOREIGN KEY([ID_USUARIO_EMISOR])
-REFERENCES [USUARIO] ([ID])
 
-ALTER TABLE [MENSAJE]  WITH CHECK ADD FOREIGN KEY([ID_USUARIO_RECEPTOR])
-REFERENCES [USUARIO] ([ID])
-
+select * from MENSAJE
 
 -----------------------------------------------------------------------------------------------------Documentacion Mensajes
-
 CREATE TABLE [DOCUMENTO_MENSAJE](
 	[ID] [int] IDENTITY(1,1) NOT NULL,
 	[ID_MENSAJE] [int] NOT NULL,	
@@ -203,3 +193,5 @@ PRIMARY KEY ([ID] ASC))
 
 ALTER TABLE [DOCUMENTO_MENSAJE]  WITH CHECK ADD FOREIGN KEY([ID_MENSAJE])
 REFERENCES [MENSAJE] ([ID])
+
+select * from DOCUMENTO_MENSAJE

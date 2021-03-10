@@ -72,7 +72,7 @@ public class Constantes {
     public static final int ERROR_NO_AMIGOS = 11;
     public static final int ERROR_NO_USUARIOS = 12;
 
-    public static final int ERROR_BD = 99;
+    public static final int ERROR_BD = 13;
 
      //Tipos de ventana
     public static final int TIPO_MENSAJE = 1;

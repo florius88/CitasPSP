@@ -5,15 +5,16 @@ import mensajes.entidades.Mensaje;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.text.SimpleDateFormat;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import ventanas.principal.Principal;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -43,7 +44,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
     }
 
     /**
-     * Cambiamos preferencias de la tabla
+     * Metodo que cambia las preferencias de la tabla
      */
     private void initTabla() {
 
@@ -62,6 +63,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         jt_tabla_adjuntos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
+                    //Redirige a ver el adjunto
                     verDocumentoAdjunto();
                 }
             }
@@ -72,6 +74,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    //Redirige a ver el adjunto
                     verDocumentoAdjunto();
                 }
             }
@@ -87,7 +90,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
     }
 
     /**
-     * Abre el dialogo con la imagen adjunta
+     * Metodo que abre el dialogo con la imagen adjunta
      */
     private void verDocumentoAdjunto() {
         //Obtiene el nombre del documento para mostrar en el dialogo
@@ -98,7 +101,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         //Muestra el dialogo
         DialogAdjunto dialog = new DialogAdjunto(principal, true, adj.getAdjunto());
         dialog.setTitle(txtAdj);
-        dialog.setLocationRelativeTo(null);
+        dialog.setLocationRelativeTo(principal);
         dialog.setVisible(true);
     }
 
@@ -142,7 +145,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
     }
 
     /**
-     * Carga la informacion en el panel
+     * Metodo para cargar la informacion
      *
      * @param msj
      */
@@ -181,6 +184,11 @@ public class PanelVerMensaje extends javax.swing.JPanel {
             }
 
             jt_tabla_adjuntos.setModel(model);
+        }
+        
+        //Si el Id del usuario es 0, es que esta eliminado y se bloquea el poder responder
+        if (0 == msj.getIdUsuarioEmisor()){
+            btn_responder.setEnabled(false);
         }
     }
 
@@ -243,7 +251,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         lbl_txt_fecha.setForeground(new java.awt.Color(255, 255, 255));
 
         jta_mensaje.setEditable(false);
-        jta_mensaje.setBackground(new java.awt.Color(232, 195, 158));
+        jta_mensaje.setBackground(new java.awt.Color(221, 167, 181));
         jta_mensaje.setColumns(20);
         jta_mensaje.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         jta_mensaje.setLineWrap(true);
@@ -253,7 +261,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         jta_mensaje.setDisabledTextColor(new java.awt.Color(0, 0, 0));
         jScrollPane1.setViewportView(jta_mensaje);
 
-        jt_tabla_adjuntos.setBackground(new java.awt.Color(232, 195, 158));
+        jt_tabla_adjuntos.setBackground(new java.awt.Color(221, 167, 181));
         jt_tabla_adjuntos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         jt_tabla_adjuntos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -273,7 +281,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         });
         jt_tabla_adjuntos.setGridColor(new java.awt.Color(255, 255, 255));
         jt_tabla_adjuntos.setRowHeight(30);
-        jt_tabla_adjuntos.setSelectionBackground(new java.awt.Color(180, 137, 105));
+        jt_tabla_adjuntos.setSelectionBackground(new java.awt.Color(159, 106, 134));
         jt_tabla_adjuntos.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jt_tabla_adjuntos.setShowGrid(true);
         jt_tabla_adjuntos.getTableHeader().setResizingAllowed(false);
@@ -325,8 +333,22 @@ public class PanelVerMensaje extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_volverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_volverActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
+
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         //Vuelve al panel de todos los mensajes
         principal.mostrarPanelMensajes();
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
     }//GEN-LAST:event_btn_volverActionPerformed
 
     private void btn_responderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_responderActionPerformed

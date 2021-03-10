@@ -35,19 +35,19 @@
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="50" y="70" width="-1" height="-1"/>
+          <AbsoluteConstraints x="50" y="370" width="-1" height="-1"/>
         </Constraint>
       </Constraints>
     </Component>
     <Component class="javax.swing.JLabel" name="lbl_foto">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="69" green="89" red="b4" type="rgb"/>
+          <Color blue="86" green="6a" red="9f" type="rgb"/>
         </Property>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
             <LineBorder thickness="2">
-              <Color PropertyName="color" blue="9e" green="c3" red="e8" type="rgb"/>
+              <Color PropertyName="color" blue="86" green="6a" red="9f" type="rgb"/>
             </LineBorder>
           </Border>
         </Property>
@@ -142,7 +142,7 @@
     <Component class="javax.swing.JLabel" name="lbl_deporte_menos">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/recursos/ico/ico_menos.png"/>
+          <Image iconType="3" name="/recursos/ico/ico_menos-nuevo-1.png"/>
         </Property>
       </Properties>
       <Constraints>
@@ -167,7 +167,7 @@
     <Component class="javax.swing.JLabel" name="lbl_deporte_mas">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/recursos/ico/ico_mas.png"/>
+          <Image iconType="3" name="/recursos/ico/ico_mas-nuevo-1.png"/>
         </Property>
       </Properties>
       <Constraints>
@@ -195,7 +195,7 @@
     <Component class="javax.swing.JLabel" name="lbl_arte_menos">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/recursos/ico/ico_menos.png"/>
+          <Image iconType="3" name="/recursos/ico/ico_menos-nuevo-1.png"/>
         </Property>
       </Properties>
       <Constraints>
@@ -220,7 +220,7 @@
     <Component class="javax.swing.JLabel" name="lbl_arte_mas">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/recursos/ico/ico_mas.png"/>
+          <Image iconType="3" name="/recursos/ico/ico_mas-nuevo-1.png"/>
         </Property>
       </Properties>
       <Constraints>
@@ -248,7 +248,7 @@
     <Component class="javax.swing.JLabel" name="lbl_politica_menos">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/recursos/ico/ico_menos.png"/>
+          <Image iconType="3" name="/recursos/ico/ico_menos-nuevo-1.png"/>
         </Property>
       </Properties>
       <Constraints>
@@ -273,7 +273,7 @@
     <Component class="javax.swing.JLabel" name="lbl_politica_mas">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/recursos/ico/ico_mas.png"/>
+          <Image iconType="3" name="/recursos/ico/ico_mas-nuevo-1.png"/>
         </Property>
       </Properties>
       <Constraints>

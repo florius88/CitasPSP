@@ -5,12 +5,17 @@ import mensajes.MsjServUsuario;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import mensajes.Firma;
 import mensajes.MsjServAdmin;
 import mensajes.MsjServAmigos;
 import mensajes.MsjServConexion;
 import mensajes.MsjServMensajes;
 import mensajes.MsjServMsj;
+import seguridad.Seguridad;
 import servicios.GestionAdministracion;
 import servicios.GestionAmigos;
 import servicios.GestionConexion;
@@ -39,7 +44,24 @@ class HiloCliente extends Thread {
 
             Object resultado = null;
 
+            //Generamos el par de clave pública y privada
+            KeyPairGenerator KeyGen = KeyPairGenerator.getInstance("RSA");
+            KeyGen.initialize(1024);
+            KeyPair par = KeyGen.generateKeyPair();
+            PrivateKey clavepriv = par.getPrivate();
+            PublicKey clavepubl = par.getPublic();
+
+            //Le enviamos la clave pública para que cifre
+            ObjectOutputStream flujoS = new ObjectOutputStream(cliente.getOutputStream());
+            flujoS.writeObject(clavepubl);
+
+            //Abrimos el flujo de entrada de datos y recibimos la clave pública del servidor
+            ObjectInputStream flujoE = new ObjectInputStream(cliente.getInputStream());
+            PublicKey publicaCliente = (PublicKey) flujoE.readObject();
+
+            //System.out.println("conexion.ConexionServidor.conectarServidor() " + publicaCliente.getAlgorithm());
             while (!valide) {
+
                 ObjectInputStream ois = new ObjectInputStream(cliente.getInputStream());
                 Object recepcion = ois.readObject();
 
@@ -66,8 +88,21 @@ class HiloCliente extends Thread {
                             resultado = gestionusuario.entrarLogin(rec);
                             break;
                         case Constantes.ACCION_REGISTRO_USUARIO:
-                            //Registro del usuario
-                            resultado = gestionusuario.guardarRegistro(rec);
+                            //Verifica firma
+                            if (Seguridad.verifica(rec.getUsuario().getEmail(), publicaCliente, rec.getUsuarioFirmado().getEmailFirmado())) {
+                                if (Seguridad.verifica(rec.getUsuario().getPwd(), publicaCliente, rec.getUsuarioFirmado().getPwdResumen())) {
+                                    System.out.println("ENTRA!!!!!!!!!");
+                                    //Registro del usuario
+                                    resultado = gestionusuario.guardarRegistro(rec);
+                                } else {
+                                    rec.setCodError(Constantes.ERROR_BD);
+                                    rec.setMensaje("Imposible verificar al usuario.");
+                                }
+                            } else {
+                                rec.setCodError(Constantes.ERROR_BD);
+                                rec.setMensaje("Imposible verificar al usuario.");
+                            }
+
                             break;
                         case Constantes.ACCION_GUARDAR_PREFERENCIAS:
                             //Guardar perfil
@@ -91,6 +126,7 @@ class HiloCliente extends Thread {
                             break;
                     }
                 } else if (recepcion instanceof MsjServMensajes) {
+                    System.out.println("Entra Servidor: MsjServMensajes");
                     //Se encarga de recuperar la informacion de todos los mensajes del usuario
                     GestionMensajes gestionMensajes = new GestionMensajes();
 
@@ -99,6 +135,7 @@ class HiloCliente extends Thread {
                     resultado = gestionMensajes.obtenerListaMensajesPorIdUsuario(rec);
 
                 } else if (recepcion instanceof MsjServMsj) {
+                    System.out.println("Entra Servidor: MsjServMsj");
                     //Se encarga de la gestion con los mensajes
                     GestionMensajes gestionMensajes = new GestionMensajes();
 
@@ -120,6 +157,7 @@ class HiloCliente extends Thread {
                             break;
                     }
                 } else if (recepcion instanceof MsjServAmigos) {
+                    System.out.println("Entra Servidor: MsjServAmigos");
                     //Se encarga de toda la gestion con los amigos
                     GestionAmigos gestionAmigos = new GestionAmigos();
 
@@ -133,7 +171,7 @@ class HiloCliente extends Thread {
                             break;
                         case Constantes.ACCION_DEJAR_AMIGO:
                             //Eliminar amigo
-                            //resultado = gestionAmigos.eliminarAmigo(rec);
+                            resultado = gestionAmigos.modificarMeGusta(rec);
                             break;
                         case Constantes.ACCION_BUSCAR_AMIGO:
                             //Buscar amigos
@@ -145,6 +183,7 @@ class HiloCliente extends Thread {
                             break;
                     }
                 } else if (recepcion instanceof MsjServConexion) {
+                    System.out.println("Entra Servidor: MsjServConexion");
                     //Se encarga de la gestion con la conexion en la aplicacion
                     GestionConexion gestionConexion = new GestionConexion();
 
@@ -162,6 +201,7 @@ class HiloCliente extends Thread {
                             break;
                     }
                 } else if (recepcion instanceof MsjServAdmin) {
+                    System.out.println("Entra Servidor: MsjServAdmin");
                     //Se encarga de la gestion de la administracion
                     GestionAdministracion gestionAdmin = new GestionAdministracion();
 

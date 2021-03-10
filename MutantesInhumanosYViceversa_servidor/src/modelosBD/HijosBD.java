@@ -12,11 +12,11 @@ import mensajes.entidades.Hijos;
 public class HijosBD {
 
      /**
-     * Obtiene todos los hijos
+     * Metodo que obtiene todos los hijos
      *
      * @return
      */
-    public ArrayList<Hijos> getListaHijos() {
+    public synchronized ArrayList<Hijos> getListaHijos() {
 
         ArrayList<Hijos> listaHijos = new ArrayList();
 

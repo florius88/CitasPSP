@@ -8,6 +8,8 @@ import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
+import mensajes.entidades.UsuarioFirmado;
+import seguridad.Seguridad;
 import ventanas.login.Login;
 import utilidades.Constantes;
 
@@ -18,7 +20,7 @@ import utilidades.Constantes;
 public class Registro extends javax.swing.JFrame {
 
     /**
-     * Creates new form registro
+     * Constructor
      */
     public Registro() {
         initComponents();
@@ -128,47 +130,63 @@ public class Registro extends javax.swing.JFrame {
         lbl_nota.setText("*Como mínimo la contraseña debe ser de 4 cifras.");
         getContentPane().add(lbl_nota, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 290, -1, -1));
 
-        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_registro_1.jpg"))); // NOI18N
+        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_registro_nuevo1.jpg.png"))); // NOI18N
         getContentPane().add(lbl_fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-90, 0, 720, 440));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
-
         MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
         mUsuarioEnvio.setUsuario(informacionVentana());
         mUsuarioEnvio.setAccion(Constantes.ACCION_REGISTRO_USUARIO);
 
+        try {
+            
+            UsuarioFirmado uFirmado = new UsuarioFirmado();
+            uFirmado.setEmailFirmado(Seguridad.firmar(String.valueOf(mUsuarioEnvio.getUsuario().getEmail()), ConexionServidor.privadaCliente));
+            uFirmado.setPwdResumen(Seguridad.firmar(String.valueOf(mUsuarioEnvio.getUsuario().getPwd()), ConexionServidor.privadaCliente));
+
+            mUsuarioEnvio.setUsuarioFirmado(uFirmado);
+            
+        } catch (Exception e) {
+
+        }
+        
         //Envia la informacion al servidor
         MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
 
-        //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-        switch (mUsuarioRecibido.getCodError()) {
-            case Constantes.OK:
-                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Registro", JOptionPane.INFORMATION_MESSAGE);
+        if (null != mUsuarioRecibido) {
+            //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
+            switch (mUsuarioRecibido.getCodError()) {
+                case Constantes.OK:
+                    JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Registro", JOptionPane.INFORMATION_MESSAGE);
 
-                //Ocultamos la ventana actual
-                this.setVisible(false);
+                    //Ocultamos la ventana actual
+                    this.setVisible(false);
 
-                //Inicializamos la ventana de login y la mostramos
-                Login login = new Login();
-                login.setLocationRelativeTo(null);
-                login.setVisible(true);
-                break;
-            case Constantes.ERROR_FORMATO_EMAIL:
-            case Constantes.ERROR_PWD:
-            case Constantes.ERROR_PWD_NO_IGUALES:
-            case Constantes.ERROR_NO_NICK:
-            case Constantes.ERROR_BD:
-                //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Registro", JOptionPane.ERROR_MESSAGE);
-                break;
+                    //Inicializamos la ventana de login y la mostramos
+                    Login login = new Login();
+                    login.setLocationRelativeTo(null);
+                    login.setVisible(true);
+                    break;
+                case Constantes.ERROR_FORMATO_EMAIL:
+                case Constantes.ERROR_PWD:
+                case Constantes.ERROR_PWD_NO_IGUALES:
+                case Constantes.ERROR_NO_NICK:
+                case Constantes.ERROR_BD:
+                    //Mostramos el mensaje devuelto por el servidor
+                    JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Registro", JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(this, "No hay conexión con el servidor, por favor, intentelo más tarde", "Registro", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btn_guardarActionPerformed
 
     /**
-     * Obtiene la informacion de la ventana y la pasa al usuario
+     * Metodo que obtiene la informacion de la ventana
      *
      * @return
      */
@@ -176,25 +194,34 @@ public class Registro extends javax.swing.JFrame {
         //Inicializa el usuario
         Usuario usuario = new Usuario();
 
-        //Recupera la informacion de la pantalla
-        String nick = txt_nombre.getText();
-        String email = txt_email.getText();
+        try {
 
-        char[] pwd = txt_pwd.getPassword();
-        char[] confirmPwd = txt_confirm_pwd.getPassword();
+            //Recupera la informacion de la pantalla
+            String nick = txt_nombre.getText();
+            String email = txt_email.getText();
 
-        //pasa la informacion de la pantalla al usuario
-        usuario.setNick(nick);
-        usuario.setEmail(email);
-        if (0 < pwd.length) {
-            usuario.setPwd(String.valueOf(pwd));
+            char[] pwd = txt_pwd.getPassword();
+            char[] confirmPwd = txt_confirm_pwd.getPassword();
+
+            //byte[] pwdResumen = Seguridad.resumir(String.valueOf(pwd));
+            //byte[] pwdConfirmarResumen = Seguridad.resumir(String.valueOf(pwdResumen));
+
+            //pasa la informacion de la pantalla al usuario
+            usuario.setNick(nick);
+            usuario.setEmail(email);
+            if (0 < pwd.length) {
+                usuario.setPwd(String.valueOf(pwd));
+            }
+            if (0 < confirmPwd.length) {
+                usuario.setConfirmarPwd(String.valueOf(confirmPwd));
+            }
+
+            //Como se da de alta por la aplicacion, su rol es de usuario
+            usuario.setRol(3);
+
+        } catch (Exception e) {
+
         }
-        if (0 < confirmPwd.length) {
-            usuario.setConfirmarPwd(String.valueOf(confirmPwd));
-        }
-
-        //Como se da de alta por la aplicacion, su rol es de usuario
-        usuario.setRol(3);
 
         return usuario;
     }

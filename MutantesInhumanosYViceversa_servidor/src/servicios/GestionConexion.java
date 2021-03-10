@@ -31,12 +31,12 @@ public class GestionConexion {
     }
 
     /**
-     * Registra el mensaje en la BD
+     * Metodo que registra el mensaje en la BD
      *
      * @param mConexion
      * @return
      */
-    public MsjServConexion crearConexion(MsjServConexion mConexion) {
+    public synchronized MsjServConexion crearConexion(MsjServConexion mConexion) {
 
         //Obtiene el total de usuarios de la aplicacion
         int cantidadUsuarios = servUsuario.cantidadUsuariosByRol(3);
@@ -79,19 +79,19 @@ public class GestionConexion {
         } else {
             //Se rellena el mensaje con el codigo y el error
             mConexion.setCodError(Constantes.ERROR_BD);
-            mConexion.setMensaje("Se ha producido un error al registrar la conexion.");
+            mConexion.setMensaje("No se ha registrar la conexion.");
         }
 
         return mConexion;
     }
 
     /**
-     * Elimina el mensaje de la BD
+     * Metodo que elimina el mensaje de la BD
      *
      * @param mConexion
      * @return
      */
-    public MsjServConexion eliminarConexion(MsjServConexion mConexion) {
+    public synchronized MsjServConexion eliminarConexion(MsjServConexion mConexion) {
 
         if (servConexion.eliminarConexionByIdUsuario(mConexion.getIdUsuario())) {
             //Se rellena el mensaje con el codigo y el error
@@ -100,7 +100,7 @@ public class GestionConexion {
         } else {
             //Se rellena el mensaje con el codigo y el error
             mConexion.setCodError(Constantes.ERROR_BD);
-            mConexion.setMensaje("Se ha producido un al eliminar la conexion.");
+            mConexion.setMensaje("No hay conexiones que eliminar.");
         }
 
         return mConexion;

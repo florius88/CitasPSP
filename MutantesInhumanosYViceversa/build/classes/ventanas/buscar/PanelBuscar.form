@@ -33,7 +33,7 @@
     <Component class="javax.swing.JLabel" name="lbl_buscando">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/recursos/ico/ico_buscando.png"/>
+          <Image iconType="3" name="/recursos/ico/ico_buscando-1.png.png"/>
         </Property>
       </Properties>
       <Constraints>
@@ -59,12 +59,12 @@
         <Component class="javax.swing.JLabel" name="lbl_foto">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="69" green="89" red="b4" type="rgb"/>
+              <Color blue="86" green="6a" red="9f" type="rgb"/>
             </Property>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
                 <LineBorder roundedCorners="true" thickness="2">
-                  <Color PropertyName="color" blue="69" green="89" red="b4" type="rgb"/>
+                  <Color PropertyName="color" blue="86" green="6a" red="9f" type="rgb"/>
                 </LineBorder>
               </Border>
             </Property>
@@ -136,7 +136,7 @@
         <Component class="javax.swing.JLabel" name="lbl_flecha_der">
           <Properties>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/recursos/ico/ico_flecha_der.png"/>
+              <Image iconType="3" name="/recursos/ico/ico_flecha_der-1.png"/>
             </Property>
             <Property name="toolTipText" type="java.lang.String" value="Anterior"/>
           </Properties>
@@ -168,12 +168,12 @@
         <Component class="javax.swing.JLabel" name="lbl_fondo">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="9e" green="c3" red="e8" type="rgb"/>
+              <Color blue="b5" green="a7" red="dd" type="rgb"/>
             </Property>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
                 <LineBorder thickness="2">
-                  <Color PropertyName="color" blue="69" green="89" red="b4" type="rgb"/>
+                  <Color PropertyName="color" blue="86" green="6a" red="9f" type="rgb"/>
                 </LineBorder>
               </Border>
             </Property>

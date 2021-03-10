@@ -23,7 +23,13 @@ import mensajes.entidades.Mensaje;
  */
 public class MensajeBD {
 
-    public boolean insertarMensaje(Mensaje msj) {
+    /**
+     * Metodo que inserta el mensaje
+     *
+     * @param msj
+     * @return
+     */
+    public synchronized boolean insertarMensaje(Mensaje msj) {
 
         boolean insertado = true;
 
@@ -54,7 +60,7 @@ public class MensajeBD {
 
                 int idMensaje = 0;
 
-                try (java.sql.ResultSet rs = statement.getGeneratedKeys()) {
+                try ( java.sql.ResultSet rs = statement.getGeneratedKeys()) {
                     if (rs.next()) {
                         //Setea el id del usuario
                         idMensaje = rs.getInt(1);
@@ -111,12 +117,12 @@ public class MensajeBD {
     }
 
     /**
-     * Se elimina el mensaje
+     * Metodo que elimina el mensaje
      *
      * @param msj
      * @return
      */
-    public boolean eliminarMensaje(Mensaje msj) {
+    public synchronized boolean eliminarMensaje(Mensaje msj) {
 
         boolean eliminado = true;
 
@@ -131,12 +137,7 @@ public class MensajeBD {
             String sentencia = "DELETE FROM MENSAJE WHERE ID = " + msj.getIdMensaje();
 
             java.sql.PreparedStatement statement = conexionBD.getConex().prepareStatement(sentencia);
-            int filasEliminadas = statement.executeUpdate();
-
-            if (filasEliminadas == 0) {
-                //Error al actualizar el usuario.
-                eliminado = false;
-            }
+            statement.executeUpdate();
 
             //Cierra la conexion
             conexionBD.cerrarConexion();
@@ -149,12 +150,12 @@ public class MensajeBD {
     }
 
     /**
-     * Elimina los adjuntos del mensaje
+     * Metodo que elimina los adjuntos del mensaje
      *
      * @param msj
      * @return
      */
-    public boolean eliminarAdjuntosMensaje(Mensaje msj) {
+    public synchronized boolean eliminarAdjuntosMensaje(Mensaje msj) {
 
         boolean eliminado = true;
 
@@ -169,12 +170,7 @@ public class MensajeBD {
             String sentencia = "DELETE FROM DOCUMENTO_MENSAJE WHERE ID_MENSAJE = " + msj.getIdMensaje();
 
             java.sql.PreparedStatement statement = conexionBD.getConex().prepareStatement(sentencia);
-            int filasEliminadas = statement.executeUpdate();
-
-            if (filasEliminadas == 0) {
-                //Error al actualizar el usuario.
-                eliminado = false;
-            }
+            statement.executeUpdate();
 
             //Cierra la conexion
             conexionBD.cerrarConexion();
@@ -187,12 +183,12 @@ public class MensajeBD {
     }
 
     /**
-     * Actualiza el mensaje a leido
+     * Metodo que actualiza el mensaje a leido
      *
      * @param msj
      * @return
      */
-    public boolean actualizarMensaje(Mensaje msj) {
+    public synchronized boolean actualizarMensaje(Mensaje msj) {
 
         boolean leido = true;
 
@@ -231,12 +227,12 @@ public class MensajeBD {
     }
 
     /**
-     * Obtiene una lista de mensajes por Id usuario
+     * Metodo que obtiene una lista de mensajes por Id usuario
      *
      * @param idUsuario
      * @return
      */
-    public ArrayList<Mensaje> obtenerListaMensajesPorIdUsuario(int idUsuario) {
+    public synchronized ArrayList<Mensaje> obtenerListaMensajesPorIdUsuario(int idUsuario) {
 
         ArrayList<Mensaje> listaMensajesBD = new ArrayList<>();
 
@@ -284,12 +280,12 @@ public class MensajeBD {
     }
 
     /**
-     * Devuelve una lista con las imagenes adjuntas por Id de mensaje
+     * Metodo que devuelve una lista con las imagenes adjuntas por Id de mensaje
      *
      * @param idMensaje
      * @return
      */
-    public ArrayList<Adjuntos> obtenerListaAdjuntosPorIdMensaje(int idMensaje) {
+    public synchronized ArrayList<Adjuntos> obtenerListaAdjuntosPorIdMensaje(int idMensaje) {
 
         ArrayList<Adjuntos> listaAdjuntosBD = new ArrayList<>();
 

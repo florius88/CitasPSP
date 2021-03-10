@@ -8,7 +8,9 @@ import mensajes.MsjServAmigos;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -35,7 +37,7 @@ public class PanelBuscar extends javax.swing.JPanel {
     }
 
     /**
-     * Cargamos la informacion
+     * Metodo para cargar la informacion
      *
      * @param usuario
      */
@@ -50,6 +52,7 @@ public class PanelBuscar extends javax.swing.JPanel {
         //Envia la informacion al servidor
         MsjServAmigos mAmigosRecibido = (MsjServAmigos) ConexionServidor.envioObjetoServidor(mAmigosEnvio);
 
+        if (null != mAmigosRecibido) {
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
         switch (mAmigosRecibido.getCodError()) {
             case Constantes.OK:
@@ -62,17 +65,25 @@ public class PanelBuscar extends javax.swing.JPanel {
                 break;
             case Constantes.ERROR_NO_AMIGOS:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mAmigosRecibido.getMensaje(), "Amigos", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(principal, mAmigosRecibido.getMensaje(), "Buscar", JOptionPane.INFORMATION_MESSAGE);
                 //Ocultamos el panel
                 jp_contenedor.setVisible(false);
                 //Mostramos la imagen de no afines
                 lbl_buscando.setVisible(true);
                 break;
         }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(principal, "No hay conexión con el servidor, por favor, intentelo más tarde", "Buscar", JOptionPane.ERROR_MESSAGE);
+            //Ocultamos el panel
+            jp_contenedor.setVisible(false);
+            //Mostramos la imagen de no afines
+            lbl_buscando.setVisible(true);
+        }
     }
 
     /**
-     * Carga la informacion del amigo en pantalla
+     * Metodo para cargar la informacion del amigo en pantalla
      */
     private void cargarAmigo() {
 
@@ -88,8 +99,8 @@ public class PanelBuscar extends javax.swing.JPanel {
     }
 
     /**
-     * Aumenta o decrementa valores en la variable posicionAfines para cambiar a
-     * los usuarios en la pantalla
+     * Metodo que aumenta o decrementa valores en la variable posicionAfines
+     * para cambiar a los usuarios en la pantalla
      *
      * @param mas
      */
@@ -112,7 +123,7 @@ public class PanelBuscar extends javax.swing.JPanel {
     }
 
     /**
-     * Carga el icono correspondiente para el me gusta
+     * Metodo para cargar la imagen correspondiente
      *
      * @param meGusta
      */
@@ -153,14 +164,14 @@ public class PanelBuscar extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(970, 510));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lbl_buscando.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_buscando.png"))); // NOI18N
+        lbl_buscando.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_buscando-1.png.png"))); // NOI18N
         add(lbl_buscando, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 0, -1, -1));
 
         jp_contenedor.setOpaque(false);
         jp_contenedor.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lbl_foto.setBackground(new java.awt.Color(180, 137, 105));
-        lbl_foto.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(180, 137, 105), 2, true));
+        lbl_foto.setBackground(new java.awt.Color(159, 106, 134));
+        lbl_foto.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(159, 106, 134), 2, true));
         lbl_foto.setOpaque(true);
         jp_contenedor.add(lbl_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 60, 420, 360));
 
@@ -189,7 +200,7 @@ public class PanelBuscar extends javax.swing.JPanel {
         });
         jp_contenedor.add(lbl_flecha_izq, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, -1, -1));
 
-        lbl_flecha_der.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_flecha_der.png"))); // NOI18N
+        lbl_flecha_der.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_flecha_der-1.png"))); // NOI18N
         lbl_flecha_der.setToolTipText("Anterior");
         lbl_flecha_der.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -207,8 +218,8 @@ public class PanelBuscar extends javax.swing.JPanel {
         });
         jp_contenedor.add(lbl_mensaje, new org.netbeans.lib.awtextra.AbsoluteConstraints(650, 440, -1, -1));
 
-        lbl_fondo.setBackground(new java.awt.Color(232, 195, 158));
-        lbl_fondo.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 137, 105), 2));
+        lbl_fondo.setBackground(new java.awt.Color(221, 167, 181));
+        lbl_fondo.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(159, 106, 134), 2));
         lbl_fondo.setOpaque(true);
         jp_contenedor.add(lbl_fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 20, 460, 460));
 
@@ -216,7 +227,13 @@ public class PanelBuscar extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void lbl_me_gustaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_me_gustaMouseClicked
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
 
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         MsjServAmigos mAmigosEnvio = new MsjServAmigos();
         mAmigosEnvio.setIdUsuario(idUsuario);
 
@@ -237,6 +254,7 @@ public class PanelBuscar extends javax.swing.JPanel {
         //Envia la informacion al servidor
         MsjServAmigos mAmigosRecibido = (MsjServAmigos) ConexionServidor.envioObjetoServidor(mAmigosEnvio);
 
+                if (null != mAmigosRecibido) {
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
         switch (mAmigosRecibido.getCodError()) {
             case Constantes.OK:
@@ -244,9 +262,20 @@ public class PanelBuscar extends javax.swing.JPanel {
                 break;
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mAmigosRecibido.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(principal, mAmigosRecibido.getMensaje(), "Buscar", JOptionPane.ERROR_MESSAGE);
                 break;
         }
+                } else {
+                    //Mostramos el mensaje
+                    JOptionPane.showMessageDialog(principal, "No hay conexión con el servidor, por favor, intentelo más tarde", "Buscar", JOptionPane.ERROR_MESSAGE);
+                }
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWaitMouseLabel("Cargando", evt);
     }//GEN-LAST:event_lbl_me_gustaMouseClicked
 
     private void lbl_mensajeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_mensajeMouseClicked

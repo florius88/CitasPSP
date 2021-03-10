@@ -12,13 +12,13 @@ import mensajes.entidades.Amigos;
 public class AmigosBD {
 
     /**
-     * Elimina la amistad entre 2 usuarios
+     * Metodo que elimina la amistad entre 2 usuarios
      *
      * @param idUsuario
      * @param idUsuarioAmigo
      * @return
      */
-    public boolean eliminarAmgioByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
+    public synchronized boolean eliminarAmgioByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
 
         boolean eliminado = true;
 
@@ -33,12 +33,7 @@ public class AmigosBD {
             String sentencia = "DELETE FROM AMIGOS WHERE ID_USUARIO = " + idUsuario + " AND ID_USUARIO_AMIGO = " + idUsuarioAmigo;
 
             java.sql.PreparedStatement statement = conexionBD.getConex().prepareStatement(sentencia);
-            int filasEliminadas = statement.executeUpdate();
-
-            if (filasEliminadas == 0) {
-                //Error al actualizar el usuario.
-                eliminado = false;
-            }
+            statement.executeUpdate();
 
             //Cierra la conexion
             conexionBD.cerrarConexion();
@@ -51,13 +46,13 @@ public class AmigosBD {
     }
 
     /**
-     * Crea una amistad entre 2 usuarios
+     * Metodo que crea una amistad entre 2 usuarios
      *
      * @param idUsuario
      * @param idUsuarioAmigo
      * @return
      */
-    public boolean insertarAmistadByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
+    public synchronized boolean insertarAmistadByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
 
         boolean insertado = true;
 
@@ -89,12 +84,12 @@ public class AmigosBD {
     }
 
     /**
-     * Devuelve una lista con los Id de los usuarios amigos
+     * Metodo que devuelve una lista con los Id de los usuarios amigos
      *
      * @param idUsuario
      * @return
      */
-    public ArrayList<Amigos> obtenerListaAmigosPorIdUsuario(int idUsuario) {
+    public synchronized ArrayList<Amigos> obtenerListaAmigosPorIdUsuario(int idUsuario) {
 
         ArrayList<Amigos> listaAmigos = new ArrayList<>();
 
@@ -131,13 +126,13 @@ public class AmigosBD {
     }
 
     /**
-     * Devuelve si hay amistad entre ambos usuarios
+     * Metodo que devuelve si hay amistad entre ambos usuarios
      *
      * @param idUsuario
      * @param idUsuarioAmigo
      * @return
      */
-    public boolean obtenerAmistadByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
+    public synchronized boolean obtenerAmistadByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
 
         boolean conectado = false;
 

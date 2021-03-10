@@ -155,7 +155,7 @@
           <Properties>
             <Property name="editable" type="boolean" value="false"/>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="9e" green="c3" red="e8" type="rgb"/>
+              <Color blue="b5" green="a7" red="dd" type="rgb"/>
             </Property>
             <Property name="columns" type="int" value="20"/>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
@@ -184,7 +184,7 @@
         <Component class="javax.swing.JTable" name="jt_tabla_adjuntos">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="9e" green="c3" red="e8" type="rgb"/>
+              <Color blue="b5" green="a7" red="dd" type="rgb"/>
             </Property>
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
               <Font name="Book Antiqua" size="20" style="1"/>
@@ -200,7 +200,7 @@
             </Property>
             <Property name="rowHeight" type="int" value="30"/>
             <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="69" green="89" red="b4" type="rgb"/>
+              <Color blue="86" green="6a" red="9f" type="rgb"/>
             </Property>
             <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
               <JTableSelectionModel selectionMode="0"/>

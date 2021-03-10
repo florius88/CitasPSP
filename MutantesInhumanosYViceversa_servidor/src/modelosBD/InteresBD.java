@@ -12,11 +12,11 @@ import mensajes.entidades.Interes;
 public class InteresBD {
 
     /**
-     * Obtiene todos los intereses
+     * Metodo que obtiene todos los intereses
      *
      * @return
      */
-    public ArrayList<Interes> getListaInteres() {
+    public synchronized ArrayList<Interes> getListaInteres() {
 
         ArrayList<Interes> listaInteres = new ArrayList();
 

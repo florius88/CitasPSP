@@ -1,6 +1,7 @@
 package ventanas.mensajes;
 
 import conexion.ConexionServidor;
+import java.awt.Component;
 import mensajes.entidades.Adjuntos;
 import mensajes.entidades.Mensaje;
 import mensajes.entidades.Usuario;
@@ -13,9 +14,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import ventanas.principal.Principal;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -77,7 +80,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
     }
 
     /**
-     * Cambiamos preferencias de la tabla
+     * Metodo para cambiar las preferencias de la tabla
      */
     private void initTabla() {
 
@@ -93,6 +96,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         jt_tabla_adjuntos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
+                    //Redirige a ver el adjunto
                     verDocumentoAdjunto();
                 }
             }
@@ -103,6 +107,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    //Redirige a ver el adjunto
                     verDocumentoAdjunto();
                 }
             }
@@ -118,7 +123,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
     }
 
     /**
-     * Muestra el dialogo con el documento adjuntado
+     * Metodo que muestra el dialogo con la imagen adjunta
      */
     private void verDocumentoAdjunto() {
         //Obtiene el nombre del documento para mostrar en el dialogo
@@ -134,7 +139,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
     }
 
     /**
-     * Carga informacion en el panel
+     * Metodo que carga informacion
      *
      * @param msj
      */
@@ -232,7 +237,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
             }
         });
 
-        jta_mensaje.setBackground(new java.awt.Color(232, 195, 158));
+        jta_mensaje.setBackground(new java.awt.Color(221, 167, 181));
         jta_mensaje.setColumns(20);
         jta_mensaje.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         jta_mensaje.setLineWrap(true);
@@ -240,7 +245,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         jta_mensaje.setWrapStyleWord(true);
         jScrollPane1.setViewportView(jta_mensaje);
 
-        jt_tabla_adjuntos.setBackground(new java.awt.Color(232, 195, 158));
+        jt_tabla_adjuntos.setBackground(new java.awt.Color(221, 167, 181));
         jt_tabla_adjuntos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         jt_tabla_adjuntos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -260,7 +265,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         });
         jt_tabla_adjuntos.setOpaque(false);
         jt_tabla_adjuntos.setRowHeight(30);
-        jt_tabla_adjuntos.setSelectionBackground(new java.awt.Color(180, 137, 105));
+        jt_tabla_adjuntos.setSelectionBackground(new java.awt.Color(159, 106, 134));
         jt_tabla_adjuntos.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jt_tabla_adjuntos.getTableHeader().setResizingAllowed(false);
         jt_tabla_adjuntos.getTableHeader().setReorderingAllowed(false);
@@ -340,7 +345,13 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
     }//GEN-LAST:event_btn_volverActionPerformed
 
     private void btn_enviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_enviarActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
 
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         //Obtiene la informacion del panel
         informacionVentana();
 
@@ -351,20 +362,33 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         //Envia la informacion al servidor
         MsjServMsj mMsjRecibido = (MsjServMsj) ConexionServidor.envioObjetoServidor(mMsjEnvio);
 
+                if (null != mMsjRecibido) {
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
         switch (mMsjRecibido.getCodError()) {
             case Constantes.OK:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mMsjRecibido.getMensaje());
+                            JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mMsjRecibido.getMensaje());
                 //Redirigir al panel que corresponda
                 volver();
                 break;
             case Constantes.ERROR_NO_MENSAJES:
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mMsjRecibido.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), mMsjRecibido.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
                 break;
         }
+                } else {
+                    //Mostramos el mensaje
+                    JOptionPane.showMessageDialog(((Component) evt.getSource()).getParent(), "No hay conexión con el servidor, por favor, intentelo más tarde", "Mensaje", JOptionPane.ERROR_MESSAGE);
+                }
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
+
     }//GEN-LAST:event_btn_enviarActionPerformed
 
     private void btn_adjuntarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_adjuntarActionPerformed

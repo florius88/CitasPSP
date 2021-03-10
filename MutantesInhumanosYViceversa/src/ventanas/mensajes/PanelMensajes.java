@@ -9,18 +9,19 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import ventanas.principal.Principal;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -55,7 +56,7 @@ public class PanelMensajes extends javax.swing.JPanel {
     }
 
     /**
-     * Cambiamos preferencias de la tabla
+     * Metodo que cambia las preferencias de la tabla
      */
     private void initTabla() {
 
@@ -79,6 +80,7 @@ public class PanelMensajes extends javax.swing.JPanel {
         jt_tabla.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
+                    //Redirige a ver el mensaje
                     verDetalleMensaje();
                 }
             }
@@ -89,6 +91,7 @@ public class PanelMensajes extends javax.swing.JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    //Redirige a ver el mensaje
                     verDetalleMensaje();
                 }
             }
@@ -104,7 +107,7 @@ public class PanelMensajes extends javax.swing.JPanel {
     }
 
     /**
-     * Recoge la informacion y redirige al panel del detalle
+     * Metodo que recoge la informacion y redirige al panel del detalle
      */
     private void verDetalleMensaje() {
         //Obtenemos el mensaje de la lista para mostrarlo
@@ -130,8 +133,8 @@ public class PanelMensajes extends javax.swing.JPanel {
     }
 
     /**
-     * Se encarga de cambiar de color del resto de celdas en el caso de no estar
-     * leido
+     * Metodo que se encarga de cambiar de color del resto de celdas en el caso
+     * de no estar leido
      */
     private class ColorearFilas extends DefaultTableCellRenderer {
 
@@ -149,7 +152,7 @@ public class PanelMensajes extends javax.swing.JPanel {
                 } else {
                     //En caso de no estar leido, le cambia el color
                     if (null != label.getName() && label.getName().equals(MSJ_NO_LEIDO)) {
-                        setBackground(new Color(186, 124, 69));
+                        setBackground(new Color(159, 106, 134));
                         setForeground(table.getForeground());
                     } else {
                         setBackground(table.getBackground());
@@ -201,7 +204,7 @@ public class PanelMensajes extends javax.swing.JPanel {
             } else {
                 //En caso de no estar leido, le cambia el color
                 if (null != l.getName() && l.getName().equals(MSJ_NO_LEIDO)) {
-                    l.setBackground(new Color(186, 124, 69));
+                    l.setBackground(new Color(159, 106, 134));
                 } else {
                     l.setBackground(t.getBackground());
                     l.setForeground(t.getForeground());
@@ -233,7 +236,7 @@ public class PanelMensajes extends javax.swing.JPanel {
         jScrollPane1.setBackground(new java.awt.Color(155, 131, 131));
         jScrollPane1.setOpaque(false);
 
-        jt_tabla.setBackground(new java.awt.Color(232, 195, 158));
+        jt_tabla.setBackground(new java.awt.Color(221, 167, 181));
         jt_tabla.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         jt_tabla.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -258,10 +261,10 @@ public class PanelMensajes extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        jt_tabla.setGridColor(new java.awt.Color(255, 255, 255));
+        jt_tabla.setGridColor(new java.awt.Color(0, 0, 0));
         jt_tabla.setOpaque(false);
         jt_tabla.setRowHeight(30);
-        jt_tabla.setSelectionBackground(new java.awt.Color(180, 137, 105));
+        jt_tabla.setSelectionBackground(new java.awt.Color(159, 106, 134));
         jt_tabla.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jt_tabla.setShowGrid(true);
         jt_tabla.getTableHeader().setResizingAllowed(false);
@@ -338,6 +341,14 @@ public class PanelMensajes extends javax.swing.JPanel {
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
             if (option == JOptionPane.YES_OPTION) {
+
+                //Ventana de dialogo de espera
+                DialogoEspera wait = new DialogoEspera();
+
+                SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground() throws Exception {
                 //Obtenemos el mensaje de la lista para eliminarlo
                 Mensaje msj = listaMensajes.get(posMensaje);
 
@@ -348,6 +359,7 @@ public class PanelMensajes extends javax.swing.JPanel {
                 //Envia la informacion al servidor
                 MsjServMsj mMsjRecibido = (MsjServMsj) ConexionServidor.envioObjetoServidor(mMsjEnvio);
 
+                        if (null != mMsjRecibido) {
                 //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
                 switch (mMsjRecibido.getCodError()) {
                     case Constantes.OK:
@@ -355,24 +367,49 @@ public class PanelMensajes extends javax.swing.JPanel {
                         listaMensajes.remove(posMensaje);
                         //Eliminamos de la tabla el mensaje
                         model.removeRow(posMensaje);
-                        JOptionPane.showMessageDialog(this, mMsjRecibido.getMensaje());
+                                    JOptionPane.showMessageDialog(principal, mMsjRecibido.getMensaje());
                         break;
                     case Constantes.ERROR_BD:
                         //Mostramos el mensaje devuelto por el servidor
-                        JOptionPane.showMessageDialog(this, mMsjRecibido.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
+                                    JOptionPane.showMessageDialog(principal, mMsjRecibido.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
                         break;
                 }
+                        } else {
+                            //Mostramos el mensaje
+                            JOptionPane.showMessageDialog(principal, "No hay conexión con el servidor, por favor, intentelo más tarde", "Mensaje", JOptionPane.ERROR_MESSAGE);
+                        }
+                        wait.close();
+                        return null;
+                    }
+                };
+
+                mySwingWorker.execute();
+                wait.makeWait("Cargando", evt);
             }
         }
     }//GEN-LAST:event_btn_eliminarActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
+
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         //Refrescamos la tabla
         cargarDatos(usuario);
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
-     * Cargamos la informacion en la tabla
+     * Metodo que carga la informacion en la tabla
      *
      * @param usuario
      */
@@ -388,6 +425,7 @@ public class PanelMensajes extends javax.swing.JPanel {
         //Envia la informacion al servidor
         MsjServMensajes mMensajesRecibido = (MsjServMensajes) ConexionServidor.envioObjetoServidor(mMensajesEnvio);
 
+        if (null != mMensajesRecibido) {
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
         switch (mMensajesRecibido.getCodError()) {
             case Constantes.OK:
@@ -433,13 +471,17 @@ public class PanelMensajes extends javax.swing.JPanel {
                 break;
             case Constantes.ERROR_NO_MENSAJES:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mMensajesRecibido.getMensaje(), "Mensajes", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(principal, mMensajesRecibido.getMensaje(), "Mensajes", JOptionPane.ERROR_MESSAGE);
                 break;
+        }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(principal, "No hay conexión con el servidor, por favor, intentelo más tarde", "Mensaje", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     /**
-     * Limpia la tabla de todos los registros
+     * Metodo que limpia la tabla
      */
     public void limpiarTabla() {
         try {
@@ -453,7 +495,7 @@ public class PanelMensajes extends javax.swing.JPanel {
     }
 
     /**
-     * Devuelve un label con el icono que se pide
+     * Metodo que devuelve un label con la imagen
      *
      * @param tipo
      * @return

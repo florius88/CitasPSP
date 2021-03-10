@@ -8,8 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import mensajes.entidades.Usuario;
@@ -20,24 +18,13 @@ import mensajes.entidades.Usuario;
  */
 public class UsuarioBD {
 
-    /*public UsuarioBD getNickUsuarioById(int idUsuario) {
-        UsuarioBD usuario = new UsuarioBD();
-
-        InformacionUsuarioBD infUsuario = new InformacionUsuarioBD();
-
-        infUsuario.setNick("Nom Usuario" + idUsuario);
-
-        usuario.setInfoUsuario(infUsuario);
-
-        return usuario;
-    }*/
     /**
-     * Obtiene el usuario por ID
+     * Metodo que obtiene el usuario por ID
      *
      * @param idUsuario
      * @return
      */
-    public Usuario getUsuarioById(int idUsuario) {
+    public synchronized Usuario getUsuarioById(int idUsuario) {
 
         Usuario usuarioBD = null;
 
@@ -79,12 +66,12 @@ public class UsuarioBD {
     }
 
     /**
-     * Obtiene la informacion del usuario por ID
+     * Metodo que obtiene la informacion del usuario por ID
      *
      * @param idUsuario
      * @return
      */
-    public Usuario getInformacionUsuarioById(int idUsuario) {
+    public synchronized Usuario getInformacionUsuarioById(int idUsuario) {
 
         Usuario usuarioBD = null;
 
@@ -142,37 +129,14 @@ public class UsuarioBD {
         return usuarioBD;
     }
 
-    /* public int insertarDato(String tabla, String DNI, String Nombre, String apell, int Tfno, int avi) {
-        String Sentencia = "INSERT INTO " + tabla + " VALUES ('" + DNI + "'," + "'" + Nombre + "','" + apell + "','" + Tfno + "','" + avi + "')";
-        int cod = 0;
-        try {
-            Sentencia_SQL.executeUpdate(Sentencia);
-        } catch (SQLException sq) {
-            cod = sq.getErrorCode();
-        }
-        return cod;
-    }
-    
-    public ArrayList obtenerDatosTablaArrayList(String nom_tabla) {
-        ArrayList lp = new ArrayList();
-        try {
-            String Sentencia = "SELECT * FROM " + nom_tabla;
-            Conj_Registros = Sentencia_SQL.executeQuery(Sentencia);
-            while (Conj_Registros.next()) {
-                lp.add(new Persona(Conj_Registros.getString("DNI"), Conj_Registros.getString("Nombre"), Conj_Registros.getString("Tfno")));
-            }
-        } catch (SQLException ex) {
-        }
-        return lp;
-    }*/
     /**
-     * Obtiene el usuario por email y pwd
+     * Metodo que obtiene el usuario por email y pwd
      *
      * @param email
      * @param pwd
      * @return
      */
-    public Usuario getUsuarioByEmailPwd(String email, String pwd) {
+    public synchronized Usuario getUsuarioByEmailPwd(String email, String pwd) {
 
         Usuario usuarioBD = null;
 
@@ -221,12 +185,12 @@ public class UsuarioBD {
     }
 
     /**
-     * Inserta un usuario
+     * Metodo que inserta un usuario
      *
      * @param usuario
      * @return
      */
-    public boolean insertarUsuario(Usuario usuario) {
+    public synchronized boolean insertarUsuario(Usuario usuario) {
 
         boolean insertado = true;
 
@@ -253,7 +217,7 @@ public class UsuarioBD {
                 usuario = null;
             } else {
 
-                try (java.sql.ResultSet rs = statement.getGeneratedKeys()) {
+                try ( java.sql.ResultSet rs = statement.getGeneratedKeys()) {
                     if (rs.next()) {
                         //Setea el id del usuario
                         usuario.setIdUsuario(rs.getInt(1));
@@ -291,12 +255,12 @@ public class UsuarioBD {
     }
 
     /**
-     * Inserta la informacion del usuario
+     * Metodo que inserta la informacion del usuario
      *
      * @param usuario
      * @return
      */
-    public boolean insertarInformacionUsuario(Usuario usuario) {
+    public synchronized boolean insertarInformacionUsuario(Usuario usuario) {
 
         boolean insertado = true;
 
@@ -333,12 +297,12 @@ public class UsuarioBD {
     }
 
     /**
-     * Actualiza la tabla de Usuario
+     * Metodo que actualiza la tabla de Usuario
      *
      * @param usuario
      * @return
      */
-    public boolean actualizarUsuario(Usuario usuario) {
+    public synchronized boolean actualizarUsuario(Usuario usuario) {
         boolean actualizado = true;
 
         try {
@@ -374,56 +338,22 @@ public class UsuarioBD {
     }
 
     /**
-     * Actualiza la informacion del Usuario
+     * Metodo que actualiza la informacion del Usuario
      *
      * @param usuario
      * @return
      */
-    public boolean actualizarInformacionUsuario(Usuario usuario) {
+    public synchronized boolean actualizarInformacionUsuario(Usuario usuario) {
         boolean actualizado = true;
 
         try {
-
             //Se inicializa la conexion
             ConexionBD conexionBD = new ConexionBD();
             conexionBD.abrirConexion();
 
-            /*String foto = ", FOTO = ?";
-            if (null == usuario.getFoto()) {
-                foto = ", FOTO = null";
-            }
-            
-            String fecha = ", FECHA_ACCESO = ?";
-            if (null == usuario.getFechaAcceso()) {
-                fecha = ", FECHA_ACCESO = null";
-            }*/
-            /**
-             * ****************************************************************************************************************
-             */
-            String sentencia = "UPDATE INFORMACION_USUARIO SET NICK = ?"
-                    + ", DEPORTE = ?"
-                    + ", ARTE = ?"
-                    + ", POLITICA = ?"
-                    + ", RELACION = ?"
-                    + ", HIJOS = ?"
-                    + ", SEXO = ?"
-                    + ", INTERES = ?"
-                    + ", FOTO = ?"
-                    + ", FECHA_ACCESO = ?"
-                    + " WHERE ID_USUARIO = " + usuario.getIdUsuario();
+            String sentencia = "UPDATE INFORMACION_USUARIO SET NICK = ?" + ", DEPORTE = ?" + ", ARTE = ?" + ", POLITICA = ?" + ", RELACION = ?" + ", HIJOS = ?"
+                    + ", SEXO = ?" + ", INTERES = ?" + ", FOTO = ?" + ", FECHA_ACCESO = ?" + " WHERE ID_USUARIO = " + usuario.getIdUsuario();
 
-            /*String sentencia = "UPDATE INFORMACION_USUARIO SET NICK = '" + usuario.getNick()
-                    + "', DEPORTE = " + usuario.getDeporte()
-                    + ", ARTE = " + usuario.getArte()
-                    + ", POLITICA = " + usuario.getPolitica()
-                    + ", RELACION = " + usuario.getRelacion()
-                    + ", HIJOS = " + usuario.getHijos()
-                    + ", SEXO = " + usuario.getSexo()
-                    + ", INTERES = " + usuario.getInteres()
-                    //[FOTO] [varbinary](max) NULL,
-                    + ", FOTO = " + outStream.toByteArray()                    
-                    + ", FECHA_ACCESO = " + usuario.getFechaAcceso()
-                    + " WHERE ID_USUARIO = " + usuario.getIdUsuario();*/
             java.sql.PreparedStatement statement = conexionBD.getConex().prepareStatement(sentencia);
 
             statement.setString(1, usuario.getNick());
@@ -439,7 +369,6 @@ public class UsuarioBD {
                 Image imgFto = usuario.getFoto().getImage();
 
                 BufferedImage bufferedImage = new BufferedImage(imgFto.getWidth(null), imgFto.getHeight(null), BufferedImage.TYPE_INT_RGB);
-                //bufferedImage is the RenderedImage to be written
                 Graphics2D g2 = bufferedImage.createGraphics();
                 g2.drawImage(imgFto, null, null);
 
@@ -447,10 +376,7 @@ public class UsuarioBD {
                 try {
                     ImageIO.write(bufferedImage, "jpg", outStream);
                 } catch (IOException ex) {
-                    Logger.getLogger(UsuarioBD.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                //InputStream is = new ByteArrayInputStream(outStream.toByteArray());
-                //InputStream is = new ByteArrayInputStream(outStream.toByteArray());
 
                 statement.setBytes(9, outStream.toByteArray());
             } else {
@@ -469,30 +395,6 @@ public class UsuarioBD {
                 actualizado = false;
             }
 
-            /**
-             * ****************************************************************************************************************
-             */
-            //Sentencia
-            /*String sentencia = "UPDATE INFORMACION_USUARIO SET NICK = '" + usuario.getNick()
-                    + "', DEPORTE = " + usuario.getDeporte()
-                    + ", ARTE = " + usuario.getArte()
-                    + ", POLITICA = " + usuario.getPolitica()
-                    + ", RELACION = " + usuario.getRelacion()
-                    + ", HIJOS = " + usuario.getHijos()
-                    + ", SEXO = " + usuario.getSexo()
-                    + ", INTERES = " + usuario.getInteres()
-                    //[FOTO] [varbinary](max) NULL,
-                    + ", FOTO = " + outStream.toByteArray()                    
-                    + ", FECHA_ACCESO = " + usuario.getFechaAcceso()
-                    + " WHERE ID_USUARIO = " + usuario.getIdUsuario();
-
-            java.sql.PreparedStatement statement = conexionBD.getConex().prepareStatement(sentencia);
-            int filasInsertadas = statement.executeUpdate();
-
-            if (filasInsertadas == 0) {
-                //Error al actualizar el usuario.
-                actualizado = false;
-            }*/
             //Cierra la conexion
             conexionBD.cerrarConexion();
 
@@ -504,12 +406,12 @@ public class UsuarioBD {
     }
 
     /**
-     * Obtiene la cantidad de usuarios con el mismo Rol
+     * Metodo que obtiene la cantidad de usuarios con el mismo Rol
      *
      * @param rol
      * @return
      */
-    public int cantidadUsuariosByRol(int rol) {
+    public synchronized int cantidadUsuariosByRol(int rol) {
 
         int contador = 0;
 
@@ -545,9 +447,10 @@ public class UsuarioBD {
      * ---------------------------------------------------------------------------------------------------------------
      */
     /**
-     * TENER EN CUENTA QUE SI EL filtroSexo = 0, SE TIENE QUE FILTRAR POR LOS
-     * INTERESES "AMBOS"
-     *
+     * 
+     * Metodo que devuelve una lista con usuarios afines
+     * Si el filtroSexo = 0, se filtra por ambos con codigo 3 (Ambos)
+     * Los hijos, si tiene filtro, se usua el que llega y el del usuario
      *
      * @param filtroRelacion
      * @param sexoUsuario
@@ -556,7 +459,7 @@ public class UsuarioBD {
      * @param filtroHijosUsuario
      * @return
      */
-    public ArrayList<Usuario> listaUsuariosAfines(int filtroRelacion, int sexoUsuario, int filtroSexo, int filtroHijos, int filtroHijosUsuario) {
+    public synchronized ArrayList<Usuario> listaUsuariosAfines(int filtroRelacion, int sexoUsuario, int filtroSexo, int filtroHijos, int filtroHijosUsuario) {
 
         ArrayList<Usuario> listaUsuarios = new ArrayList();
         try {
@@ -570,40 +473,19 @@ public class UsuarioBD {
 
             //Filtro
             if (0 != filtroSexo && 0 != filtroHijos) {
-
-                /*if ((usuario.getInfoUsuario().getSexo() == filtroSexo && usuario.getInfoUsuario().getInteres() == sexoUsuario)
-                        && (usuario.getInfoUsuario().getHijos() == filtroHijos || usuario.getInfoUsuario().getHijos() == filtroHijosUsuario)) {
-                    listaUsuarios.add(usuario);
-                }*/
-                //SEXO = filtroSexo
-                //INTERES = sexoUsuario
-                //HIJOS = filtroHijos OR HIJOS = filtroHijosUsuario
+                //Se filtra por todos los filtros
                 condicion = " AND SEXO = " + filtroSexo + " AND INTERES = " + sexoUsuario + " AND (HIJOS = " + filtroHijos + " OR HIJOS = " + filtroHijosUsuario + ")";
 
             } else if (0 != filtroSexo && 0 == filtroHijos) {
-                /*if (usuario.getInfoUsuario().getSexo() == filtroSexo && usuario.getInfoUsuario().getInteres() == sexoUsuario) {
-                    listaUsuarios.add(usuario);
-                }*/
-
-                //SEXO = filtroSexo
-                //INTERES = sexoUsuario
+                //Se filtra por el sexo y el interes
                 condicion = " AND SEXO = " + filtroSexo + " AND INTERES = " + sexoUsuario;
 
             } else if (0 == filtroSexo && 0 != filtroHijos) {
-                /*if (usuario.getInfoUsuario().getInteres() == ambos && (usuario.getInfoUsuario().getHijos() == filtroHijos || usuario.getInfoUsuario().getHijos() == filtroHijosUsuario)) {
-                    listaUsuarios.add(usuario);
-                }*/
-
-                //INTERES = 3
-                //HIJOS = filtroHijos OR HIJOS = filtroHijosUsuario
+                //Se filtra por el interes y los hijos
                 condicion = " AND INTERES = 3 AND (HIJOS = " + filtroHijos + " OR HIJOS = " + filtroHijosUsuario + ")";
 
             } else if (0 == filtroSexo && 0 == filtroHijos) {
-                /*if (usuario.getInfoUsuario().getInteres() == ambos) {
-                    listaUsuarios.add(usuario);
-                }*/
-
-                //INTERES = 3
+                //Se filtra por el interes
                 condicion = " AND INTERES = 3";
             }
 
@@ -665,11 +547,11 @@ public class UsuarioBD {
     }
 
     /**
-     * Obtiene una lista con todos los usuarios de la aplicacion
+     * Metodo que obtiene una lista con todos los usuarios de la aplicacion
      *
      * @return
      */
-    public ArrayList<Usuario> listaUsuariosAplicacion() {
+    public synchronized ArrayList<Usuario> listaUsuariosAplicacion() {
 
         ArrayList<Usuario> listaUsuarios = new ArrayList();
         try {
@@ -713,12 +595,12 @@ public class UsuarioBD {
     }
 
     /**
-     * Elimina el usuario por ID
+     * Metodo que elimina el usuario por Id
      *
      * @param idUsuario
      * @return
      */
-    public boolean eliminarUsuario(int idUsuario) {
+    public synchronized boolean eliminarUsuario(int idUsuario) {
 
         boolean eliminado = true;
 
@@ -751,12 +633,12 @@ public class UsuarioBD {
     }
 
     /**
-     * Elimina la informacion del usuario por ID
+     * Metodo que elimina la informacion del usuario por ID
      *
      * @param idUsuario
      * @return
      */
-    public boolean eliminarInformacionUsuario(int idUsuario) {
+    public synchronized boolean eliminarInformacionUsuario(int idUsuario) {
 
         boolean eliminado = true;
 
@@ -789,13 +671,13 @@ public class UsuarioBD {
     }
 
     /**
-     * Activa o desactiva al usuario
+     * Metodo que activa o desactiva al usuario
      *
      * @param idUsuario
      * @param activar
      * @return
      */
-    public boolean activaDesactivaUsuario(int idUsuario, boolean activar) {
+    public synchronized boolean activaDesactivaUsuario(int idUsuario, boolean activar) {
 
         boolean activado = true;
 

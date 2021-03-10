@@ -9,17 +9,14 @@ import java.sql.SQLException;
  */
 public class MeGustaBD {
 
-    //Pruebas
-    boolean error = false;
-
     /**
-     * Obtiene si existe relacion entre ambos usuarios
+     * Metodo que obtiene si existe relacion entre ambos usuarios
      *
      * @param idUsuario
      * @param idUsuarioAmigo
      * @return
      */
-    public boolean obtenerMeGustaByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
+    public synchronized boolean obtenerMeGustaByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
 
         boolean conectado = false;
 
@@ -54,13 +51,13 @@ public class MeGustaBD {
     }
 
     /**
-     * Crea una relacion entre 2 usuarios
+     * Metodo que crea una relacion entre 2 usuarios
      *
      * @param idUsuario
      * @param idUsuarioAmigo
      * @return
      */
-    public boolean insertarMeGustaByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
+    public synchronized boolean insertarMeGustaByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
 
         boolean insertado = true;
 
@@ -92,13 +89,13 @@ public class MeGustaBD {
     }
 
     /**
-     * Elimina la relacion entre 2 usuarios
+     * Metodo que elimina la relacion entre 2 usuarios
      *
      * @param idUsuario
      * @param idUsuarioAmigo
      * @return
      */
-    public boolean eliminarMeGustaByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
+    public synchronized boolean eliminarMeGustaByIdUsuarioIdUsuarioAmigo(int idUsuario, int idUsuarioAmigo) {
 
         boolean eliminado = true;
 
@@ -113,12 +110,40 @@ public class MeGustaBD {
             String sentencia = "DELETE FROM ME_GUSTA WHERE ID_USUARIO = " + idUsuario + " AND ID_USUARIO_GUSTA = " + idUsuarioAmigo;
 
             java.sql.PreparedStatement statement = conexionBD.getConex().prepareStatement(sentencia);
-            int filasEliminadas = statement.executeUpdate();
+            statement.executeUpdate();
 
-            if (filasEliminadas == 0) {
-                //Error al actualizar el usuario.
-                eliminado = false;
-            }
+            //Cierra la conexion
+            conexionBD.cerrarConexion();
+
+        } catch (SQLException ex) {
+            eliminado = false;
+        }
+
+        return eliminado;
+    }
+
+    /**
+     * Elimina los me gusta que tenia el usuario
+     *
+     * @param idUsuarioAmigo
+     * @return
+     */
+    public synchronized boolean eliminarMeGustaByIdUsuarioAmigo(int idUsuarioAmigo) {
+
+        boolean eliminado = true;
+
+        try {
+
+            //Se inicializa la conexion
+            ConexionBD conexionBD = new ConexionBD();
+            //Se abre la conexion
+            conexionBD.abrirConexion();
+
+            //Sentencia
+            String sentencia = "DELETE FROM ME_GUSTA WHERE ID_USUARIO_GUSTA = " + idUsuarioAmigo;
+
+            java.sql.PreparedStatement statement = conexionBD.getConex().prepareStatement(sentencia);
+            statement.executeUpdate();
 
             //Cierra la conexion
             conexionBD.cerrarConexion();

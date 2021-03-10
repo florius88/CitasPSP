@@ -16,11 +16,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import ventanas.buscar.PanelBuscar;
 import ventanas.perfil.PanelPerfil;
 import ventanas.mensajes.PanelEnviarMensaje;
 import ventanas.login.Login;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -73,9 +75,14 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                     //Envia la informacion al servidor
                     MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
 
+                    if (null != mUsuarioRecibido) {
                     //No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
                     System.out.println("El servidor devuelve: " + mUsuarioRecibido.getCodError() + " Mensaje: " + mUsuarioRecibido.getMensaje());
+                    } else {
+                        System.out.println("El servidor no responde.");
+                    }
 
+                    //Cierra la ventana y sale de la aplicacion
                     System.exit(0);
                 }
             }
@@ -183,8 +190,8 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         jp_panel_contenedor.setLayout(new java.awt.BorderLayout());
         getContentPane().add(jp_panel_contenedor, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 120, 970, 510));
 
-        jp_panel_info.setBackground(new java.awt.Color(232, 195, 158));
-        jp_panel_info.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 137, 105), 2));
+        jp_panel_info.setBackground(new java.awt.Color(221, 167, 181));
+        jp_panel_info.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(159, 106, 134), 2));
 
         lbl_txt_total_user.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
         lbl_txt_total_user.setText("El total de usuarios que utilizan la aplicación son:");
@@ -196,7 +203,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         lbl_txt_amigos_conect.setText("El total de amigos son:");
 
         lbl_amigos_conect.setFont(new java.awt.Font("Book Antiqua", 1, 18)); // NOI18N
-        lbl_amigos_conect.setForeground(new java.awt.Color(51, 153, 0));
+        lbl_amigos_conect.setForeground(new java.awt.Color(102, 255, 51));
         lbl_amigos_conect.setText("0");
 
         lbl_separador.setFont(new java.awt.Font("Book Antiqua", 1, 16)); // NOI18N
@@ -239,7 +246,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
 
         getContentPane().add(jp_panel_info, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 640, 1010, 30));
 
-        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_principal5.jpg"))); // NOI18N
+        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_principal_nuevo1.jpg"))); // NOI18N
         lbl_fondo.setOpaque(true);
         getContentPane().add(lbl_fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(-30, -90, 1040, 760));
 
@@ -292,7 +299,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }// </editor-fold>//GEN-END:initComponents
 
     /**
-     * Inicializamos el estado de los paneles
+     * Metodo que inicializa el panel y eventos
      */
     private void initPaneles() {
 
@@ -307,7 +314,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     * Cargamos la informacion en la tabla
+     * Metodo que carga la informacion
      *
      * @param usuario
      */
@@ -323,6 +330,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         //Envia la informacion al servidor
         MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
 
+        if (null != mUsuarioRecibido) {
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
         switch (mUsuarioRecibido.getCodError()) {
             case Constantes.OK:
@@ -333,6 +341,9 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 lbl_amigos_conect.setText(String.valueOf(mUsuarioRecibido.getTotalAmigosConectados()));
                 lbl_total_amigos.setText(String.valueOf(mUsuarioRecibido.getTotalAmigos()));
                 break;
+        }
+        } else {
+            System.out.println("El servidor no responde.");
         }
     }
 
@@ -354,8 +365,12 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
             //Envia la informacion al servidor
             MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
 
+            if (null != mUsuarioRecibido) {
             //No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
             System.out.println("El servidor devuelve: " + mUsuarioRecibido.getCodError() + " Mensaje: " + mUsuarioRecibido.getMensaje());
+            } else {
+                System.out.println("El servidor no responde.");
+            }
 
             //Ocultamos la ventana actual
             this.setVisible(false);
@@ -368,23 +383,79 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }//GEN-LAST:event_m_cerrarMouseClicked
 
     private void btn_buscarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_buscarActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
+
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         //Mostramos el panel para la busqueda
         mostrarPanelBusqueda();
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
     }//GEN-LAST:event_btn_buscarActionPerformed
 
     private void btn_amigosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_amigosActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
+
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         //Mostramos el panel para los amigos
         mostrarPanelAmigos();
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
     }//GEN-LAST:event_btn_amigosActionPerformed
 
     private void btn_mensajesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_mensajesActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
+
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         //Mostramos el panel para los mensajes
         mostrarPanelMensajes();
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
     }//GEN-LAST:event_btn_mensajesActionPerformed
 
     private void btn_perfilActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_perfilActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
+
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
         //Mostramos el panel para el perfil
         mostrarPanelPerfil();
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
     }//GEN-LAST:event_btn_perfilActionPerformed
 
     private void m_salirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_m_salirMouseClicked
@@ -404,9 +475,14 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
             //Envia la informacion al servidor
             MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
 
+            if (null != mUsuarioRecibido) {
             //No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
             System.out.println("El servidor devuelve: " + mUsuarioRecibido.getCodError() + " Mensaje: " + mUsuarioRecibido.getMensaje());
+            } else {
+                System.out.println("El servidor no responde.");
+            }
 
+            //Cierra la ventana y sale de la aplicacion
             System.exit(0);
         }
     }//GEN-LAST:event_m_salirMouseClicked
@@ -437,7 +513,18 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     * Mostramos el panel para la busqueda
+     * Metodo que recibe la informacion de los amigos conectados
+     *
+     * @param amigosConectados
+     * @param totalAmigos
+     */
+    public void infAmigosConectados(int amigosConectados, int totalAmigos) {
+        lbl_amigos_conect.setText(String.valueOf(amigosConectados));
+        lbl_total_amigos.setText(String.valueOf(totalAmigos));
+    }
+
+    /**
+     * Metodo que muestra el panel para la busqueda
      */
     public void mostrarPanelBusqueda() {
         //Limpiamos de componentes el panel contenedor
@@ -451,7 +538,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     * Mostramos el panel para los amigos
+     * Metodo que muestra el panel para los amigos
      */
     public void mostrarPanelAmigos() {
         //Limpiamos de componentes el panel contenedor
@@ -465,7 +552,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     * Mostramos el panel para los mensajes
+     * Metodo que muestra el panel para los mensajes
      */
     public void mostrarPanelMensajes() {
         //Limpiamos de componentes el panel contenedor
@@ -479,7 +566,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     * Mostramos el panel para el perfil
+     * Metodo que muestra el panel para el perfil
      */
     private void mostrarPanelPerfil() {
         //Limpiamos de componentes el panel contenedor
@@ -491,7 +578,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     * Mostramos el panel para ver el mensaje
+     * Metodo que muestra el panel para ver el mensaje
      *
      * @param msj
      */
@@ -505,8 +592,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     *
-     * Mostramos el panel para enviar el mensaje
+     * Metodo que muestra el panel para enviar el mensaje
      *
      * @param msj
      * @param tipo
@@ -521,7 +607,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     * Mostramos el panel para enviar el mensaje
+     * Metodo que muestra el panel para enviar el mensaje
      *
      * @param tipo
      * @param usuario
@@ -538,7 +624,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     * Mostramos el panel para ver el amigo
+     * Metodo que muestra el panel para ver el amigo
      *
      * @param usuario
      * @param conectado
@@ -554,7 +640,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
     }
 
     /**
-     * Metodo que oculta o muestra los paneles segun el que se pase
+     * Metodo que oculta o muestra los paneles
      *
      * @param panel
      */
@@ -563,6 +649,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         switch (panel) {
 
             case 1:
+                //Buscar
                 pBuscar.setVisible(true);
                 pAmigos = null;
                 pMensajes = null;
@@ -572,6 +659,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 pVerAmigo = null;
                 break;
             case 2:
+                //Amigos
                 pBuscar = null;
                 pAmigos.setVisible(true);
                 pMensajes = null;
@@ -581,6 +669,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 pVerAmigo = null;
                 break;
             case 3:
+                //Mensajes
                 pBuscar = null;
                 pAmigos = null;
                 pMensajes.setVisible(true);
@@ -590,6 +679,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 pVerAmigo = null;
                 break;
             case 4:
+                //Perfil
                 pBuscar = null;
                 pAmigos = null;
                 pMensajes = null;
@@ -599,6 +689,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 pVerAmigo = null;
                 break;
             case 5:
+                //VerMensaje
                 pBuscar = null;
                 pAmigos = null;
                 pMensajes = null;
@@ -608,6 +699,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 pVerAmigo = null;
                 break;
             case 6:
+                //EnviarMensaje
                 pBuscar = null;
                 pAmigos = null;
                 pMensajes = null;
@@ -617,6 +709,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 pVerAmigo = null;
                 break;
             case 7:
+                //VerAmigo
                 pBuscar = null;
                 pAmigos = null;
                 pMensajes = null;

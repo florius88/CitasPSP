@@ -12,11 +12,11 @@ import mensajes.entidades.Rol;
 public class RolBD {
 
     /**
-     * Obtiene todos los roles
+     * Metodo que obtiene todos los roles
      *
      * @return
      */
-    public ArrayList<Rol> getListaRol() {
+    public synchronized ArrayList<Rol> getListaRol() {
 
         ArrayList<Rol> listaRol = new ArrayList();
 
@@ -49,12 +49,12 @@ public class RolBD {
     }
 
     /**
-     * Devuelve la descripcion del rol
+     * Metodo que devuelve la descripcion del rol
      *
      * @param codeRol
      * @return
      */
-    public String getDescripcionRolByCodeRol(int codeRol) {
+    public synchronized String getDescripcionRolByCodeRol(int codeRol) {
 
         String descripcionRol = null;
 

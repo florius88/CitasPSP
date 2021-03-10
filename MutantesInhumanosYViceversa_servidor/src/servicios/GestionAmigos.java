@@ -51,38 +51,18 @@ public class GestionAmigos {
     }
 
     /**
-     * Elimina amigo de la BD
+     * Metodo que obtiene una lista de amigos por Id de usuario
      *
      * @param mAmigos
      * @return
      */
-    /*public MsjServAmigos eliminarAmigo(MsjServAmigos mAmigos) {
-
-        if (servAmigos.eliminarAmgioByIdUsuarioIdUsuarioAmigo(mAmigos.getIdUsuario())) {
-            //Se rellena el mensaje con el codigo y el error
-            mAmigos.setCodError(Constantes.OK);
-            mAmigos.setMensaje("Se ha eliminado el amigo correctamente.");
-        } else {
-            //Se rellena el mensaje con el codigo y el error
-            mAmigos.setCodError(Constantes.ERROR_BD);
-            mAmigos.setMensaje("Se ha producido un error al eliminar el amigo.");
-        }
-
-        return mAmigos;
-    }*/
-    /**
-     * Obtiene una lista de amigos por Id de usuario
-     *
-     * @param mAmigos
-     * @return
-     */
-    public MsjServAmigos obtenerListaAmigosPorIdUsuario(MsjServAmigos mAmigos) {
+    public synchronized MsjServAmigos obtenerListaAmigosPorIdUsuario(MsjServAmigos mAmigos) {
 
         //Mira si el usuario existe en la BD
         Usuario usuarioBD = servUsuario.getUsuarioById(mAmigos.getIdUsuario());
 
-        ArrayList<Amigos> listaAmigosBDResult = null;
-        ArrayList<Amigos> listaAmigosBD = null;
+        ArrayList<Amigos> listaAmigosBDResult;
+        ArrayList<Amigos> listaAmigosBD;
 
         if (null != usuarioBD) {
             listaAmigosBD = servAmigos.obtenerListaAmigosPorIdUsuario(mAmigos.getIdUsuario());
@@ -130,12 +110,12 @@ public class GestionAmigos {
     }
 
     /**
-     * Obtiene una lista de todos los usuarios afines
+     * Metodo que obtiene una lista de todos los usuarios afines
      *
      * @param mAmigos
      * @return
      */
-    public MsjServAmigos obtenerListaBuscarAmigos(MsjServAmigos mAmigos) {
+    public synchronized MsjServAmigos obtenerListaBuscarAmigos(MsjServAmigos mAmigos) {
 
         //Mira si el usuario existe en la BD
         Usuario usuarioBD = servUsuario.getUsuarioById(mAmigos.getIdUsuario());
@@ -159,37 +139,41 @@ public class GestionAmigos {
 
             for (Usuario usuarioAfinBD : listaUsuariosAfinesBD) {
 
-                //Obtiene la informacion del usuario afin
-                Usuario AfinBD = servUsuario.getUsuarioById(usuarioAfinBD.getIdUsuario());
+                //Mira que no sea el mismo usuario
+                if (usuarioBD.getIdUsuario() != usuarioAfinBD.getIdUsuario()){
+                
+                    //Obtiene la informacion del usuario afin
+                    Usuario AfinBD = servUsuario.getUsuarioById(usuarioAfinBD.getIdUsuario());
 
-                //Si esta activo se continua con las comprobaciones
-                if (AfinBD.getActivo()) {
+                    //Si esta activo se continua con las comprobaciones
+                    if (AfinBD.getActivo()) {
 
-                    //Sacar un porcentaje minimo y maximo de estos 10%
-                    boolean comun = false;
+                        //Sacar un porcentaje minimo y maximo de estos 10%
+                        boolean comun = false;
 
-                    if (preferenciasComunes(infUsuarioBD.getDeporte(), usuarioAfinBD.getDeporte())) {
-                        comun = true;
-                    }
-                    if (preferenciasComunes(infUsuarioBD.getArte(), usuarioAfinBD.getArte())) {
-                        comun = true;
-                    }
-                    if (preferenciasComunes(infUsuarioBD.getPolitica(), usuarioAfinBD.getPolitica())) {
-                        comun = true;
-                    }
+                        if (preferenciasComunes(infUsuarioBD.getDeporte(), usuarioAfinBD.getDeporte())) {
+                            comun = true;
+                        }
+                        if (preferenciasComunes(infUsuarioBD.getArte(), usuarioAfinBD.getArte())) {
+                            comun = true;
+                        }
+                        if (preferenciasComunes(infUsuarioBD.getPolitica(), usuarioAfinBD.getPolitica())) {
+                            comun = true;
+                        }
 
-                    //Con al menos 1 preferencia en comun, es apto y tiene que tener foto de perfil
-                    if (comun && null != usuarioAfinBD.getFoto()) {
-                        Amigos amigo = new Amigos();
+                        //Con al menos 1 preferencia en comun, es apto y tiene que tener foto de perfil
+                        if (comun && null != usuarioAfinBD.getFoto()) {
+                            Amigos amigo = new Amigos();
 
-                        amigo.setIdUsuario(usuarioAfinBD.getIdUsuario());
-                        amigo.setNick(usuarioAfinBD.getNick());
-                        amigo.setFoto(usuarioAfinBD.getFoto());
+                            amigo.setIdUsuario(usuarioAfinBD.getIdUsuario());
+                            amigo.setNick(usuarioAfinBD.getNick());
+                            amigo.setFoto(usuarioAfinBD.getFoto());
 
-                        //Buscar si tiene me gusta
-                        amigo.setMeGusta(servMeGusta.obtenerMeGustaByIdUsuarioIdUsuarioAmigo(usuarioBD.getIdUsuario(), usuarioAfinBD.getIdUsuario()));
+                            //Buscar si tiene me gusta
+                            amigo.setMeGusta(servMeGusta.obtenerMeGustaByIdUsuarioIdUsuarioAmigo(usuarioBD.getIdUsuario(), usuarioAfinBD.getIdUsuario()));
 
-                        listaUsuariosAfines.add(amigo);
+                            listaUsuariosAfines.add(amigo);
+                        }
                     }
                 }
             }
@@ -212,12 +196,12 @@ public class GestionAmigos {
     }
 
     /**
-     * Segun el valor del me gusta, gestionamos la tabla de me gustas
+     * Metodo que segun el valor del me gusta, gestionamos la tabla de me gustas
      *
      * @param mAmigos
      * @return
      */
-    public MsjServAmigos modificarMeGusta(MsjServAmigos mAmigos) {
+    public synchronized MsjServAmigos modificarMeGusta(MsjServAmigos mAmigos) {
 
         int idUsuario = mAmigos.getIdUsuario();
         Amigos amigo = mAmigos.getListaAmigos().get(0);
@@ -227,6 +211,7 @@ public class GestionAmigos {
             if (servMeGusta.insertarMeGustaByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario())) {
                 //Si el otro usuario tambien tiene registro en la tabla, se crea una amistad
                 if (servMeGusta.obtenerMeGustaByIdUsuarioIdUsuarioAmigo(amigo.getIdUsuario(), idUsuario)) {
+                    //Inserta la amistad para ambos usuarios
                     servAmigos.insertarAmistadByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario());
                     servAmigos.insertarAmistadByIdUsuarioIdUsuarioAmigo(amigo.getIdUsuario(), idUsuario);
                 }
@@ -244,16 +229,10 @@ public class GestionAmigos {
                 //Si tenian amistad, se elimina
                 if (servAmigos.obtenerAmistadByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario())
                         || servAmigos.obtenerAmistadByIdUsuarioIdUsuarioAmigo(amigo.getIdUsuario(), idUsuario)) {
+                    //Elimina la amistad para ambos usuarios
                     servAmigos.eliminarAmgioByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario());
                     servAmigos.eliminarAmgioByIdUsuarioIdUsuarioAmigo(amigo.getIdUsuario(), idUsuario);
                 }
-
-                /*if (servAmigos.obtenerAmistadByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario())) {
-                    servAmigos.eliminarAmgioByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario());
-                } else if (servAmigos.obtenerAmistadByIdUsuarioIdUsuarioAmigo(amigo.getIdUsuario(), idUsuario)) {
-                    servAmigos.eliminarAmgioByIdUsuarioIdUsuarioAmigo(idUsuario, amigo.getIdUsuario());
-                }*/
-
                 //Se rellena el mensaje con el codigo y el error
                 mAmigos.setCodError(Constantes.OK);
                 mAmigos.setMensaje("Se ha eliminado el me gusta correctamente.");
@@ -268,12 +247,12 @@ public class GestionAmigos {
     }
 
     /**
-     * Devuelve el filtro para el interes segun las opciones
+     * Metodo que devuelve el filtro para el interes segun las opciones
      *
      * @param interes
      * @return
      */
-    private int buscarFiltroInteres(int interes) {
+    private synchronized int buscarFiltroInteres(int interes) {
 
         int filtroSexo = 0;
 
@@ -292,12 +271,12 @@ public class GestionAmigos {
     }
 
     /**
-     * Devuelve el filtro para los hijos segun las opciones
+     * Metodo que devuelve el filtro para los hijos segun las opciones
      *
      * @param hijos
      * @return
      */
-    private int buscarFiltroHijos(int hijos) {
+    private synchronized int buscarFiltroHijos(int hijos) {
 
         int filtroHijos = 0;
 
@@ -334,7 +313,7 @@ public class GestionAmigos {
      * @param valorAmigo
      * @return
      */
-    private boolean preferenciasComunes(int valorUsuario, int valorAmigo) {
+    private synchronized boolean preferenciasComunes(int valorUsuario, int valorAmigo) {
 
         boolean enComun = false;
 

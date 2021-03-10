@@ -12,11 +12,11 @@ import mensajes.entidades.Relacion;
 public class RelacionBD {
 
     /**
-     * Obtiene todas las relaciones
+     * Metodo que obtiene todas las relaciones
      *
      * @return
      */
-    public ArrayList<Relacion> getListaRelacion() {
+    public synchronized ArrayList<Relacion> getListaRelacion() {
 
         ArrayList<Relacion> listaRelacion = new ArrayList();
 

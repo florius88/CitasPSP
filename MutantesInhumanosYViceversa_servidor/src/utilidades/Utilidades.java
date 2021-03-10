@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class Utilidades {
     
     /**
-     * Valida si el email introducido tiene un formato correcto
+     * Metodo que valida si el email introducido tiene un formato correcto
      *
      * @param email
      * @return
@@ -32,7 +32,7 @@ public class Utilidades {
     }
 
     /**
-     * Valida si las 2 pwd introducidas son iguales y tienen una longitud mayor que 4
+     * Metodo que valida si las 2 pwd introducidas son iguales
      *
      * @param pwd
      * @param confirmPwd

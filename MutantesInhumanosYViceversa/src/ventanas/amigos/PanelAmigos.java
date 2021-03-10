@@ -13,11 +13,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import java.util.ArrayList;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import ventanas.principal.Principal;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -46,7 +48,7 @@ public class PanelAmigos extends javax.swing.JPanel {
     }
 
     /**
-     * Cambiamos preferencias de la tabla
+     * Metodo que cambia las preferencias de la tabla
      */
     private void initTabla() {
 
@@ -61,21 +63,51 @@ public class PanelAmigos extends javax.swing.JPanel {
         //Cambiamos el renderizador de las siguientes celdas para incluir imagenes
         jt_tabla_amigos.getColumn("Concectado").setCellRenderer(new CellRenderer());
 
-        //Captura el evento de doble click para ver el mensaje
+        //Captura el evento de doble click para ver el detalle
         jt_tabla_amigos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 if (e.getClickCount() == 2) {
+                    //Ventana de dialogo de espera
+                    DialogoEspera wait = new DialogoEspera();
+
+                    SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            //Redirige al panel detalle
                     verAmigo();
+                            wait.close();
+                            return null;
+                        }
+                    };
+
+                    mySwingWorker.execute();
+                    wait.makeWaitMouseTable("Cargando", e);
                 }
             }
         });
 
-        //Captura el evento del intro en el teclado para ver el mensaje
+        //Captura el evento del intro en el teclado para ver el detalle
         jt_tabla_amigos.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    //Ventana de dialogo de espera
+                    DialogoEspera wait = new DialogoEspera();
+
+                    SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground() throws Exception {
+                            //Redirige al panel detalle
                     verAmigo();
+                            wait.close();
+                            return null;
+                        }
+                    };
+
+                    mySwingWorker.execute();
+                    wait.makeWaitKeyTable("Cargando", e);
                 }
             }
 
@@ -90,7 +122,7 @@ public class PanelAmigos extends javax.swing.JPanel {
     }
 
     /**
-     * Recoge la informacion y redirige al panel del detalle
+     * Metdo que recoge la informacion y redirige al panel del detalle
      */
     private void verAmigo() {
         
@@ -106,6 +138,7 @@ public class PanelAmigos extends javax.swing.JPanel {
         //Envia la informacion al servidor
         MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
 
+        if (null != mUsuarioRecibido) {
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
         switch (mUsuarioRecibido.getCodError()) {
             case Constantes.OK:
@@ -114,8 +147,12 @@ public class PanelAmigos extends javax.swing.JPanel {
                 break;
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(principal, mUsuarioRecibido.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
                 break;
+        }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(principal, "No hay conexión con el servidor, por favor, intentelo más tarde", "Amigos", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -159,7 +196,7 @@ public class PanelAmigos extends javax.swing.JPanel {
     }
 
     /**
-     * Cargamos la informacion en la tabla
+     * Metodo para cargar la informacion en la tabla
      *
      * @param usuario
      */
@@ -176,6 +213,7 @@ public class PanelAmigos extends javax.swing.JPanel {
         //Envia la informacion al servidor
         MsjServAmigos mAmigosRecibido = (MsjServAmigos) ConexionServidor.envioObjetoServidor(mAmigosEnvio);
 
+        if (null != mAmigosRecibido) {
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
         switch (mAmigosRecibido.getCodError()) {
             case Constantes.OK:
@@ -189,6 +227,8 @@ public class PanelAmigos extends javax.swing.JPanel {
 
                     DefaultTableModel model = (DefaultTableModel) jt_tabla_amigos.getModel();
 
+                        int amigosConectados = 0;
+
                     for (Amigos amigo : listaAmigos) {
 
                         if (null != amigo) {
@@ -200,6 +240,7 @@ public class PanelAmigos extends javax.swing.JPanel {
                             if (amigo.isConectado()) {
                                 ImageIcon iconLeido = new ImageIcon(getClass().getResource(Constantes.ICO_CONECTADO));
                                 lConectado = new JLabel(iconLeido);
+                                    amigosConectados++;
                             } else {
                                 ImageIcon iconLeido = new ImageIcon(getClass().getResource(Constantes.ICO_NO_CONECTADO));
                                 lConectado = new JLabel(iconLeido);
@@ -210,17 +251,26 @@ public class PanelAmigos extends javax.swing.JPanel {
                     }
 
                     jt_tabla_amigos.setModel(model);
+
+                        //Se pasa la iformacion al panel principal para refrescar la informacion
+                        principal.infAmigosConectados(amigosConectados, listaAmigos.size());
                 }
 
                 break;
             case Constantes.ERROR_NO_AMIGOS:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mAmigosRecibido.getMensaje(), "Amigos", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(principal, mAmigosRecibido.getMensaje(), "Amigos", JOptionPane.INFORMATION_MESSAGE);
                 //Ocultamos el panel
                 jp_contenedor.setVisible(false);
                 //Mostramos la imagen de no amigos
                 lbl_no_amigos.setVisible(true);
+                    //Se pasa la iformacion al panel principal para refrescar la informacion
+                    principal.infAmigosConectados(0, 0);
                 break;
+        }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(principal, "No hay conexión con el servidor, por favor, intentelo más tarde", "Amigos", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -258,13 +308,13 @@ public class PanelAmigos extends javax.swing.JPanel {
         setPreferredSize(new java.awt.Dimension(970, 510));
         setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        lbl_no_amigos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_no_amigos.png"))); // NOI18N
+        lbl_no_amigos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_no_amigos-1.png.png"))); // NOI18N
         add(lbl_no_amigos, new org.netbeans.lib.awtextra.AbsoluteConstraints(230, 0, -1, -1));
 
         jp_contenedor.setOpaque(false);
         jp_contenedor.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jt_tabla_amigos.setBackground(new java.awt.Color(232, 195, 158));
+        jt_tabla_amigos.setBackground(new java.awt.Color(221, 167, 181));
         jt_tabla_amigos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         jt_tabla_amigos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -284,7 +334,7 @@ public class PanelAmigos extends javax.swing.JPanel {
         });
         jt_tabla_amigos.setGridColor(new java.awt.Color(255, 255, 255));
         jt_tabla_amigos.setOpaque(false);
-        jt_tabla_amigos.setSelectionBackground(new java.awt.Color(180, 137, 105));
+        jt_tabla_amigos.setSelectionBackground(new java.awt.Color(159, 106, 134));
         jt_tabla_amigos.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         jt_tabla_amigos.setShowGrid(true);
         jt_tabla_amigos.getTableHeader().setResizingAllowed(false);

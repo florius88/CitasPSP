@@ -11,12 +11,12 @@ import mensajes.entidades.Sexo;
  */
 public class SexoBD {
 
-     /**
-     * Obtiene todas los sexos
+    /**
+     * Metodo que obtiene todas los sexos
      *
      * @return
      */
-    public ArrayList<Sexo> getListaSexo() {
+    public synchronized ArrayList<Sexo> getListaSexo() {
 
         ArrayList<Sexo> listaSexo = new ArrayList();
 
@@ -38,10 +38,10 @@ public class SexoBD {
                 //Incluye la relacion
                 listaSexo.add(sexoBD);
             }
-            
+
             //Cierra la conexion
             conexionBD.cerrarConexion();
-            
+
         } catch (SQLException ex) {
 
         }

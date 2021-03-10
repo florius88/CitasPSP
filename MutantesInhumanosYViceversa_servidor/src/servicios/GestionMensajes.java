@@ -19,6 +19,9 @@ public class GestionMensajes {
     private MensajeBD servMensaje = null;
     private UsuarioBD servUsuario = null;
 
+    /**
+     * Constructor
+     */
     public GestionMensajes() {
         //Se inicializan las clases para invocar a la BD
         servMensaje = new MensajeBD();
@@ -26,12 +29,12 @@ public class GestionMensajes {
     }
 
     /**
-     * Registra el mensaje en la BD
+     * Metodo que registra el mensaje en la BD
      *
      * @param mMsj
      * @return
      */
-    public MsjServMsj enviarMensaje(MsjServMsj mMsj) {
+    public synchronized MsjServMsj enviarMensaje(MsjServMsj mMsj) {
 
         Mensaje msj = mMsj.getMsj();
 
@@ -57,12 +60,12 @@ public class GestionMensajes {
     }
 
     /**
-     * Elimina el mensaje de la BD
+     * Metodo que elimina el mensaje de la BD
      *
      * @param mMsj
      * @return
      */
-    public MsjServMsj eliminarMensaje(MsjServMsj mMsj) {
+    public synchronized MsjServMsj eliminarMensaje(MsjServMsj mMsj) {
 
         Mensaje msj = mMsj.getMsj();
 
@@ -86,12 +89,12 @@ public class GestionMensajes {
     }
 
     /**
-     * Actualiza el mensaje de la BD
+     * Metodo que actualiza el mensaje de la BD
      *
      * @param mMsj
      * @return
      */
-    public MsjServMsj actualizarMensaje(MsjServMsj mMsj) {
+    public synchronized MsjServMsj actualizarMensaje(MsjServMsj mMsj) {
 
         Mensaje msj = mMsj.getMsj();
 
@@ -109,12 +112,12 @@ public class GestionMensajes {
     }
 
     /**
-     * Obtienes una lista de mensajes por el Id del usuario
+     * Metodo que obtiene una lista de mensajes por el Id del usuario
      *
      * @param mMensajes
      * @return
      */
-    public MsjServMensajes obtenerListaMensajesPorIdUsuario(MsjServMensajes mMensajes) {
+    public synchronized MsjServMensajes obtenerListaMensajesPorIdUsuario(MsjServMensajes mMensajes) {
 
         //Mira si el usuario existe en la BD
         Usuario usuarioBD = servUsuario.getUsuarioById(mMensajes.getIdUsuario());
@@ -127,12 +130,18 @@ public class GestionMensajes {
                 ArrayList<Mensaje> listaMensajes = new ArrayList();
 
                 for (Mensaje msjBD : listaMensajesBD) {
-                    
+
                     //Obtiene la lista de documentos adjuntos del mensaje
                     msjBD.setListaAdjuntosEmisor(servMensaje.obtenerListaAdjuntosPorIdMensaje(msjBD.getIdMensaje()));
-                    
+
                     Usuario usuarioNickBD = servUsuario.getInformacionUsuarioById(msjBD.getIdUsuarioEmisor());
-                    msjBD.setNickEmisor(usuarioNickBD.getNick());
+                    //Si el usuario se elimino, se pone como Nick un texto
+                    if (null == usuarioNickBD) {
+                        msjBD.setIdUsuarioEmisor(0);
+                        msjBD.setNickEmisor("USUARIO ELIMINADO");
+                    } else {
+                        msjBD.setNickEmisor(usuarioNickBD.getNick());
+                    }
 
                     listaMensajes.add(msjBD);
                 }

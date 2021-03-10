@@ -21,10 +21,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import ventanas.principal.Principal;
 import ventanas.login.Login;
 import utilidades.Constantes;
+import ventanas.espera.DialogoEspera;
 
 /**
  *
@@ -35,7 +37,7 @@ public class Preferencias extends javax.swing.JFrame {
     private Usuario usuario = null;
 
     /**
-     * Creates new form Preferencias
+     * Constructor
      *
      * @param usuario
      */
@@ -143,9 +145,9 @@ public class Preferencias extends javax.swing.JFrame {
         txt_nick.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         getContentPane().add(txt_nick, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 148, 250, -1));
 
-        lbl_foto.setBackground(new java.awt.Color(232, 195, 158));
+        lbl_foto.setBackground(new java.awt.Color(221, 167, 181));
         lbl_foto.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_foto_perfil.png"))); // NOI18N
-        lbl_foto.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(180, 137, 105), 2));
+        lbl_foto.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(159, 106, 134), 2));
         lbl_foto.setOpaque(true);
         getContentPane().add(lbl_foto, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 150, 130, 130));
 
@@ -174,14 +176,14 @@ public class Preferencias extends javax.swing.JFrame {
         lbl_deporte.setText("Deportivos:");
         getContentPane().add(lbl_deporte, new org.netbeans.lib.awtextra.AbsoluteConstraints(228, 230, -1, -1));
 
-        lbl_deporte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        lbl_deporte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos-nuevo-1.png"))); // NOI18N
         getContentPane().add(lbl_deporte_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 230, -1, -1));
 
         sl_deportivo.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         sl_deportivo.setToolTipText("a@a");
         getContentPane().add(sl_deportivo, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 230, 150, 35));
 
-        lbl_deporte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        lbl_deporte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas-nuevo-1.png"))); // NOI18N
         getContentPane().add(lbl_deporte_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 230, -1, -1));
 
         lbl_arte.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -189,13 +191,13 @@ public class Preferencias extends javax.swing.JFrame {
         lbl_arte.setText("Artísticos:");
         getContentPane().add(lbl_arte, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 270, -1, -1));
 
-        lbl_arte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        lbl_arte_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos-nuevo-1.png"))); // NOI18N
         getContentPane().add(lbl_arte_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 270, -1, -1));
 
         sl_arte.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         getContentPane().add(sl_arte, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 270, 150, 35));
 
-        lbl_arte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        lbl_arte_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas-nuevo-1.png"))); // NOI18N
         getContentPane().add(lbl_arte_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 270, -1, -1));
 
         lbl_politico.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -203,13 +205,13 @@ public class Preferencias extends javax.swing.JFrame {
         lbl_politico.setText("Políticos:");
         getContentPane().add(lbl_politico, new org.netbeans.lib.awtextra.AbsoluteConstraints(250, 310, -1, -1));
 
-        lbl_politica_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos.png"))); // NOI18N
+        lbl_politica_menos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_menos-nuevo-1.png"))); // NOI18N
         getContentPane().add(lbl_politica_menos, new org.netbeans.lib.awtextra.AbsoluteConstraints(350, 310, -1, -1));
 
         sl_politico.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         getContentPane().add(sl_politico, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 310, 150, 35));
 
-        lbl_politica_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas.png"))); // NOI18N
+        lbl_politica_mas.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_mas-nuevo-1.png"))); // NOI18N
         getContentPane().add(lbl_politica_mas, new org.netbeans.lib.awtextra.AbsoluteConstraints(560, 310, -1, -1));
 
         lbl_hijos.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -250,14 +252,33 @@ public class Preferencias extends javax.swing.JFrame {
         });
         getContentPane().add(btn_guardar, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 520, 370, -1));
 
-        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_preferencias_1.jpg"))); // NOI18N
+        lbl_fondo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/fondo_preferencias_nuevo1.jpg.png"))); // NOI18N
         getContentPane().add(lbl_fondo, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, -40, 640, 630));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
+        //Ventana de dialogo de espera
+        DialogoEspera wait = new DialogoEspera();
 
+        SwingWorker<Void, Void> mySwingWorker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
+                guardarInformacion();
+                wait.close();
+                return null;
+            }
+        };
+
+        mySwingWorker.execute();
+        wait.makeWait("Cargando", evt);
+
+
+    }//GEN-LAST:event_btn_guardarActionPerformed
+
+    private void guardarInformacion() {
         MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
         mUsuarioEnvio.setAccion(Constantes.ACCION_GUARDAR_PREFERENCIAS);
         //Obtenemos la informacion de la ventana
@@ -267,6 +288,7 @@ public class Preferencias extends javax.swing.JFrame {
         //Envia la informacion al servidor
         MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
 
+        if (null != mUsuarioRecibido) {
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
         switch (mUsuarioRecibido.getCodError()) {
             case Constantes.OK:
@@ -287,7 +309,11 @@ public class Preferencias extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Preferencias", JOptionPane.ERROR_MESSAGE);
                 break;
         }
-    }//GEN-LAST:event_btn_guardarActionPerformed
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(this, "No hay conexión con el servidor, por favor, intentelo más tarde", "Preferencias", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
     private void btn_selec_fotoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_selec_fotoActionPerformed
         //Muestra el cuadro de dialogo para seleccionar imagenes
@@ -322,7 +348,7 @@ public class Preferencias extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_selec_fotoActionPerformed
 
     /**
-     * Rellena la informacion de los combos
+     * Metodo que carga la informacion de los combos
      */
     private void rellenarCombos() {
 
@@ -344,6 +370,7 @@ public class Preferencias extends javax.swing.JFrame {
         //Envia la informacion al servidor
         MsjServCargaVentana mServCargaVentanaRecibido = (MsjServCargaVentana) ConexionServidor.envioObjetoServidor(mServCargaVentanaEnvio);
         
+        if (null != mServCargaVentanaRecibido) {
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
         switch (mServCargaVentanaRecibido.getCodError()) {
             case Constantes.OK:
@@ -371,10 +398,14 @@ public class Preferencias extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, mServCargaVentanaRecibido.getMensaje(), "Preferencias", JOptionPane.ERROR_MESSAGE);
                 break;
         }
+        } else {
+            //Mostramos el mensaje
+            JOptionPane.showMessageDialog(this, "No hay conexión con el servidor, por favor, intentelo más tarde", "Preferencias", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     /**
-     * Cargamos la informacion del usuario en la pantalla
+     * Metodo que carga la informacion
      *
      * @param usuario
      */
@@ -401,7 +432,7 @@ public class Preferencias extends javax.swing.JFrame {
     }
 
     /**
-     * Obtiene la informacion de la ventana y la pasa al usuario
+     * Metodo que obtiene la informacion
      */
     private void informacionVentana() {
 
