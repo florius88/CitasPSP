@@ -3,6 +3,7 @@ package servicios;
 import mensajes.entidades.Usuario;
 import mensajes.MsjServAdmin;
 import java.util.ArrayList;
+import modelosBD.RolBD;
 import modelosBD.UsuarioBD;
 import utilidades.Constantes;
 
@@ -13,6 +14,7 @@ import utilidades.Constantes;
 public class GestionAdministracion {
 
     private UsuarioBD servUsuario = null;
+    private RolBD servRol = null;
 
     /**
      * Constructor
@@ -20,6 +22,7 @@ public class GestionAdministracion {
     public GestionAdministracion() {
         //Se inicializan las clases para invocar a la BD
         servUsuario = new UsuarioBD();
+        servRol = new RolBD();
     }
 
     /**
@@ -28,7 +31,7 @@ public class GestionAdministracion {
      * @param mAdmin
      * @return
      */
-    public MsjServAdmin obtenerListaMensajesPorIdUsuario(MsjServAdmin mAdmin) {
+    public MsjServAdmin obtenerListaUsuarios(MsjServAdmin mAdmin) {
 
         //Mira si el usuario existe en la BD
         Usuario usuarioAdminBD = servUsuario.getUsuarioById(mAdmin.getIdUsuario());
@@ -45,6 +48,9 @@ public class GestionAdministracion {
                     //Pasa todos los usuarios menos el del ADMIN y el del SUPERUSUARIO (no se puede mostrar)
                     if (usuarioBD.getIdUsuario() != usuarioAdminBD.getIdUsuario() && 1 != usuarioBD.getRol()) {
 
+                        //Obtiene la descripcion del Rol
+                        usuarioBD.setDescripcionRol(servRol.getDescripcionRolByCodeRol(usuarioBD.getRol()));
+                        
                         //Obtiene el resto de informacion del usuario
                         if (3 == usuarioBD.getRol()) {
                             //Obtiene la informacion del usuario
@@ -88,7 +94,7 @@ public class GestionAdministracion {
      * @param mAdmin
      * @return
      */
-    public MsjServAdmin eliminarMensaje(MsjServAdmin mAdmin) {
+    public MsjServAdmin eliminarUsuario(MsjServAdmin mAdmin) {
 
         Usuario user = mAdmin.getListaUsuarios().get(0);
 

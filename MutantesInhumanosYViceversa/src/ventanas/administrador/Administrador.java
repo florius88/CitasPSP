@@ -45,9 +45,6 @@ public class Administrador extends javax.swing.JFrame {
         //Cambiamos preferencias de la tabla
         initTabla();
 
-        //Cargamos la informacion
-        cargarDatos();
-
         jp_contenedor.setVisible(false);
 
         this.addWindowListener(new WindowAdapter() {
@@ -173,7 +170,7 @@ public class Administrador extends javax.swing.JFrame {
         lbl_txt_email.setText(usuario.getEmail());
 
         //TODO REVISAR
-        lbl_txt_rol.setText(String.valueOf(usuario.getRol()));
+        lbl_txt_rol.setText(String.valueOf(usuario.getDescripcionRol()));
 
         //Insertamos la conexion para mostrar que esta en linea
         MsjServAdmin mAdminEnvio = new MsjServAdmin();
@@ -198,7 +195,7 @@ public class Administrador extends javax.swing.JFrame {
 
                             int idUsuario = user.getIdUsuario();
                             String email = user.getEmail();
-                            String rol = String.valueOf(user.getRol());
+                            String rol = String.valueOf(user.getDescripcionRol());
 
                             //Obtiene el icono para mostrar en la tabla
                             JLabel lActivo = iconoActivoDesactivo(user.getActivo());
@@ -446,7 +443,7 @@ public class Administrador extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jp_panel_principal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jp_contenedor, javax.swing.GroupLayout.DEFAULT_SIZE, 620, Short.MAX_VALUE)
+            .addComponent(jp_contenedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();

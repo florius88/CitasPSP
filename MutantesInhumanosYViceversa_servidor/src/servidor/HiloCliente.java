@@ -12,6 +12,9 @@ import mensajes.MsjServConexion;
 import mensajes.MsjServMensajes;
 import mensajes.MsjServMsj;
 import servicios.GestionAdministracion;
+import servicios.GestionAmigos;
+import servicios.GestionConexion;
+import servicios.GestionMensajes;
 import servicios.GestionUsuarios;
 import servicios.GestionVentana;
 import utilidades.Constantes;
@@ -64,15 +67,15 @@ class HiloCliente extends Thread {
                             break;
                         case Constantes.ACCION_REGISTRO_USUARIO:
                             //Registro del usuario
-                            //resultado = gestionusuario.guardarRegistro(rec);
+                            resultado = gestionusuario.guardarRegistro(rec);
                             break;
                         case Constantes.ACCION_GUARDAR_PREFERENCIAS:
                             //Guardar perfil
-                            resultado = gestionusuario.guardarPerfil(rec);
+                            resultado = gestionusuario.guardarPreferencias(rec);
                             break;
                         case Constantes.ACCION_DEVOLVER_USUARIO:
                             //Devolver usuario
-                            //resultado = gestionusuario.obtenerUsuario(rec);
+                            resultado = gestionusuario.obtenerUsuario(rec);
                             break;
                         case Constantes.ACCION_CREAR_USUARIO:
                             //Crear usuario
@@ -82,18 +85,22 @@ class HiloCliente extends Thread {
                             //Actualizar usuario
                             resultado = gestionusuario.actualizarUsuario(rec);
                             break;
+                        case Constantes.ACCION_GUARDAR_PERFIL:
+                            //Guardar perfil
+                            resultado = gestionusuario.guardarPerfil(rec);
+                            break;
                     }
                 } else if (recepcion instanceof MsjServMensajes) {
                     //Se encarga de recuperar la informacion de todos los mensajes del usuario
-                    /*GestionMensajes gestionMensajes = new GestionMensajes();
+                    GestionMensajes gestionMensajes = new GestionMensajes();
 
                     MsjServMensajes rec = (MsjServMensajes) recepcion;
 
-                    resultado = gestionMensajes.obtenerListaMensajesPorIdUsuario(rec);*/
+                    resultado = gestionMensajes.obtenerListaMensajesPorIdUsuario(rec);
 
                 } else if (recepcion instanceof MsjServMsj) {
                     //Se encarga de la gestion con los mensajes
-                    //GestionMensajes gestionMensajes = new GestionMensajes();
+                    GestionMensajes gestionMensajes = new GestionMensajes();
 
                     MsjServMsj rec = (MsjServMsj) recepcion;
 
@@ -101,20 +108,20 @@ class HiloCliente extends Thread {
                     switch (rec.getAccion()) {
                         case Constantes.ACCION_ENVIAR_MSJ:
                             //Enviar mensaje
-                            //resultado = gestionMensajes.enviarMensaje(rec);
+                            resultado = gestionMensajes.enviarMensaje(rec);
                             break;
                         case Constantes.ACCION_ELIMINAR_MSJ:
                             //Eliminar mensaje
-                            //resultado = gestionMensajes.eliminarMensaje(rec);
+                            resultado = gestionMensajes.eliminarMensaje(rec);
                             break;
                         case Constantes.ACCION_ACTUALIZAR_MSJ:
                             //Actualizar mensaje
-                            //resultado = gestionMensajes.actualizarMensaje(rec);
+                            resultado = gestionMensajes.actualizarMensaje(rec);
                             break;
                     }
                 } else if (recepcion instanceof MsjServAmigos) {
                     //Se encarga de toda la gestion con los amigos
-                    //GestionAmigos gestionAmigos = new GestionAmigos();
+                    GestionAmigos gestionAmigos = new GestionAmigos();
 
                     MsjServAmigos rec = (MsjServAmigos) recepcion;
 
@@ -122,7 +129,7 @@ class HiloCliente extends Thread {
                     switch (rec.getAccion()) {
                         case Constantes.ACCION_LISTA_AMIGOS:
                             //Lista amigos
-                            //resultado = gestionAmigos.obtenerListaAmigosPorIdUsuario(rec);
+                            resultado = gestionAmigos.obtenerListaAmigosPorIdUsuario(rec);
                             break;
                         case Constantes.ACCION_DEJAR_AMIGO:
                             //Eliminar amigo
@@ -130,16 +137,16 @@ class HiloCliente extends Thread {
                             break;
                         case Constantes.ACCION_BUSCAR_AMIGO:
                             //Buscar amigos
-                            //resultado = gestionAmigos.obtenerListaBuscarAmigos(rec);
+                            resultado = gestionAmigos.obtenerListaBuscarAmigos(rec);
                             break;
                         case Constantes.ACCION_ME_GUSTA:
                             //Me gusta
-                            //resultado = gestionAmigos.modificarMeGusta(rec);
+                            resultado = gestionAmigos.modificarMeGusta(rec);
                             break;
                     }
                 } else if (recepcion instanceof MsjServConexion) {
                     //Se encarga de la gestion con la conexion en la aplicacion
-                    //GestionConexion gestionConexion = new GestionConexion();
+                    GestionConexion gestionConexion = new GestionConexion();
 
                     MsjServConexion rec = (MsjServConexion) recepcion;
 
@@ -147,11 +154,11 @@ class HiloCliente extends Thread {
                     switch (rec.getAccion()) {
                         case Constantes.ACCION_CREAR_CONEXION:
                             //Lista amigos
-                            //resultado = gestionConexion.crearConexion(rec);
+                            resultado = gestionConexion.crearConexion(rec);
                             break;
                         case Constantes.ACCION_ELIMINAR_CONEXION:
                             //Eliminar amigo
-                            //resultado = gestionConexion.eliminarConexion(rec);
+                            resultado = gestionConexion.eliminarConexion(rec);
                             break;
                     }
                 } else if (recepcion instanceof MsjServAdmin) {
@@ -164,11 +171,11 @@ class HiloCliente extends Thread {
                     switch (rec.getAccion()) {
                         case Constantes.ACCION_CARGAR_ADMIN:
                             //Lista usuarios
-                            resultado = gestionAdmin.obtenerListaMensajesPorIdUsuario(rec);
+                            resultado = gestionAdmin.obtenerListaUsuarios(rec);
                             break;
                         case Constantes.ACCION_BAJA_USUARIO:
                             //Baja del usuario
-                            resultado = gestionAdmin.eliminarMensaje(rec);
+                            resultado = gestionAdmin.eliminarUsuario(rec);
                             break;
                         case Constantes.ACCION_ACTIVAR_USUARIO:
                             //Activar/Desactivar al usuario
@@ -189,5 +196,4 @@ class HiloCliente extends Thread {
             System.out.println(e.getMessage());
         }
     }
-
 }

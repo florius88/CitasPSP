@@ -17,6 +17,7 @@ public class Constantes {
     public static final String ICO_ME_GUSTA = "/recursos/ico/ico_me_gusta.png";
     public static final String ICO_USUARIO_CONECTADO = "/recursos/ico/ico_usuario_activado.png";
     public static final String ICO_USUARIO_NO_CONECTADO = "/recursos/ico/ico_usuario_desactivado.png";
+    public static final String ICO_ACTUALIZAR = "/recursos/ico/ico_actualizar.png";
     public static final String IMG_USUARIO_CONECTADO = "/recursos/ico/user_activado.png";
     public static final String IMG_USUARIO_NO_CONECTADO = "/recursos/ico/user_desactivado.png";
 
@@ -27,6 +28,7 @@ public class Constantes {
     public static final int ACCION_DEVOLVER_USUARIO = 4;
     public static final int ACCION_CREAR_USUARIO = 5;
     public static final int ACCION_ACTUALIZAR_USUARIO = 6;
+    public static final int ACCION_GUARDAR_PERFIL = 7;
 
     //Accion mensaje
     public static final int ACCION_ENVIAR_MSJ = 1;

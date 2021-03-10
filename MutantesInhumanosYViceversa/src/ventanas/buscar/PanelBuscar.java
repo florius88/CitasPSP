@@ -1,10 +1,10 @@
 package ventanas.buscar;
 
+import conexion.ConexionServidor;
 import ventanas.principal.Principal;
 import mensajes.entidades.Amigos;
 import mensajes.entidades.Usuario;
 import mensajes.MsjServAmigos;
-import java.awt.Image;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -43,24 +43,26 @@ public class PanelBuscar extends javax.swing.JPanel {
 
         idUsuario = usuario.getIdUsuario();
 
-        //idUsuario = usuario.getIdUsuario();
-        MsjServAmigos mAmigos = new MsjServAmigos();
-        mAmigos.setIdUsuario(usuario.getIdUsuario());
-        mAmigos.setAccion(Constantes.ACCION_BUSCAR_AMIGO);
+        MsjServAmigos mAmigosEnvio = new MsjServAmigos();
+        mAmigosEnvio.setIdUsuario(usuario.getIdUsuario());
+        mAmigosEnvio.setAccion(Constantes.ACCION_BUSCAR_AMIGO);
+
+        //Envia la informacion al servidor
+        MsjServAmigos mAmigosRecibido = (MsjServAmigos) ConexionServidor.envioObjetoServidor(mAmigosEnvio);
 
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
-        switch (mAmigos.getCodError()) {
+        switch (mAmigosRecibido.getCodError()) {
             case Constantes.OK:
                 //Ocultamos la imagen de no afines
                 lbl_buscando.setVisible(false);
                 //Carga la lista de personas afines
-                listaUsuariosAfines = mAmigos.getListaAmigos();
+                listaUsuariosAfines = mAmigosRecibido.getListaAmigos();
                 //Carga la informacion en pantalla
                 cargarAmigo();
                 break;
             case Constantes.ERROR_NO_AMIGOS:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mAmigos.getMensaje(), "Amigos", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, mAmigosRecibido.getMensaje(), "Amigos", JOptionPane.INFORMATION_MESSAGE);
                 //Ocultamos el panel
                 jp_contenedor.setVisible(false);
                 //Mostramos la imagen de no afines
@@ -77,12 +79,9 @@ public class PanelBuscar extends javax.swing.JPanel {
         Amigos amigo = listaUsuariosAfines.get(posicionAfines);
 
         String nick = amigo.getNick();
-        Image foto = amigo.getFoto();
 
         lbl_txt_nick.setText(nick);
-
-        ImageIcon icon = new ImageIcon(foto);
-        lbl_foto.setIcon(icon);
+        lbl_foto.setIcon(amigo.getFoto());
 
         //Cargamos la imagen de me gusta
         cargarImagenMeGusta(amigo.isMeGusta());
@@ -121,9 +120,9 @@ public class PanelBuscar extends javax.swing.JPanel {
         ImageIcon iconMegusta = null;
 
         if (meGusta) {
-            iconMegusta = new ImageIcon(getClass().getResource(Constantes.ICO_NO_ME_GUSTA));
-        } else {
             iconMegusta = new ImageIcon(getClass().getResource(Constantes.ICO_ME_GUSTA));
+        } else {
+            iconMegusta = new ImageIcon(getClass().getResource(Constantes.ICO_NO_ME_GUSTA));
         }
         lbl_me_gusta.setIcon(iconMegusta);
     }
@@ -218,8 +217,8 @@ public class PanelBuscar extends javax.swing.JPanel {
 
     private void lbl_me_gustaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbl_me_gustaMouseClicked
 
-        MsjServAmigos mAmigos = new MsjServAmigos();
-        mAmigos.setIdUsuario(idUsuario);
+        MsjServAmigos mAmigosEnvio = new MsjServAmigos();
+        mAmigosEnvio.setIdUsuario(idUsuario);
 
         Amigos amigo = listaUsuariosAfines.get(posicionAfines);
         boolean meGusta = amigo.isMeGusta();
@@ -232,18 +231,20 @@ public class PanelBuscar extends javax.swing.JPanel {
             amigo.setMeGusta(meGusta);
         }
 
-        mAmigos.getListaAmigos().add(amigo);
+        mAmigosEnvio.getListaAmigos().add(amigo);
+        mAmigosEnvio.setAccion(Constantes.ACCION_ME_GUSTA);
 
-        mAmigos.setAccion(Constantes.ACCION_ME_GUSTA);
+        //Envia la informacion al servidor
+        MsjServAmigos mAmigosRecibido = (MsjServAmigos) ConexionServidor.envioObjetoServidor(mAmigosEnvio);
 
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
-        switch (mAmigos.getCodError()) {
+        switch (mAmigosRecibido.getCodError()) {
             case Constantes.OK:
                 cargarImagenMeGusta(meGusta);
                 break;
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mAmigos.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, mAmigosRecibido.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
                 break;
         }
     }//GEN-LAST:event_lbl_me_gustaMouseClicked

@@ -1,5 +1,6 @@
 package ventanas.mensajes;
 
+import conexion.ConexionServidor;
 import mensajes.entidades.Adjuntos;
 import mensajes.entidades.Mensaje;
 import mensajes.entidades.Usuario;
@@ -125,10 +126,8 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
 
         Adjuntos adj = msjEnviar.getListaAdjuntosEmisor().get(jt_tabla_adjuntos.getSelectedRow());
 
-        ImageIcon icon = new ImageIcon(adj.getAdjunto());
-
         //Muestra el dialogo
-        DialogAdjunto dialog = new DialogAdjunto(principal, true, icon);
+        DialogAdjunto dialog = new DialogAdjunto(principal, true, adj.getAdjunto());
         dialog.setTitle(txtAdj);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
@@ -345,22 +344,25 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
         //Obtiene la informacion del panel
         informacionVentana();
 
-        MsjServMsj mMsj = new MsjServMsj();
-        mMsj.setAccion(Constantes.ACCION_ENVIAR_MSJ);
-        mMsj.setMsj(msjEnviar);
+        MsjServMsj mMsjEnvio = new MsjServMsj();
+        mMsjEnvio.setAccion(Constantes.ACCION_ENVIAR_MSJ);
+        mMsjEnvio.setMsj(msjEnviar);
+
+        //Envia la informacion al servidor
+        MsjServMsj mMsjRecibido = (MsjServMsj) ConexionServidor.envioObjetoServidor(mMsjEnvio);
 
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-        switch (mMsj.getCodError()) {
+        switch (mMsjRecibido.getCodError()) {
             case Constantes.OK:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mMsj.getMensaje());
+                JOptionPane.showMessageDialog(this, mMsjRecibido.getMensaje());
                 //Redirigir al panel que corresponda
                 volver();
                 break;
             case Constantes.ERROR_NO_MENSAJES:
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mMsj.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, mMsjRecibido.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
                 break;
         }
     }//GEN-LAST:event_btn_enviarActionPerformed
@@ -383,7 +385,7 @@ public class PanelEnviarMensaje extends javax.swing.JPanel {
             Image newimg = image.getScaledInstance(800, 600, java.awt.Image.SCALE_SMOOTH);
 
             Adjuntos adj = new Adjuntos();
-            adj.setAdjunto(newimg);
+            adj.setAdjunto(new ImageIcon(newimg));
 
             msjEnviar.getListaAdjuntosEmisor().add(adj);
 

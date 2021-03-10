@@ -1,7 +1,7 @@
 package mensajes.entidades;
 
-import java.awt.Image;
 import java.io.Serializable;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -9,13 +9,13 @@ import java.io.Serializable;
  */
 public class Adjuntos implements Serializable{
  
-    private Image adjunto;
+    private ImageIcon adjunto;
 
-    public Image getAdjunto() {
+    public ImageIcon getAdjunto() {
         return adjunto;
     }
 
-    public void setAdjunto(Image adjunto) {
+    public void setAdjunto(ImageIcon adjunto) {
         this.adjunto = adjunto;
     }
 }

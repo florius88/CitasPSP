@@ -1,5 +1,6 @@
 package ventanas.amigos;
 
+import conexion.ConexionServidor;
 import mensajes.entidades.Hijos;
 import mensajes.entidades.Interes;
 import mensajes.entidades.Relacion;
@@ -240,19 +241,22 @@ public class PanelVerAmigo extends javax.swing.JPanel {
                 JOptionPane.QUESTION_MESSAGE);
         if (option == JOptionPane.YES_OPTION) {
 
-            MsjServAmigos mAmigos = new MsjServAmigos();
-            mAmigos.setIdUsuario(usuarioAmigo.getIdUsuario());
-            mAmigos.setAccion(Constantes.ACCION_DEJAR_AMIGO);
+            MsjServAmigos mAmigosEnvio = new MsjServAmigos();
+            mAmigosEnvio.setIdUsuario(usuarioAmigo.getIdUsuario());
+            mAmigosEnvio.setAccion(Constantes.ACCION_DEJAR_AMIGO);
+
+            //Envia la informacion al servidor
+            MsjServAmigos mAmigosRecibido = (MsjServAmigos) ConexionServidor.envioObjetoServidor(mAmigosEnvio);
 
             //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
-            switch (mAmigos.getCodError()) {
+            switch (mAmigosRecibido.getCodError()) {
                 case Constantes.OK:
                     //Vuelve al panel de amigos
                     principal.mostrarPanelAmigos();
                     break;
                 case Constantes.ERROR_BD:
                     //Mostramos el mensaje devuelto por el servidor
-                    JOptionPane.showMessageDialog(this, mAmigos.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, mAmigosRecibido.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
                     break;
             }
         }
@@ -325,22 +329,24 @@ public class PanelVerAmigo extends javax.swing.JPanel {
      */
     private void obtenerListasPreferencias() {
 
-        //cb_relacion.setModel(mdljComboBox);
-        MsjServCargaVentana mServCargaVentana = new MsjServCargaVentana();
+        MsjServCargaVentana mServCargaVentanaEnvio = new MsjServCargaVentana();
+
+        //Envia la informacion al servidor
+        MsjServCargaVentana mServCargaVentanaRecibido = (MsjServCargaVentana) ConexionServidor.envioObjetoServidor(mServCargaVentanaEnvio);
 
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-        switch (mServCargaVentana.getCodError()) {
+        switch (mServCargaVentanaRecibido.getCodError()) {
             case Constantes.OK:
 
-                listaRelacion = mServCargaVentana.getListaRelacion();
-                listaHijos = mServCargaVentana.getListaHijos();
-                listaSexo = mServCargaVentana.getListaSexo();
-                listaInteres = mServCargaVentana.getListaInteres();
+                listaRelacion = mServCargaVentanaRecibido.getListaRelacion();
+                listaHijos = mServCargaVentanaRecibido.getListaHijos();
+                listaSexo = mServCargaVentanaRecibido.getListaSexo();
+                listaInteres = mServCargaVentanaRecibido.getListaInteres();
 
                 break;
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mServCargaVentana.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, mServCargaVentanaRecibido.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
                 break;
         }
     }

@@ -1,5 +1,6 @@
 package ventanas.mensajes;
 
+import conexion.ConexionServidor;
 import mensajes.entidades.Mensaje;
 import mensajes.entidades.Usuario;
 import mensajes.MsjServMensajes;
@@ -27,6 +28,7 @@ import utilidades.Constantes;
  */
 public class PanelMensajes extends javax.swing.JPanel {
 
+    private Usuario usuario;
     private ArrayList<Mensaje> listaMensajes = null;
     private Principal principal = null;
 
@@ -113,9 +115,12 @@ public class PanelMensajes extends javax.swing.JPanel {
             //se marca como leido 
             msj.setLeidoReceptor(true);
 
-            MsjServMsj mMsj = new MsjServMsj();
-            mMsj.setAccion(Constantes.ACCION_ACTUALIZAR_MSJ);
-            mMsj.setMsj(msj);
+            MsjServMsj mMsjEnvio = new MsjServMsj();
+            mMsjEnvio.setAccion(Constantes.ACCION_ACTUALIZAR_MSJ);
+            mMsjEnvio.setMsj(msj);
+
+            //Envia la informacion al servidor
+            ConexionServidor.envioObjetoServidor(mMsjEnvio);
 
             //TODO No mostramos al usuario mensaje en caso de error!!!!!!!!!!!!!
         }
@@ -217,6 +222,7 @@ public class PanelMensajes extends javax.swing.JPanel {
         jScrollPane1 = new javax.swing.JScrollPane();
         jt_tabla = new javax.swing.JTable();
         btn_eliminar = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(155, 131, 131));
         setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
@@ -277,6 +283,15 @@ public class PanelMensajes extends javax.swing.JPanel {
             }
         });
 
+        jButton1.setBackground(new java.awt.Color(249, 246, 246));
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/recursos/ico/ico_actualizar.png"))); // NOI18N
+        jButton1.setToolTipText("Refrescar la tabla");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -284,7 +299,10 @@ public class PanelMensajes extends javax.swing.JPanel {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(110, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btn_eliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btn_eliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 750, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(110, 110, 110))
         );
@@ -292,7 +310,9 @@ public class PanelMensajes extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(22, Short.MAX_VALUE)
-                .addComponent(btn_eliminar, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btn_eliminar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(38, 38, 38))
@@ -321,27 +341,35 @@ public class PanelMensajes extends javax.swing.JPanel {
                 //Obtenemos el mensaje de la lista para eliminarlo
                 Mensaje msj = listaMensajes.get(posMensaje);
 
-                MsjServMsj mMsj = new MsjServMsj();
-                mMsj.setAccion(Constantes.ACCION_ELIMINAR_MSJ);
-                mMsj.setMsj(msj);
+                MsjServMsj mMsjEnvio = new MsjServMsj();
+                mMsjEnvio.setAccion(Constantes.ACCION_ELIMINAR_MSJ);
+                mMsjEnvio.setMsj(msj);
+
+                //Envia la informacion al servidor
+                MsjServMsj mMsjRecibido = (MsjServMsj) ConexionServidor.envioObjetoServidor(mMsjEnvio);
 
                 //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-                switch (mMsj.getCodError()) {
+                switch (mMsjRecibido.getCodError()) {
                     case Constantes.OK:
                         //Eliminamos de la lista el mensaje
                         listaMensajes.remove(posMensaje);
                         //Eliminamos de la tabla el mensaje
                         model.removeRow(posMensaje);
-                        JOptionPane.showMessageDialog(this, mMsj.getMensaje());
+                        JOptionPane.showMessageDialog(this, mMsjRecibido.getMensaje());
                         break;
                     case Constantes.ERROR_BD:
                         //Mostramos el mensaje devuelto por el servidor
-                        JOptionPane.showMessageDialog(this, mMsj.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, mMsjRecibido.getMensaje(), "Mensaje", JOptionPane.ERROR_MESSAGE);
                         break;
                 }
             }
         }
     }//GEN-LAST:event_btn_eliminarActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        //Refrescamos la tabla
+        cargarDatos(usuario);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * Cargamos la informacion en la tabla
@@ -350,18 +378,23 @@ public class PanelMensajes extends javax.swing.JPanel {
      */
     public void cargarDatos(Usuario usuario) {
 
+        this.usuario = usuario;
+        
         limpiarTabla();
 
-        MsjServMensajes mMensajes = new MsjServMensajes();
-        mMensajes.setIdUsuario(usuario.getIdUsuario());
+        MsjServMensajes mMensajesEnvio = new MsjServMensajes();
+        mMensajesEnvio.setIdUsuario(usuario.getIdUsuario());
+
+        //Envia la informacion al servidor
+        MsjServMensajes mMensajesRecibido = (MsjServMensajes) ConexionServidor.envioObjetoServidor(mMensajesEnvio);
 
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
-        switch (mMensajes.getCodError()) {
+        switch (mMensajesRecibido.getCodError()) {
             case Constantes.OK:
 
-                if (null != mMensajes.getListaMensajes() && !mMensajes.getListaMensajes().isEmpty()) {
+                if (null != mMensajesRecibido.getListaMensajes() && !mMensajesRecibido.getListaMensajes().isEmpty()) {
 
-                    listaMensajes = mMensajes.getListaMensajes();
+                    listaMensajes = mMensajesRecibido.getListaMensajes();
 
                     DefaultTableModel model = (DefaultTableModel) jt_tabla.getModel();
 
@@ -370,7 +403,7 @@ public class PanelMensajes extends javax.swing.JPanel {
                         if (null != msj) {
 
                             String nick = msj.getNickEmisor();
-                            String fecha = new SimpleDateFormat("dd-MM-yyyy HH:mm").format(msj.getFechaEnvioEmisor());
+                            String fecha = msj.getFechaEnvioEmisor();
 
                             JLabel lLeido;
                             boolean noLeido = false;
@@ -400,7 +433,7 @@ public class PanelMensajes extends javax.swing.JPanel {
                 break;
             case Constantes.ERROR_NO_MENSAJES:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mMensajes.getMensaje(), "Mensajes", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, mMensajesRecibido.getMensaje(), "Mensajes", JOptionPane.ERROR_MESSAGE);
                 break;
         }
     }
@@ -460,6 +493,7 @@ public class PanelMensajes extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_eliminar;
+    private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jt_tabla;
     // End of variables declaration//GEN-END:variables

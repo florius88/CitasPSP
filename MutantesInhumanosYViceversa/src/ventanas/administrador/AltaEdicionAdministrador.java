@@ -12,6 +12,7 @@ import mensajes.MsjServUsuario;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import mensajes.MsjServConexion;
 import utilidades.Constantes;
 
 /**
@@ -208,40 +209,46 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
     /**
      * Obtiene la informacion de la ventana y la pasa al usuario
      */
-    private void informacionVentana() {
+    private Usuario informacionVentana() {
 
-        usuario = new Usuario();
+        Usuario usuarioActualizar = new Usuario();
 
         if (ventanaEdicion) {
-            usuario.setIdUsuario(Integer.valueOf(lbl_txt_id.getText()));
+            //Si es edicion, cogemos los campos que el usuario pudiese tener
+            usuarioActualizar.setIdUsuario(Integer.valueOf(lbl_txt_id.getText()));
+            usuarioActualizar.setPwd(usuario.getPwd());
+            usuarioActualizar.setFoto(usuario.getFoto());
+            usuarioActualizar.setFechaAcceso(usuario.getFechaAcceso());
         }
         //TODO pwd
         String email = txt_email.getText();
-        usuario.setEmail(email);
+        usuarioActualizar.setEmail(email);
 
         Rol rol = (Rol) cb_rol.getSelectedItem();
-        usuario.setRol(rol.getId());
+        usuarioActualizar.setRol(rol.getId());
 
         //Usuario
         if (3 == rol.getId()) {
             //Preferencias
             String nick = txt_nick.getText();
-            usuario.setNick(nick);
+            usuarioActualizar.setNick(nick);
             Relacion relacion = (Relacion) cb_relacion.getSelectedItem();
-            usuario.setRelacion(relacion.getId());
+            usuarioActualizar.setRelacion(relacion.getId());
             int deporte = sl_deporte.getValue();
-            usuario.setDeporte(deporte);
+            usuarioActualizar.setDeporte(deporte);
             int arte = sl_arte.getValue();
-            usuario.setArte(arte);
+            usuarioActualizar.setArte(arte);
             int politica = sl_politica.getValue();
-            usuario.setPolitica(politica);
+            usuarioActualizar.setPolitica(politica);
             Hijos hijos = (Hijos) cb_hijos.getSelectedItem();
-            usuario.setHijos(hijos.getId());
+            usuarioActualizar.setHijos(hijos.getId());
             Sexo sexo = (Sexo) cb_sexo.getSelectedItem();
-            usuario.setSexo(sexo.getId());
+            usuarioActualizar.setSexo(sexo.getId());
             Interes interes = (Interes) cb_interes.getSelectedItem();
-            usuario.setInteres(interes.getId());
+            usuarioActualizar.setInteres(interes.getId());
         }
+
+        return usuarioActualizar;
     }
 
     /**
@@ -254,6 +261,7 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
     private void initComponents() {
 
         lbl_titulo = new javax.swing.JLabel();
+        btn_eliminar_conexion = new javax.swing.JButton();
         btn_guardar = new javax.swing.JButton();
         btn_volver = new javax.swing.JButton();
         lbl_id = new javax.swing.JLabel();
@@ -295,6 +303,15 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
 
         lbl_titulo.setFont(new java.awt.Font("Book Antiqua", 1, 30)); // NOI18N
         lbl_titulo.setText("Titulo panel");
+
+        btn_eliminar_conexion.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
+        btn_eliminar_conexion.setText("Eliminar conexión");
+        btn_eliminar_conexion.setToolTipText("Eliminar la conexión en caso de error");
+        btn_eliminar_conexion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_eliminar_conexionActionPerformed(evt);
+            }
+        });
 
         btn_guardar.setFont(new java.awt.Font("Book Antiqua", 1, 20)); // NOI18N
         btn_guardar.setText("Guardar");
@@ -521,6 +538,8 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
                 .addGap(48, 48, 48)
                 .addComponent(lbl_titulo, javax.swing.GroupLayout.PREFERRED_SIZE, 351, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btn_eliminar_conexion)
+                .addGap(18, 18, 18)
                 .addComponent(btn_guardar)
                 .addGap(18, 18, 18)
                 .addComponent(btn_volver)
@@ -556,7 +575,10 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
                             .addComponent(btn_volver)))
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(lbl_titulo, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(lbl_titulo, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(34, 34, 34)
+                        .addComponent(btn_eliminar_conexion)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -606,11 +628,9 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);
         if (option == JOptionPane.YES_OPTION) {
-            //Actualiza la informacion del usuario
-            informacionVentana();
-
             //Obtenemos la informacion de la ventana
             MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
+            mUsuarioEnvio.setUsuario(informacionVentana());
 
             //Editamos al usuario
             if (ventanaEdicion) {
@@ -618,7 +638,6 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
             } else {
                 mUsuarioEnvio.setAccion(Constantes.ACCION_CREAR_USUARIO);
             }
-            mUsuarioEnvio.setUsuario(usuario);
 
             //Envia la informacion al servidor
             MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
@@ -644,8 +663,38 @@ public class AltaEdicionAdministrador extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btn_guardarActionPerformed
 
+    private void btn_eliminar_conexionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_eliminar_conexionActionPerformed
+        //Se elimina la conexion para que el usuario pueda entrar de nuevo
+        int option;
+        option = JOptionPane.showConfirmDialog(
+                this,
+                "¿Estás seguro de que quieres eliminar la conexión del usuario? ",
+                "Adminstrador",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (option == JOptionPane.YES_OPTION) {
+            MsjServConexion mConexionEnvio = new MsjServConexion();
+            mConexionEnvio.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
+            mConexionEnvio.setIdUsuario(usuario.getIdUsuario());
+
+            //Envia la informacion al servidor
+            MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
+            
+            switch (mUsuarioRecibido.getCodError()) {
+                case Constantes.OK:
+                    JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.INFORMATION_MESSAGE);
+                    break;
+                case Constantes.ERROR_BD:
+                    //Mostramos el mensaje devuelto por el servidor
+                    JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Adminstrador", JOptionPane.ERROR_MESSAGE);
+                    break;
+            }
+        }
+    }//GEN-LAST:event_btn_eliminar_conexionActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btn_eliminar_conexion;
     private javax.swing.JButton btn_guardar;
     private javax.swing.JButton btn_volver;
     private javax.swing.JComboBox<String> cb_hijos;

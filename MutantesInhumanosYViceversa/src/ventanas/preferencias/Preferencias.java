@@ -306,15 +306,15 @@ public class Preferencias extends javax.swing.JFrame {
             //Se escala de manera suave
             Image newimg = image.getScaledInstance(420, 360, java.awt.Image.SCALE_SMOOTH);
 
+            //Almacenamos la imagen en el usuario para almacenarla
+            usuario.setFoto(new ImageIcon(newimg));
+            
             //Se escala de manera suave para mostrarla
             Image imgLbl = newimg.getScaledInstance(130, 130, java.awt.Image.SCALE_SMOOTH);
             icon = new ImageIcon(imgLbl);
             //Pasamos la imgane al label
             this.lbl_foto.setIcon(icon);
 
-            //Almacenamos la imagen en el usuario para almacenarla
-            usuario.setFoto(icon);
-            
         } else {
             //Informa al usuario de que seleccione una imagen
             JOptionPane.showMessageDialog(this, "Por favor seleccione un archivo.", "Seleccionar foto", JOptionPane.INFORMATION_MESSAGE);

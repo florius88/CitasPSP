@@ -87,7 +87,7 @@ public class UsuarioBD {
     public Usuario getInformacionUsuarioById(int idUsuario) {
 
         Usuario usuarioBD = null;
-        
+
         try {
 
             //Se inicializa la conexion
@@ -102,7 +102,7 @@ public class UsuarioBD {
             while (conj_Registros.next()) {
 
                 usuarioBD = new Usuario();
-                
+
                 String nickBD = conj_Registros.getString("NICK");
                 int deporteBD = conj_Registros.getInt("DEPORTE");
                 int arteBD = conj_Registros.getInt("ARTE");
@@ -114,9 +114,9 @@ public class UsuarioBD {
 
                 //Obtenemos y convertimos la imagen
                 ImageIcon foto = null;
-                if (null != conj_Registros.getBytes("FOTO")){
+                if (null != conj_Registros.getBytes("FOTO")) {
                     byte[] fotoBD = conj_Registros.getBytes("FOTO");
-                     foto = new ImageIcon(fotoBD);
+                    foto = new ImageIcon(fotoBD);
                 }
 
                 String fechaAccesoBD = conj_Registros.getString("FECHA_ACCESO");
@@ -184,7 +184,14 @@ public class UsuarioBD {
             java.sql.Statement sentencia_SQL = conexionBD.abrirConexion();
 
             //Sentencia
-            String sentencia = "SELECT * FROM USUARIO WHERE EMAIL = '" + email + "' AND PWD = '" + pwd + "'";
+            String sentencia;
+
+            //Si no se manda la pwd, se busca por el email
+            if (null == pwd) {
+                sentencia = "SELECT * FROM USUARIO WHERE EMAIL = '" + email + "'";
+            } else {
+                sentencia = "SELECT * FROM USUARIO WHERE EMAIL = '" + email + "' AND PWD = '" + pwd + "'";
+            }
 
             java.sql.ResultSet conj_Registros = sentencia_SQL.executeQuery(sentencia);
             while (conj_Registros.next()) {
@@ -222,7 +229,7 @@ public class UsuarioBD {
     public boolean insertarUsuario(Usuario usuario) {
 
         boolean insertado = true;
-        
+
         try {
 
             //Se inicializa la conexion
@@ -292,7 +299,7 @@ public class UsuarioBD {
     public boolean insertarInformacionUsuario(Usuario usuario) {
 
         boolean insertado = true;
-        
+
         try {
 
             //Se inicializa la conexion
@@ -301,15 +308,15 @@ public class UsuarioBD {
             conexionBD.abrirConexion();
 
             //Sentencia
-            String Sentencia = "INSERT INTO INFORMACION_USUARIO" + " VALUES (" + usuario.getIdUsuario() + "," + "'" + usuario.getNick() + "'," + usuario.getDeporte() + ","
+            String sentencia = "INSERT INTO INFORMACION_USUARIO" + " VALUES (" + usuario.getIdUsuario() + "," + "'" + usuario.getNick() + "'," + usuario.getDeporte() + ","
                     + usuario.getArte() + "," + usuario.getPolitica() + "," + usuario.getRelacion() + "," + usuario.getHijos() + "," + usuario.getSexo()
                     + "," + usuario.getInteres() + ", null, null)";
 
             usuario.getFoto();
             usuario.getFechaAcceso();
 
-            java.sql.PreparedStatement statement2 = conexionBD.getConex().prepareStatement(Sentencia);
-            int filasInsertadas = statement2.executeUpdate();
+            java.sql.PreparedStatement statement = conexionBD.getConex().prepareStatement(sentencia);
+            int filasInsertadas = statement.executeUpdate();
             if (filasInsertadas == 0) {
                 //Error al crear la informacion del usuario.
                 insertado = false;
@@ -341,7 +348,12 @@ public class UsuarioBD {
             conexionBD.abrirConexion();
 
             //Sentencia
-            String sentencia = "UPDATE USUARIO SET EMAIL = '" + usuario.getEmail() + "', ROL = " + usuario.getRol() + " WHERE ID = " + usuario.getIdUsuario();
+            String sentencia;
+            if (null == usuario.getPwd()) {
+                sentencia = "UPDATE USUARIO SET EMAIL = '" + usuario.getEmail() + "', ROL = " + usuario.getRol() + " WHERE ID = " + usuario.getIdUsuario();
+            } else {
+                sentencia = "UPDATE USUARIO SET EMAIL = '" + usuario.getEmail() + "', PWD = '" + usuario.getPwd() + "', ROL = " + usuario.getRol() + " WHERE ID = " + usuario.getIdUsuario();
+            }
 
             java.sql.PreparedStatement statement = conexionBD.getConex().prepareStatement(sentencia);
             int filasInsertadas = statement.executeUpdate();
@@ -385,7 +397,6 @@ public class UsuarioBD {
             if (null == usuario.getFechaAcceso()) {
                 fecha = ", FECHA_ACCESO = null";
             }*/
-            
             /**
              * ****************************************************************************************************************
              */
@@ -451,7 +462,7 @@ public class UsuarioBD {
             } else {
                 statement.setNull(10, java.sql.Types.NULL);
             }
-            
+
             int i = statement.executeUpdate();
             if (i == 0) {
                 //Error al actualizar el usuario.
@@ -492,23 +503,42 @@ public class UsuarioBD {
         return actualizado;
     }
 
-    /*public int cantidadUsuariosByRol(int rol) {
+    /**
+     * Obtiene la cantidad de usuarios con el mismo Rol
+     *
+     * @param rol
+     * @return
+     */
+    public int cantidadUsuariosByRol(int rol) {
 
-        int resultado = 0;
+        int contador = 0;
 
         try {
 
-            if (error) {
-                resultado = 0;
-            } else if (rol == 3) {
+            //Se inicializa la conexion
+            ConexionBD conexionBD = new ConexionBD();
+            //Se abre la conexion
+            java.sql.Statement sentencia_SQL = conexionBD.abrirConexion();
 
-                resultado = 1463;
+            //Sentencia
+            String sentencia = "SELECT * FROM USUARIO WHERE ROL = " + rol;
+
+            java.sql.ResultSet conj_Registros = sentencia_SQL.executeQuery(sentencia);
+
+            while (conj_Registros.next()) {
+                contador++;
             }
-        } catch (Exception e) {
-            resultado = 0;
+
+            //Cierra la conexion
+            conexionBD.cerrarConexion();
+
+        } catch (SQLException sq) {
+            contador = 0;
         }
-        return resultado;
-    }*/
+
+        return contador;
+    }
+
     /**
      * ---------------------------------------------------------------------------------------------------------------
      * Usuarios afines
@@ -526,56 +556,114 @@ public class UsuarioBD {
      * @param filtroHijosUsuario
      * @return
      */
-    /*public ArrayList<UsuarioBD> listaUsuariosAfines(int filtroRelacion, int sexoUsuario, int filtroSexo, int filtroHijos, int filtroHijosUsuario) {
+    public ArrayList<Usuario> listaUsuariosAfines(int filtroRelacion, int sexoUsuario, int filtroSexo, int filtroHijos, int filtroHijosUsuario) {
 
-        ArrayList<UsuarioBD> listaUsuarios = new ArrayList();
+        ArrayList<Usuario> listaUsuarios = new ArrayList();
+        try {
 
-        for (int i = 0; i < 4; i++) {
+            //Se inicializa la conexion
+            ConexionBD conexionBD = new ConexionBD();
+            //Se abre la conexion
+            java.sql.Statement sentencia_SQL = conexionBD.abrirConexion();
 
-            UsuarioBD usuario = new UsuarioBD();
+            String condicion = "";
 
-            switch (i) {
-                case 0:
-                    usuario = getUser1(i);
-                    break;
-                case 1:
-                    usuario = getUser2(i);
-                    break;
-                case 2:
-                    usuario = getUser3(i);
-                    break;
-                case 3:
-                    usuario = getUser4(i);
-                    break;
-                default:
-                    break;
+            //Filtro
+            if (0 != filtroSexo && 0 != filtroHijos) {
+
+                /*if ((usuario.getInfoUsuario().getSexo() == filtroSexo && usuario.getInfoUsuario().getInteres() == sexoUsuario)
+                        && (usuario.getInfoUsuario().getHijos() == filtroHijos || usuario.getInfoUsuario().getHijos() == filtroHijosUsuario)) {
+                    listaUsuarios.add(usuario);
+                }*/
+                //SEXO = filtroSexo
+                //INTERES = sexoUsuario
+                //HIJOS = filtroHijos OR HIJOS = filtroHijosUsuario
+                condicion = " AND SEXO = " + filtroSexo + " AND INTERES = " + sexoUsuario + " AND (HIJOS = " + filtroHijos + " OR HIJOS = " + filtroHijosUsuario + ")";
+
+            } else if (0 != filtroSexo && 0 == filtroHijos) {
+                /*if (usuario.getInfoUsuario().getSexo() == filtroSexo && usuario.getInfoUsuario().getInteres() == sexoUsuario) {
+                    listaUsuarios.add(usuario);
+                }*/
+
+                //SEXO = filtroSexo
+                //INTERES = sexoUsuario
+                condicion = " AND SEXO = " + filtroSexo + " AND INTERES = " + sexoUsuario;
+
+            } else if (0 == filtroSexo && 0 != filtroHijos) {
+                /*if (usuario.getInfoUsuario().getInteres() == ambos && (usuario.getInfoUsuario().getHijos() == filtroHijos || usuario.getInfoUsuario().getHijos() == filtroHijosUsuario)) {
+                    listaUsuarios.add(usuario);
+                }*/
+
+                //INTERES = 3
+                //HIJOS = filtroHijos OR HIJOS = filtroHijosUsuario
+                condicion = " AND INTERES = 3 AND (HIJOS = " + filtroHijos + " OR HIJOS = " + filtroHijosUsuario + ")";
+
+            } else if (0 == filtroSexo && 0 == filtroHijos) {
+                /*if (usuario.getInfoUsuario().getInteres() == ambos) {
+                    listaUsuarios.add(usuario);
+                }*/
+
+                //INTERES = 3
+                condicion = " AND INTERES = 3";
             }
 
-            if (usuario.getInfoUsuario().getRelacion() == filtroRelacion) {
+            //Sentencia
+            String sentencia;
+            if (condicion.isEmpty()) {
+                sentencia = "SELECT * FROM INFORMACION_USUARIO WHERE RELACION = " + filtroRelacion;
+            } else {
+                sentencia = "SELECT * FROM INFORMACION_USUARIO WHERE RELACION = " + filtroRelacion + condicion;
+            }
 
-                if (0 != filtroSexo && 0 != filtroHijos) {
-                    if ((usuario.getInfoUsuario().getSexo() == filtroSexo && usuario.getInfoUsuario().getInteres() == sexoUsuario)
-                            && (usuario.getInfoUsuario().getHijos() == filtroHijos || usuario.getInfoUsuario().getHijos() == filtroHijosUsuario)) {
-                        listaUsuarios.add(usuario);
-                    }
-                } else if (0 != filtroSexo && 0 == filtroHijos) {
-                    if (usuario.getInfoUsuario().getSexo() == filtroSexo && usuario.getInfoUsuario().getInteres() == sexoUsuario) {
-                        listaUsuarios.add(usuario);
-                    }
-                } else if (0 == filtroSexo && 0 != filtroHijos) {
-                    if (usuario.getInfoUsuario().getInteres() == ambos && (usuario.getInfoUsuario().getHijos() == filtroHijos || usuario.getInfoUsuario().getHijos() == filtroHijosUsuario)) {
-                        listaUsuarios.add(usuario);
-                    }
-                } else if (0 == filtroSexo && 0 == filtroHijos) {
-                    if (usuario.getInfoUsuario().getInteres() == ambos) {
-                        listaUsuarios.add(usuario);
-                    }
+            java.sql.ResultSet conj_Registros = sentencia_SQL.executeQuery(sentencia);
+
+            while (conj_Registros.next()) {
+                Usuario usuarioBD = new Usuario();
+
+                int idUsuarioBD = conj_Registros.getInt("ID_USUARIO");
+                String nickBD = conj_Registros.getString("NICK");
+                int deporteBD = conj_Registros.getInt("DEPORTE");
+                int arteBD = conj_Registros.getInt("ARTE");
+                int politicaBD = conj_Registros.getInt("POLITICA");
+                int relacionBD = conj_Registros.getInt("RELACION");
+                int hijosBD = conj_Registros.getInt("HIJOS");
+                int sexoBD = conj_Registros.getInt("SEXO");
+                int interesBD = conj_Registros.getInt("INTERES");
+
+                //Obtenemos y convertimos la imagen
+                ImageIcon foto = null;
+                if (null != conj_Registros.getBytes("FOTO")) {
+                    byte[] fotoBD = conj_Registros.getBytes("FOTO");
+                    foto = new ImageIcon(fotoBD);
                 }
-            }
-        }
 
+                String fechaAccesoBD = conj_Registros.getString("FECHA_ACCESO");
+
+                usuarioBD.setIdUsuario(idUsuarioBD);
+                usuarioBD.setNick(nickBD);
+                usuarioBD.setDeporte(deporteBD);
+                usuarioBD.setArte(arteBD);
+                usuarioBD.setPolitica(politicaBD);
+                usuarioBD.setRelacion(relacionBD);
+                usuarioBD.setHijos(hijosBD);
+                usuarioBD.setSexo(sexoBD);
+                usuarioBD.setInteres(interesBD);
+                usuarioBD.setFoto(foto);
+                usuarioBD.setFechaAcceso(fechaAccesoBD);
+
+                //Incluye los usuarios
+                listaUsuarios.add(usuarioBD);
+            }
+
+            //Cierra la conexion
+            conexionBD.cerrarConexion();
+
+        } catch (SQLException ex) {
+
+        }
         return listaUsuarios;
-    }*/
+    }
+
     /**
      * Obtiene una lista con todos los usuarios de la aplicacion
      *

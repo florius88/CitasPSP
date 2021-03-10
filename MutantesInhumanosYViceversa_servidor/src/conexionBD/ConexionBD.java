@@ -43,6 +43,8 @@ public class ConexionBD {
      * @throws SQLException
      */
     public void cerrarConexion() throws SQLException {
+        //Ejecutamos un commit antes de cerrar la conexion
+        this.Conex.commit();
         this.Conex.close();
         System.out.println("Desconectado de la Base de Datos");
     }

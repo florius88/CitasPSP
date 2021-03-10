@@ -1,5 +1,6 @@
 package ventanas.amigos;
 
+import conexion.ConexionServidor;
 import mensajes.entidades.Amigos;
 import mensajes.entidades.Usuario;
 import mensajes.MsjServAmigos;
@@ -36,6 +37,8 @@ public class PanelAmigos extends javax.swing.JPanel {
     public PanelAmigos(Principal principal) {
         initComponents();
 
+        lbl_no_amigos.setVisible(false);
+        
         this.principal = principal;
 
         //Cambiamos preferencias de la tabla
@@ -91,28 +94,29 @@ public class PanelAmigos extends javax.swing.JPanel {
      */
     private void verAmigo() {
         
-        MsjServUsuario mUsuario = new MsjServUsuario();
-        mUsuario.setAccion(Constantes.ACCION_DEVOLVER_USUARIO);
+        MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
+        mUsuarioEnvio.setAccion(Constantes.ACCION_DEVOLVER_USUARIO);
         Usuario usuario = new Usuario();
         
         Amigos amigo = listaAmigos.get(jt_tabla_amigos.getSelectedRow());
         
         usuario.setIdUsuario(amigo.getIdUsuario());
+        mUsuarioEnvio.setUsuario(usuario);
         
-        mUsuario.setUsuario(usuario);
+        //Envia la informacion al servidor
+        MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
 
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-        switch (mUsuario.getCodError()) {
+        switch (mUsuarioRecibido.getCodError()) {
             case Constantes.OK:
                 //Mostramos el panel del detalle del usuario
-                principal.mostrarPanelVerAmigo(mUsuario.getUsuario(),amigo.isConectado(),idUsuario);
+                principal.mostrarPanelVerAmigo(mUsuarioRecibido.getUsuario(),amigo.isConectado(),idUsuario);
                 break;
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Amigos", JOptionPane.ERROR_MESSAGE);
                 break;
         }
-
     }
 
     /**
@@ -165,20 +169,23 @@ public class PanelAmigos extends javax.swing.JPanel {
         
         idUsuario = usuario.getIdUsuario();
 
-        MsjServAmigos mAmigos = new MsjServAmigos();
-        mAmigos.setIdUsuario(usuario.getIdUsuario());
-        mAmigos.setAccion(Constantes.ACCION_LISTA_AMIGOS);
+        MsjServAmigos mAmigosEnvio = new MsjServAmigos();
+        mAmigosEnvio.setIdUsuario(usuario.getIdUsuario());
+        mAmigosEnvio.setAccion(Constantes.ACCION_LISTA_AMIGOS);
+
+        //Envia la informacion al servidor
+        MsjServAmigos mAmigosRecibido = (MsjServAmigos) ConexionServidor.envioObjetoServidor(mAmigosEnvio);
 
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
-        switch (mAmigos.getCodError()) {
+        switch (mAmigosRecibido.getCodError()) {
             case Constantes.OK:
                 //Ocultamos la imagen de no amigos
                 lbl_no_amigos.setVisible(false);
                 
                 //TODO REVISAR, el servidor al dar el OK tiene que tener informacion, si no seria el otro error!!!!!!!!!!!
-                if (null != mAmigos.getListaAmigos() && !mAmigos.getListaAmigos().isEmpty()) {
+                if (null != mAmigosRecibido.getListaAmigos() && !mAmigosRecibido.getListaAmigos().isEmpty()) {
 
-                    listaAmigos = mAmigos.getListaAmigos();
+                    listaAmigos = mAmigosRecibido.getListaAmigos();
 
                     DefaultTableModel model = (DefaultTableModel) jt_tabla_amigos.getModel();
 
@@ -208,7 +215,7 @@ public class PanelAmigos extends javax.swing.JPanel {
                 break;
             case Constantes.ERROR_NO_AMIGOS:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mAmigos.getMensaje(), "Amigos", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, mAmigosRecibido.getMensaje(), "Amigos", JOptionPane.INFORMATION_MESSAGE);
                 //Ocultamos el panel
                 jp_contenedor.setVisible(false);
                 //Mostramos la imagen de no amigos

@@ -2,7 +2,6 @@ package mensajes.entidades;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
  *
@@ -10,13 +9,22 @@ import java.util.Date;
  */
 public class Mensaje implements Serializable{
     
+    private int idMensaje;
     private int idUsuarioReceptor;
     private int idUsuarioEmisor;
     private String nickEmisor;
     private String mensajeEmisor;
     private ArrayList<Adjuntos> listaAdjuntosEmisor = new ArrayList<>();
     private boolean leidoReceptor = false;
-    private Date fechaEnvioEmisor;
+    private String fechaEnvioEmisor;
+
+    public int getIdMensaje() {
+        return idMensaje;
+    }
+
+    public void setIdMensaje(int idMensaje) {
+        this.idMensaje = idMensaje;
+    }
 
     public int getIdUsuarioReceptor() {
         return idUsuarioReceptor;
@@ -66,11 +74,11 @@ public class Mensaje implements Serializable{
         this.leidoReceptor = leidoReceptor;
     }
 
-    public Date getFechaEnvioEmisor() {
+    public String getFechaEnvioEmisor() {
         return fechaEnvioEmisor;
     }
 
-    public void setFechaEnvioEmisor(Date fechaEnvioEmisor) {
+    public void setFechaEnvioEmisor(String fechaEnvioEmisor) {
         this.fechaEnvioEmisor = fechaEnvioEmisor;
     }
 }

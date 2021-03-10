@@ -1,5 +1,6 @@
 package ventanas.principal;
 
+import conexion.ConexionServidor;
 import ventanas.amigos.PanelAmigos;
 import ventanas.amigos.PanelVerAmigo;
 import ventanas.mensajes.PanelMensajes;
@@ -29,6 +30,7 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
 
     private Usuario usuario = null;
 
+    //Paneles
     private PanelBuscar pBuscar = null;
     private PanelAmigos pAmigos = null;
     private PanelVerAmigo pVerAmigo = null;
@@ -64,12 +66,15 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                         JOptionPane.QUESTION_MESSAGE);
                 if (option == JOptionPane.YES_OPTION) {
                     //Eliminamos la conexion
-                    MsjServConexion mConexion = new MsjServConexion();
-                    mConexion.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
-                    mConexion.setIdUsuario(usuario.getIdUsuario());
+                    MsjServConexion mConexionEnvio = new MsjServConexion();
+                    mConexionEnvio.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
+                    mConexionEnvio.setIdUsuario(usuario.getIdUsuario());
 
-                    //TODO ERROR!!!!!!!!!!!!!!! - No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
-                    System.out.println("El servidor devuelve: " + mConexion.getCodError() + " Mensaje: " + mConexion.getMensaje());
+                    //Envia la informacion al servidor
+                    MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
+
+                    //No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
+                    System.out.println("El servidor devuelve: " + mUsuarioRecibido.getCodError() + " Mensaje: " + mUsuarioRecibido.getMensaje());
 
                     System.exit(0);
                 }
@@ -294,22 +299,10 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         //Ocultamos el panel contenedor
         jp_panel_contenedor.setVisible(false);
 
-        //Inicializamos los paneles, los ocultamos y preparamos los eventos 
-        //para las opciones de menu de cada uno de ellos
-        pBuscar = new PanelBuscar(this);
-        pBuscar.setVisible(false);
+        //Preparamos los eventos para las opciones de menu de cada uno de ellos
         mi_buscar.addActionListener(this);
-
-        pAmigos = new PanelAmigos(this);
-        pAmigos.setVisible(false);
         mi_amigos.addActionListener(this);
-
-        pMensajes = new PanelMensajes(this);
-        pMensajes.setVisible(false);
         mi_mensajes.addActionListener(this);
-
-        pPerfil = new PanelPerfil(usuario);
-        pPerfil.setVisible(false);
         mi_perfil.addActionListener(this);
     }
 
@@ -323,19 +316,22 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
         this.usuario = usuario;
 
         //Insertamos la conexion para mostrar que esta en linea
-        MsjServConexion mConexion = new MsjServConexion();
-        mConexion.setAccion(Constantes.ACCION_CREAR_CONEXION);
-        mConexion.setIdUsuario(usuario.getIdUsuario());
+        MsjServConexion mConexionEnvio = new MsjServConexion();
+        mConexionEnvio.setAccion(Constantes.ACCION_CREAR_CONEXION);
+        mConexionEnvio.setIdUsuario(usuario.getIdUsuario());
+
+        //Envia la informacion al servidor
+        MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
 
         //Segun el codigo devuelto por el servidor carga informacion o muestra un mensaje
-        switch (mConexion.getCodError()) {
+        switch (mUsuarioRecibido.getCodError()) {
             case Constantes.OK:
-                //TODO ERROR!!!!!!!!!!!!!!! - No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
-                System.out.println("El servidor devuelve: " + mConexion.getCodError() + " Mensaje: " + mConexion.getMensaje());
+                //No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
+                System.out.println("El servidor devuelve: " + mUsuarioRecibido.getCodError() + " Mensaje: " + mUsuarioRecibido.getMensaje());
 
-                lbl_total_user.setText(String.valueOf(mConexion.getTotalUsuarios()));
-                lbl_amigos_conect.setText(String.valueOf(mConexion.getTotalAmigosConectados()));
-                lbl_total_amigos.setText(String.valueOf(mConexion.getTotalAmigos()));
+                lbl_total_user.setText(String.valueOf(mUsuarioRecibido.getTotalUsuarios()));
+                lbl_amigos_conect.setText(String.valueOf(mUsuarioRecibido.getTotalAmigosConectados()));
+                lbl_total_amigos.setText(String.valueOf(mUsuarioRecibido.getTotalAmigos()));
                 break;
         }
     }
@@ -351,12 +347,15 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 JOptionPane.QUESTION_MESSAGE);
         if (option == JOptionPane.YES_OPTION) {
             //Eliminamos la conexion
-            MsjServConexion mConexion = new MsjServConexion();
-            mConexion.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
-            mConexion.setIdUsuario(usuario.getIdUsuario());
+            MsjServConexion mConexionEnvio = new MsjServConexion();
+            mConexionEnvio.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
+            mConexionEnvio.setIdUsuario(usuario.getIdUsuario());
 
-            //TODO ERROR!!!!!!!!!!!!!!! - No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
-            System.out.println("El servidor devuelve: " + mConexion.getCodError() + " Mensaje: " + mConexion.getMensaje());
+            //Envia la informacion al servidor
+            MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
+
+            //No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
+            System.out.println("El servidor devuelve: " + mUsuarioRecibido.getCodError() + " Mensaje: " + mUsuarioRecibido.getMensaje());
 
             //Ocultamos la ventana actual
             this.setVisible(false);
@@ -398,12 +397,15 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
                 JOptionPane.QUESTION_MESSAGE);
         if (option == JOptionPane.YES_OPTION) {
             //Eliminamos la conexion
-            MsjServConexion mConexion = new MsjServConexion();
-            mConexion.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
-            mConexion.setIdUsuario(usuario.getIdUsuario());
+            MsjServConexion mConexionEnvio = new MsjServConexion();
+            mConexionEnvio.setAccion(Constantes.ACCION_ELIMINAR_CONEXION);
+            mConexionEnvio.setIdUsuario(usuario.getIdUsuario());
 
-            //TODO ERROR!!!!!!!!!!!!!!! - No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
-            System.out.println("El servidor devuelve: " + mConexion.getCodError() + " Mensaje: " + mConexion.getMensaje());
+            //Envia la informacion al servidor
+            MsjServConexion mUsuarioRecibido = (MsjServConexion) ConexionServidor.envioObjetoServidor(mConexionEnvio);
+
+            //No hace falta informar al usuario ya que es algo interno, pero si controlar que no se hizo para repetirlo
+            System.out.println("El servidor devuelve: " + mUsuarioRecibido.getCodError() + " Mensaje: " + mUsuarioRecibido.getMensaje());
 
             System.exit(0);
         }
@@ -438,7 +440,9 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      * Mostramos el panel para la busqueda
      */
     public void mostrarPanelBusqueda() {
-
+        //Limpiamos de componentes el panel contenedor
+        jp_panel_contenedor.removeAll();
+        pBuscar = new PanelBuscar(this);
         //Carga la informacion de nuevo para comprobar si hay nuevos amigos que buscar
         pBuscar.cargarDatos(usuario);
         jp_panel_contenedor.add(pBuscar);
@@ -450,7 +454,9 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      * Mostramos el panel para los amigos
      */
     public void mostrarPanelAmigos() {
-
+        //Limpiamos de componentes el panel contenedor
+        jp_panel_contenedor.removeAll();
+        pAmigos = new PanelAmigos(this);
         //Carga la informacion de nuevo para comprobar si hay nuevos amigos
         pAmigos.cargarDatos(usuario);
         jp_panel_contenedor.add(pAmigos);
@@ -462,7 +468,9 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      * Mostramos el panel para los mensajes
      */
     public void mostrarPanelMensajes() {
-
+        //Limpiamos de componentes el panel contenedor
+        jp_panel_contenedor.removeAll();
+        pMensajes = new PanelMensajes(this);
         //Carga la informacion de nuevo para comprobar si hay nuevos mensajes
         pMensajes.cargarDatos(usuario);
         jp_panel_contenedor.add(pMensajes);
@@ -474,7 +482,9 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      * Mostramos el panel para el perfil
      */
     private void mostrarPanelPerfil() {
-
+        //Limpiamos de componentes el panel contenedor
+        jp_panel_contenedor.removeAll();
+        pPerfil = new PanelPerfil(usuario);
         jp_panel_contenedor.add(pPerfil);
         ocultarMostrarPanel(4);
         jp_panel_contenedor.validate();
@@ -486,7 +496,8 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      * @param msj
      */
     public void mostrarPanelVerMensaje(Mensaje msj) {
-
+        //Limpiamos de componentes el panel contenedor
+        jp_panel_contenedor.removeAll();
         pVerMensaje = new PanelVerMensaje(msj, this);
         jp_panel_contenedor.add(pVerMensaje);
         ocultarMostrarPanel(5);
@@ -501,7 +512,8 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      * @param tipo
      */
     public void mostrarPanelEnviarMensaje(Mensaje msj, int tipo) {
-
+        //Limpiamos de componentes el panel contenedor
+        jp_panel_contenedor.removeAll();
         pEnviarMensaje = new PanelEnviarMensaje(msj, this, tipo);
         jp_panel_contenedor.add(pEnviarMensaje);
         ocultarMostrarPanel(6);
@@ -517,7 +529,8 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      * @param idUsuario
      */
     public void mostrarPanelEnviarMensaje(int tipo, Usuario usuario, boolean conectado, int idUsuario) {
-
+        //Limpiamos de componentes el panel contenedor
+        jp_panel_contenedor.removeAll();
         pEnviarMensaje = new PanelEnviarMensaje(this, tipo, usuario, conectado, idUsuario);
         jp_panel_contenedor.add(pEnviarMensaje);
         ocultarMostrarPanel(6);
@@ -532,7 +545,8 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
      * @param idUsuario
      */
     public void mostrarPanelVerAmigo(Usuario usuario, boolean conectado, int idUsuario) {
-
+        //Limpiamos de componentes el panel contenedor
+        jp_panel_contenedor.removeAll();
         pVerAmigo = new PanelVerAmigo(usuario, conectado, idUsuario, this);
         jp_panel_contenedor.add(pVerAmigo);
         ocultarMostrarPanel(7);
@@ -550,123 +564,70 @@ public class Principal extends javax.swing.JFrame implements ActionListener {
 
             case 1:
                 pBuscar.setVisible(true);
-                pAmigos.setVisible(false);
-                pMensajes.setVisible(false);
-                pPerfil.setVisible(false);
-                if (null != pVerMensaje) {
-                    pVerMensaje.setVisible(false);
-                    pVerMensaje = null;
-                }
-                if (null != pEnviarMensaje) {
-                    pEnviarMensaje.setVisible(false);
-                    pEnviarMensaje = null;
-                }
-                if (null != pVerAmigo) {
-                    pVerAmigo.setVisible(false);
-                    pVerAmigo = null;
-                }
+                pAmigos = null;
+                pMensajes = null;
+                pPerfil = null;
+                pVerMensaje = null;
+                pEnviarMensaje = null;
+                pVerAmigo = null;
                 break;
             case 2:
-                pBuscar.setVisible(false);
+                pBuscar = null;
                 pAmigos.setVisible(true);
-                pMensajes.setVisible(false);
-                pPerfil.setVisible(false);
-                if (null != pVerMensaje) {
-                    pVerMensaje.setVisible(false);
-                    pVerMensaje = null;
-                }
-                if (null != pEnviarMensaje) {
-                    pEnviarMensaje.setVisible(false);
-                    pEnviarMensaje = null;
-                }
-                if (null != pVerAmigo) {
-                    pVerAmigo.setVisible(false);
-                    pVerAmigo = null;
-                }
+                pMensajes = null;
+                pPerfil = null;
+                pVerMensaje = null;
+                pEnviarMensaje = null;
+                pVerAmigo = null;
                 break;
             case 3:
-                pBuscar.setVisible(false);
-                pAmigos.setVisible(false);
+                pBuscar = null;
+                pAmigos = null;
                 pMensajes.setVisible(true);
-                pPerfil.setVisible(false);
-                if (null != pVerMensaje) {
-                    pVerMensaje.setVisible(false);
-                    pVerMensaje = null;
-                }
-                if (null != pEnviarMensaje) {
-                    pEnviarMensaje.setVisible(false);
-                    pEnviarMensaje = null;
-                }
-                if (null != pVerAmigo) {
-                    pVerAmigo.setVisible(false);
-                    pVerAmigo = null;
-                }
+                pPerfil = null;
+                pVerMensaje = null;
+                pEnviarMensaje = null;
+                pVerAmigo = null;
                 break;
             case 4:
-                pBuscar.setVisible(false);
-                pAmigos.setVisible(false);
-                pMensajes.setVisible(false);
+                pBuscar = null;
+                pAmigos = null;
+                pMensajes = null;
                 pPerfil.setVisible(true);
-                if (null != pVerMensaje) {
-                    pVerMensaje.setVisible(false);
-                    pVerMensaje = null;
-                }
-                if (null != pEnviarMensaje) {
-                    pEnviarMensaje.setVisible(false);
-                    pEnviarMensaje = null;
-                }
-                if (null != pVerAmigo) {
-                    pVerAmigo.setVisible(false);
-                    pVerAmigo = null;
-                }
+                pVerMensaje = null;
+                pEnviarMensaje = null;
+                pVerAmigo = null;
                 break;
             case 5:
-                pBuscar.setVisible(false);
-                pAmigos.setVisible(false);
-                pMensajes.setVisible(false);
-                pPerfil.setVisible(false);
+                pBuscar = null;
+                pAmigos = null;
+                pMensajes = null;
+                pPerfil = null;
                 pVerMensaje.setVisible(true);
-                if (null != pEnviarMensaje) {
-                    pEnviarMensaje.setVisible(false);
-                    pEnviarMensaje = null;
-                }
-                if (null != pVerAmigo) {
-                    pVerAmigo.setVisible(false);
-                    pVerAmigo = null;
-                }
+                pEnviarMensaje = null;
+                pVerAmigo = null;
                 break;
             case 6:
-                pBuscar.setVisible(false);
-                pAmigos.setVisible(false);
-                pMensajes.setVisible(false);
-                pPerfil.setVisible(false);
-                if (null != pVerMensaje) {
-                    pVerMensaje.setVisible(false);
-                    pVerMensaje = null;
-                }
+                pBuscar = null;
+                pAmigos = null;
+                pMensajes = null;
+                pPerfil = null;
+                pVerMensaje = null;
                 pEnviarMensaje.setVisible(true);
-                if (null != pVerAmigo) {
-                    pVerAmigo.setVisible(false);
-                    pVerAmigo = null;
-                }
+                pVerAmigo = null;
                 break;
             case 7:
-                pBuscar.setVisible(false);
-                pAmigos.setVisible(false);
-                pMensajes.setVisible(false);
-                pPerfil.setVisible(false);
-                if (null != pVerMensaje) {
-                    pVerMensaje.setVisible(false);
-                    pVerMensaje = null;
-                }
-                if (null != pEnviarMensaje) {
-                    pEnviarMensaje.setVisible(false);
-                    pEnviarMensaje = null;
-                }
+                pBuscar = null;
+                pAmigos = null;
+                pMensajes = null;
+                pPerfil = null;
+                pVerMensaje = null;
+                pEnviarMensaje = null;
                 pVerAmigo.setVisible(true);
                 break;
         }
 
+        //Mostramos el panel contenedor
         jp_panel_contenedor.setVisible(true);
     }
 

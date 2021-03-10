@@ -1,7 +1,7 @@
 package mensajes.entidades;
 
-import java.awt.Image;
 import java.io.Serializable;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -13,7 +13,7 @@ public class Amigos implements Serializable{
     private String nick;
     private boolean conectado = false;
     private boolean meGusta = false;
-    private Image foto;
+    private ImageIcon foto;
 
     public int getIdUsuario() {
         return idUsuario;
@@ -47,11 +47,11 @@ public class Amigos implements Serializable{
         this.meGusta = meGusta;
     }
 
-    public Image getFoto() {
+    public ImageIcon getFoto() {
         return foto;
     }
 
-    public void setFoto(Image foto) {
+    public void setFoto(ImageIcon foto) {
         this.foto = foto;
     }
 }

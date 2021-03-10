@@ -22,13 +22,13 @@ public class Usuario implements Serializable{
     
     //Preferencias
     private String nick;
-    private int relacion;
-    private int deporte;
-    private int arte;
-    private int politica;
-    private int hijos;
-    private int sexo;
-    private int interes;
+    private int relacion = 1;
+    private int deporte = 50;
+    private int arte = 50;
+    private int politica = 50;
+    private int hijos = 1;
+    private int sexo = 1;
+    private int interes = 1;
     private String fechaAcceso;
     private ImageIcon foto; 
 

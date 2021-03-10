@@ -20,6 +20,7 @@ public class Constantes {
     public static final int ACCION_DEVOLVER_USUARIO = 4;
     public static final int ACCION_CREAR_USUARIO = 5;
     public static final int ACCION_ACTUALIZAR_USUARIO = 6;
+    public static final int ACCION_GUARDAR_PERFIL = 7;
 
     //Accion mensaje
     public static final int ACCION_ENVIAR_MSJ = 1;

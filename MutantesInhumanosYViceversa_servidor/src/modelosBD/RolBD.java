@@ -11,7 +11,7 @@ import mensajes.entidades.Rol;
  */
 public class RolBD {
 
-     /**
+    /**
      * Obtiene todos los roles
      *
      * @return
@@ -38,13 +38,47 @@ public class RolBD {
                 //Incluye la relacion
                 listaRol.add(rolBD);
             }
-            
+
             //Cierra la conexion
             conexionBD.cerrarConexion();
-            
+
         } catch (SQLException ex) {
 
         }
         return listaRol;
+    }
+
+    /**
+     * Devuelve la descripcion del rol
+     *
+     * @param codeRol
+     * @return
+     */
+    public String getDescripcionRolByCodeRol(int codeRol) {
+
+        String descripcionRol = null;
+
+        try {
+
+            //Se inicializa la conexion
+            ConexionBD conexionBD = new ConexionBD();
+            //Se abre la conexion
+            java.sql.Statement sentencia_SQL = conexionBD.abrirConexion();
+
+            //Sentencia
+            String sentencia = "SELECT * FROM ROL WHERE CODE = " + codeRol;
+
+            java.sql.ResultSet conj_Registros = sentencia_SQL.executeQuery(sentencia);
+            while (conj_Registros.next()) {
+                descripcionRol = conj_Registros.getString("DESCRIPTION");
+            }
+            //Cierra la conexion
+            conexionBD.cerrarConexion();
+
+        } catch (SQLException sq) {
+            descripcionRol = null;
+        }
+
+        return descripcionRol;
     }
 }

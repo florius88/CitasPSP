@@ -1,5 +1,6 @@
 package ventanas.perfil;
 
+import conexion.ConexionServidor;
 import mensajes.entidades.Hijos;
 import mensajes.entidades.Interes;
 import mensajes.entidades.Relacion;
@@ -247,29 +248,32 @@ public class PanelPerfil extends javax.swing.JPanel {
             //Se ecala de manera suave
             Image newimg = image.getScaledInstance(420, 360, java.awt.Image.SCALE_SMOOTH);
 
+            //Almacenamos la imagen en el usuario para almacenarla con una escala grande
+            usuario.setFoto(new ImageIcon(newimg));
+            
             //Se escala de manera suave para mostrarla
             Image imgLbl = newimg.getScaledInstance(130, 130, java.awt.Image.SCALE_SMOOTH);
             icon = new ImageIcon(imgLbl);
             //Pasamos la imgane al label
             this.lbl_foto.setIcon(icon);
-            
-            //Almacenamos la imagen en el usuario para almacenarla con una escala grande
-            usuario.setFoto(icon);
         }
     }//GEN-LAST:event_btn_selec_fotoActionPerformed
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
         //Obtenemos la informacion de la ventana
-        MsjServUsuario mUsuario = new MsjServUsuario();
-        mUsuario.setAccion(Constantes.ACCION_GUARDAR_PREFERENCIAS);
+        MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
+        mUsuarioEnvio.setAccion(Constantes.ACCION_GUARDAR_PERFIL);
         //Obtenemos la informacion de la ventana
         informacionVentana();
-        mUsuario.setUsuario(usuario);
+        mUsuarioEnvio.setUsuario(usuario);
+
+        //Envia la informacion al servidor
+        MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
 
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-        switch (mUsuario.getCodError()) {
+        switch (mUsuarioRecibido.getCodError()) {
             case Constantes.OK:
-                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Perfil", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Perfil", JOptionPane.INFORMATION_MESSAGE);
                 break;
             case Constantes.ERROR_NO_NICK:
             case Constantes.ERROR_FORMATO_EMAIL:
@@ -277,7 +281,7 @@ public class PanelPerfil extends javax.swing.JPanel {
             case Constantes.ERROR_NO_FOTO:
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Perfil", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Perfil", JOptionPane.ERROR_MESSAGE);
                 break;
         }
     }//GEN-LAST:event_btn_guardarActionPerformed
@@ -300,25 +304,28 @@ public class PanelPerfil extends javax.swing.JPanel {
         cb_interes.setModel(modelInteres);
 
         //cb_relacion.setModel(mdljComboBox);
-        MsjServCargaVentana mServCargaVentana = new MsjServCargaVentana();
+        MsjServCargaVentana mServCargaVentanaEnvio = new MsjServCargaVentana();
+        
+        //Envia la informacion al servidor
+        MsjServCargaVentana mServCargaVentanaRecibido = (MsjServCargaVentana) ConexionServidor.envioObjetoServidor(mServCargaVentanaEnvio);
 
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-        switch (mServCargaVentana.getCodError()) {
+        switch (mServCargaVentanaRecibido.getCodError()) {
             case Constantes.OK:
 
-                for (Relacion relacion : mServCargaVentana.getListaRelacion()) {
+                for (Relacion relacion : mServCargaVentanaRecibido.getListaRelacion()) {
                     //Relacion
                     modelRelacion.addElement(relacion);
                 }
-                for (Hijos hijos : mServCargaVentana.getListaHijos()) {
+                for (Hijos hijos : mServCargaVentanaRecibido.getListaHijos()) {
                     //Hijos
                     modelHijos.addElement(hijos);
                 }
-                for (Sexo sexo : mServCargaVentana.getListaSexo()) {
+                for (Sexo sexo : mServCargaVentanaRecibido.getListaSexo()) {
                     //Sexo
                     modelSexo.addElement(sexo);
                 }
-                for (Interes interes : mServCargaVentana.getListaInteres()) {
+                for (Interes interes : mServCargaVentanaRecibido.getListaInteres()) {
                     //Interes
                     modelInteres.addElement(interes);
                 }
@@ -326,7 +333,7 @@ public class PanelPerfil extends javax.swing.JPanel {
                 break;
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mServCargaVentana.getMensaje(), "Preferencias", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, mServCargaVentanaRecibido.getMensaje(), "Preferencias", JOptionPane.ERROR_MESSAGE);
                 break;
         }
     }

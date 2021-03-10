@@ -195,6 +195,8 @@ public class Login extends javax.swing.JFrame {
 
                 //Inicializamos la ventana de login y la mostramos
                 Administrador superAdministrador = new Administrador(user);
+                //Cargamos la informacion
+                superAdministrador.cargarDatos();
                 superAdministrador.setLocationRelativeTo(null);
                 superAdministrador.setVisible(true);
 
@@ -205,6 +207,8 @@ public class Login extends javax.swing.JFrame {
 
                 //Inicializamos la ventana de login y la mostramos
                 Administrador administrador = new Administrador(user);
+                //Cargamos la informacion
+                administrador.cargarDatos();
                 administrador.setLocationRelativeTo(null);
                 administrador.setVisible(true);
                 break;

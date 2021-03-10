@@ -1,5 +1,6 @@
 package ventanas.registro;
 
+import conexion.ConexionServidor;
 import mensajes.entidades.Usuario;
 import mensajes.MsjServUsuario;
 import java.awt.Image;
@@ -135,14 +136,17 @@ public class Registro extends javax.swing.JFrame {
 
     private void btn_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_guardarActionPerformed
 
-        MsjServUsuario mUsuario = new MsjServUsuario();
-        mUsuario.setUsuario(informacionVentana());
-        mUsuario.setAccion(Constantes.ACCION_REGISTRO_USUARIO);
+        MsjServUsuario mUsuarioEnvio = new MsjServUsuario();
+        mUsuarioEnvio.setUsuario(informacionVentana());
+        mUsuarioEnvio.setAccion(Constantes.ACCION_REGISTRO_USUARIO);
+
+        //Envia la informacion al servidor
+        MsjServUsuario mUsuarioRecibido = (MsjServUsuario) ConexionServidor.envioObjetoServidor(mUsuarioEnvio);
 
         //Segun el codigo devuelto por el servidor redirige o muestra un mensaje
-        switch (mUsuario.getCodError()) {
+        switch (mUsuarioRecibido.getCodError()) {
             case Constantes.OK:
-                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Registro", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Registro", JOptionPane.INFORMATION_MESSAGE);
 
                 //Ocultamos la ventana actual
                 this.setVisible(false);
@@ -158,7 +162,7 @@ public class Registro extends javax.swing.JFrame {
             case Constantes.ERROR_NO_NICK:
             case Constantes.ERROR_BD:
                 //Mostramos el mensaje devuelto por el servidor
-                JOptionPane.showMessageDialog(this, mUsuario.getMensaje(), "Registro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, mUsuarioRecibido.getMensaje(), "Registro", JOptionPane.ERROR_MESSAGE);
                 break;
         }
     }//GEN-LAST:event_btn_guardarActionPerformed
@@ -188,6 +192,9 @@ public class Registro extends javax.swing.JFrame {
         if (0 < confirmPwd.length) {
             usuario.setConfirmarPwd(String.valueOf(confirmPwd));
         }
+
+        //Como se da de alta por la aplicacion, su rol es de usuario
+        usuario.setRol(3);
 
         return usuario;
     }

@@ -3,6 +3,8 @@ package servicios;
 import javax.swing.ImageIcon;
 import mensajes.MsjServUsuario;
 import mensajes.entidades.Usuario;
+import modelosBD.ConexBD;
+import modelosBD.RolBD;
 import modelosBD.UsuarioBD;
 import utilidades.Constantes;
 import utilidades.Utilidades;
@@ -15,6 +17,8 @@ import utilidades.Utilidades;
 public class GestionUsuarios {
 
     private UsuarioBD servUsuario = null;
+    private RolBD servRol = null;
+    private ConexBD servConexion = null;
 
     /**
      * Constructor
@@ -22,6 +26,8 @@ public class GestionUsuarios {
     public GestionUsuarios() {
         //Se inicializan las clase para invocar a la BD
         servUsuario = new UsuarioBD();
+        servRol = new RolBD();
+        servConexion = new ConexBD();
     }
 
     /**
@@ -46,6 +52,15 @@ public class GestionUsuarios {
             Usuario usuarioBD = servUsuario.getUsuarioByEmailPwd(usuarioMensaje.getEmail(), usuarioMensaje.getPwd());
 
             if (null != usuarioBD) {
+
+                //Si el usuario ya esta conectado, que no deje volver a entrar con el mismo
+                if (servConexion.getConexionByIdUsuario(usuarioBD.getIdUsuario())) {
+                    //Se rellena el mensaje con el codigo y el error
+                    mUsuario.setCodError(Constantes.ERROR_ENTRAR);
+                    mUsuario.setMensaje("El usuario ya está registrado en la aplicación. Si no puede entrar contacte con el administrador.");
+                } else {
+                    //Obtiene la descripcion del Rol
+                    usuarioBD.setDescripcionRol(servRol.getDescripcionRolByCodeRol(usuarioBD.getRol()));
 
                 switch (usuarioBD.getRol()) {
                     case 1:
@@ -134,6 +149,7 @@ public class GestionUsuarios {
 
                         break;
                 }
+                }
             } else {
                 //Se rellena el mensaje con el codigo y el error
                 mUsuario.setCodError(Constantes.ERROR_USUARIO_NO_REGISTRADO);
@@ -192,40 +208,40 @@ public class GestionUsuarios {
      * @param mUsuario
      * @return
      */
-    /*public MsjServUsuario guardarRegistro(MsjServUsuario mUsuario) {
+    public MsjServUsuario guardarRegistro(MsjServUsuario mUsuario) {
 
         Usuario usuario = mUsuario.getUsuario();
 
         mUsuario = validarInformacionRegistro(usuario);
 
         if (Constantes.OK == mUsuario.getCodError()) {
-            //Cambiamos el tipo de objeto
-            UsuarioBD usuarioBD = UtilidadesServidor.parsearUsuarioToUsuarioBD(usuario);
-
-            //TODO Insertamos en la BD el registro, comprobando que no exista el usuario
-            usuarioBD = servUsuario.insertarUsuario(usuarioBD);
+            //Comprobando que no exista el usuario
+            Usuario usuarioBD = servUsuario.getUsuarioByEmailPwd(usuario.getEmail(), usuario.getPwd());
 
             if (null == usuarioBD) {
+                //Insertamos en la BD el registro, 
+                if (servUsuario.insertarUsuario(usuario)) {
+                    mUsuario.setCodError(Constantes.OK);
+                    mUsuario.setMensaje("Se ha registrado correctamente.");
+                } else {
                 mUsuario.setCodError(Constantes.ERROR_BD);
                 mUsuario.setMensaje("Se ha producido un error al guardar la información.");
-
+                }
             } else {
-                //Pasamos el usuario para enviarlo
-                usuario = UtilidadesServidor.parsearUsuarioBDToUsuario(usuarioBD);
-                mUsuario.setUsuario(usuario);
-                mUsuario.setCodError(Constantes.OK);
-                mUsuario.setMensaje("Se ha registrado correctamente.");
+                mUsuario.setCodError(Constantes.ERROR_BD);
+                mUsuario.setMensaje("El usuario ya existe en la aplicación.");
             }
         }
 
         return mUsuario;
-    }*/
+    }
+
     /**
      * Valida el formato de la informacion antes de darla de alta en la BD
      *
      * @return
      */
-    /*private MsjServUsuario validarInformacionRegistro(Usuario usuario) {
+    private MsjServUsuario validarInformacionRegistro(Usuario usuario) {
 
         MsjServUsuario mUsuario = new MsjServUsuario();
         boolean correcto = true;
@@ -269,7 +285,8 @@ public class GestionUsuarios {
         }
 
         return mUsuario;
-    }*/
+    }
+
     /**
      * ---------------------------------------------------------------------------------------------------------------
      * PanelPerfil
@@ -281,7 +298,7 @@ public class GestionUsuarios {
      * @param mUsuario
      * @return
      */
-    public MsjServUsuario guardarPerfil(MsjServUsuario mUsuario) {
+    public MsjServUsuario guardarPreferencias(MsjServUsuario mUsuario) {
 
         Usuario usuario = mUsuario.getUsuario();
 
@@ -296,7 +313,7 @@ public class GestionUsuarios {
             if (null == usuarioBD.getNick() || usuarioBD.getNick().isEmpty()) {
                 if (servUsuario.insertarInformacionUsuario(usuario)) {
                     mUsuario.setCodError(Constantes.OK);
-                    mUsuario.setMensaje("Se han guardado los cambios del perfil correctamente.");
+                    mUsuario.setMensaje("Se han guardado los cambios de las preferencias correctamente.");
                 } else {
                     mUsuario.setCodError(Constantes.ERROR_BD);
                     mUsuario.setMensaje("Se ha producido un error al guardar la información.");
@@ -305,11 +322,42 @@ public class GestionUsuarios {
                 //Guardamos las preferencias en la BD, por si tienen cambios
                 if (servUsuario.actualizarInformacionUsuario(usuario)) {
                     mUsuario.setCodError(Constantes.OK);
+                    mUsuario.setMensaje("Se han guardado los cambios de las preferencias correctamente.");
+                } else {
+                    mUsuario.setCodError(Constantes.ERROR_BD);
+                    mUsuario.setMensaje("Se ha producido un error al guardar la información.");
+                }
+            }
+        }
+
+        return mUsuario;
+    }
+
+    /**
+     * Almacena la informacion del perfil
+     *
+     * @param mUsuario
+     * @return
+     */
+    public MsjServUsuario guardarPerfil(MsjServUsuario mUsuario) {
+
+        Usuario usuario = mUsuario.getUsuario();
+
+        mUsuario = validarInformacionPerfil(usuario);
+
+        if (Constantes.OK == mUsuario.getCodError()) {
+
+            if (servUsuario.actualizarUsuario(usuario)) {
+                if (servUsuario.actualizarInformacionUsuario(usuario)) {
+                    mUsuario.setCodError(Constantes.OK);
                     mUsuario.setMensaje("Se han guardado los cambios del perfil correctamente.");
                 } else {
                     mUsuario.setCodError(Constantes.ERROR_BD);
                     mUsuario.setMensaje("Se ha producido un error al guardar la información.");
                 }
+            } else {
+                mUsuario.setCodError(Constantes.ERROR_BD);
+                mUsuario.setMensaje("Se ha producido un error al guardar la información.");
             }
         }
 
@@ -374,29 +422,46 @@ public class GestionUsuarios {
      * @param mUsuario
      * @return
      */
-    /*public MsjServUsuario obtenerUsuario(MsjServUsuario mUsuario) {
+    public MsjServUsuario obtenerUsuario(MsjServUsuario mUsuario) {
 
         Usuario usuario = mUsuario.getUsuario();
 
         if (Constantes.OK == mUsuario.getCodError()) {
             //TODO Insertamos en la BD el registro, comprobando que no exista el usuario
-            UsuarioBD usuarioBD = servUsuario.getUsuarioById(usuario.getIdUsuario());
+            Usuario usuarioBD = servUsuario.getUsuarioById(usuario.getIdUsuario());
 
             if (null == usuarioBD) {
                 mUsuario.setCodError(Constantes.ERROR_BD);
                 mUsuario.setMensaje("Se ha producido un error al guardar la información.");
 
             } else {
-                //Pasamos el usuario para enviarlo
-                usuario = UtilidadesServidor.parsearUsuarioBDToUsuario(usuarioBD);
-                mUsuario.setUsuario(usuario);
+
+                //Obtiene la informacion del usuario
+                Usuario infUsuarioBD = servUsuario.getInformacionUsuarioById(usuario.getIdUsuario());
+
+                if (null != infUsuarioBD) {
+
+                    usuarioBD.setNick(infUsuarioBD.getNick());
+                    usuarioBD.setDeporte(infUsuarioBD.getDeporte());
+                    usuarioBD.setArte(infUsuarioBD.getArte());
+                    usuarioBD.setPolitica(infUsuarioBD.getPolitica());
+                    usuarioBD.setRelacion(infUsuarioBD.getRelacion());
+                    usuarioBD.setHijos(infUsuarioBD.getHijos());
+                    usuarioBD.setSexo(infUsuarioBD.getSexo());
+                    usuarioBD.setInteres(infUsuarioBD.getInteres());
+                    usuarioBD.setFoto(infUsuarioBD.getFoto());
+                    usuarioBD.setFechaAcceso(infUsuarioBD.getFechaAcceso());
+                }
+
+                mUsuario.setUsuario(usuarioBD);
                 mUsuario.setCodError(Constantes.OK);
                 mUsuario.setMensaje("Se ha registrado correctamente.");
             }
         }
 
         return mUsuario;
-    }*/
+    }
+
     /**
      * ---------------------------------------------------------------------------------------------------------------
      * Administracion
@@ -416,6 +481,10 @@ public class GestionUsuarios {
 
         if (Constantes.OK == mUsuario.getCodError()) {
 
+            //Comprobando que no exista el usuario
+            Usuario usuarioBD = servUsuario.getUsuarioByEmailPwd(usuario.getEmail(), usuario.getPwd());
+
+            if (null == usuarioBD) {
             //Guardamos el usuario en la BD
             if (servUsuario.insertarUsuario(usuario)) {
                 mUsuario.setCodError(Constantes.OK);
@@ -423,6 +492,10 @@ public class GestionUsuarios {
             } else {
                 mUsuario.setCodError(Constantes.ERROR_BD);
                 mUsuario.setMensaje("Se ha producido un error al crear el usuario.");
+            }
+            } else {
+                mUsuario.setCodError(Constantes.ERROR_BD);
+                mUsuario.setMensaje("Ya exite un usuario con el mismo email.");
             }
         }
 
@@ -487,6 +560,23 @@ public class GestionUsuarios {
                         break;
                     case 3:
                         //Usuario
+
+                        //Obtiene la informacion del usuario
+                        Usuario infUsuarioBD = servUsuario.getInformacionUsuarioById(usuarioBD.getIdUsuario());
+
+                        if (null != infUsuarioBD) {
+
+                            usuarioBD.setNick(infUsuarioBD.getNick());
+                            usuarioBD.setDeporte(infUsuarioBD.getDeporte());
+                            usuarioBD.setArte(infUsuarioBD.getArte());
+                            usuarioBD.setPolitica(infUsuarioBD.getPolitica());
+                            usuarioBD.setRelacion(infUsuarioBD.getRelacion());
+                            usuarioBD.setHijos(infUsuarioBD.getHijos());
+                            usuarioBD.setSexo(infUsuarioBD.getSexo());
+                            usuarioBD.setInteres(infUsuarioBD.getInteres());
+                            usuarioBD.setFoto(infUsuarioBD.getFoto());
+                            usuarioBD.setFechaAcceso(infUsuarioBD.getFechaAcceso());
+                        }
 
                         //No cambia de Rol - Se comprueba que tenga informacion del usuario
                         if (usuarioActualizar.getRol() == usuarioBD.getRol() && null != usuarioBD.getNick() && !usuarioBD.getNick().isEmpty()) {

@@ -95,10 +95,8 @@ public class PanelVerMensaje extends javax.swing.JPanel {
 
         Adjuntos adj = msj.getListaAdjuntosEmisor().get(jt_tabla_adjuntos.getSelectedRow());
 
-        ImageIcon icon = new ImageIcon(adj.getAdjunto());
-
         //Muestra el dialogo
-        DialogAdjunto dialog = new DialogAdjunto(principal, true, icon);
+        DialogAdjunto dialog = new DialogAdjunto(principal, true, adj.getAdjunto());
         dialog.setTitle(txtAdj);
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
@@ -153,7 +151,7 @@ public class PanelVerMensaje extends javax.swing.JPanel {
         this.msj = msj;
 
         String nick = msj.getNickEmisor();
-        String fecha = new SimpleDateFormat("dd-MM-yyyy HH:mm").format(msj.getFechaEnvioEmisor());
+        String fecha = msj.getFechaEnvioEmisor();
         String mensaje = msj.getMensajeEmisor();
 
         lbl_txt_nick.setText(nick);
